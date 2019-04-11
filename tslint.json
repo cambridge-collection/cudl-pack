@@ -1,0 +1,10 @@
+{
+  "extends": "tslint:recommended",
+  "rules": {
+    "quotemark": [true, "single", "avoid-template", "avoid-escape"],
+    "object-literal-sort-keys": false,
+    "whitespace": [true, {
+      "check-branch": false
+    }]
+  }
+}

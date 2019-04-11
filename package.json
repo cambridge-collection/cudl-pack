@@ -1,0 +1,33 @@
+{
+  "name": "cudl-pack",
+  "version": "0.0.0",
+  "description": "Package metadata for a CUDL instance",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc --build tsconfig.build.json",
+    "test": "jest"
+  },
+  "author": "Hal Blackburn <hwtb2@cam.ac.uk>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^24.0.11",
+    "@types/memory-fs": "^0.3.2",
+    "@types/node": "^11.13.4",
+    "@types/webpack": "^4.4.27",
+    "@types/xml2js": "^0.4.4",
+    "jest": "^24",
+    "json-loader": "^0.5.7",
+    "memory-fs": "^0.4.1",
+    "ts-jest": "^24.0.2",
+    "tslint": "^5.15.0",
+    "typescript": "^3.4.3",
+    "webpack": "^4.29.6",
+    "xml-loader": "^1.2.1"
+  },
+  "peerDependencies": {
+    "webpack": "^4.0.0"
+  },
+  "dependencies": {
+    "xml2js": "^0.4.19"
+  }
+}
