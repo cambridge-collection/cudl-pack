@@ -1,11 +1,13 @@
-// tslint:disable no-eval
-import compiler from './compiler';
+import * as fs from 'fs';
+import * as path from 'path';
+import {promisify} from 'util';
+import {parseSiteXml} from '../src/site';
 
-test('Hello world loader test', async () => {
-    const stats = await compiler('./data/site.xml');
-    const output = stats.toJson().modules[0].source;
+test('loadSiteXml parses name', async () => {
+    const xml = await promisify(fs.readFile)(
+        path.resolve(__dirname, './data/site.xml'));
 
-    expect(eval(output)).toEqual({
+    expect((await parseSiteXml(xml))).toEqual({
         name: 'John Rylands',
         collections: [
             {href: 'collections/hebrew'},
