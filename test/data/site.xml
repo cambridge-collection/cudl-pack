@@ -3,18 +3,17 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://cudl.lib.cam.ac.uk/1.0/site site.xsd"
 
-      id="johnrylands">
+      name="John Rylands">
 
     <collections>
-        <collection id="hebrew"/>
-        <collection id="petrarch"/>
-        <collection id="landscapehistories"/>
-        <collection id="treasures"/>
-        <collection id="sassoon"/>
-        <collection id="lewisgibson"/>
-        <collection id="darwinhooker"/>
-        <collection id="japanese"/>
-        <collection id="tennyson"/>
+        <collection href="collections/hebrew"/>
+        <collection href="collections/petrarch"/>
+        <collection href="collections/landscapehistories"/>
+        <collection href="collections/treasures"/>
+        <collection href="collections/sassoon"/>
+        <collection href="collections/lewisgibson"/>
+        <collection href="collections/darwinhooker"/>
+        <collection href="collections/japanese"/>
+        <collection href="collections/tennyson"/>
     </collections>
-
 </site>

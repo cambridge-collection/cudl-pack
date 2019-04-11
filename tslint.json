@@ -5,6 +5,8 @@
     "object-literal-sort-keys": false,
     "whitespace": [true, {
       "check-branch": false
-    }]
+    }],
+    "interface-name": false,
+    "one-line": [true, "check-open-brace"]
   }
 }
