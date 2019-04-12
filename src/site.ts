@@ -1,10 +1,18 @@
+import Ajv from 'ajv';
 import {promisify} from 'util';
 import xml2js from 'xml2js';
 
 const parseXml: (xml: string | Buffer) => Promise<object> = promisify(new xml2js.Parser().parseString);
 
-export async function parseSiteXml(xml: string | Buffer): Promise<Site> {
-    return await parseXml(xml).then(loadSiteXml);
+export function parseSiteXml(xml: string | Buffer): Promise<Site> {
+    return parseXml(xml)
+    .then((siteXml) => {
+        if(!ajv.validate('parsedSiteXml', siteXml)) {
+            throw new Error(`Parsed site XML is invalid: ${ajv.errorsText()}`);
+        }
+        return siteXml;
+    })
+    .then(loadSiteXml);
 }
 
 /**
@@ -59,3 +67,57 @@ interface CollectionElement {
         href: string;
     };
 }
+
+const ajv = new Ajv();
+ajv.addSchema({
+    definitions: {
+        siteElement: {
+            type: 'object',
+            properties: {
+                $: {
+                    type: 'object',
+                    properties: {
+                        name: {type: 'string'},
+                    },
+                    required: ['name'],
+                },
+                collections: {
+                    type: 'array',
+                    items: {$ref: '#/definitions/collectionsElement'},
+                },
+            },
+            required: ['$', 'collections'],
+        },
+
+        collectionsElement: {
+            type: 'object',
+            properties: {
+                collection: {
+                    type: 'array',
+                    items: {$ref: '#/definitions/collectionElement'},
+                },
+            },
+            required: ['collection'],
+        },
+
+        collectionElement: {
+            type: 'object',
+            properties: {
+                $: {
+                    type: 'object',
+                    properties: {
+                        href: {type: 'string'},
+                    },
+                    required: ['href'],
+                },
+            },
+            required: ['$'],
+        },
+    },
+
+    type: 'object',
+    properties: {
+        site: {$ref: '#/definitions/siteElement'},
+    },
+    required: ['site'],
+}, 'parsedSiteXml');
