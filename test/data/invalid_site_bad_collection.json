@@ -1,0 +1,14 @@
+{
+  "name": "John Rylands",
+  "collections": [
+    {"href": "collections/hebrew"},
+    {"href": "collections/petrarch"},
+    {"href": "collections/landscapehistories"},
+    {"foo": "collections/treasures"},
+    {"href": "collections/sassoon"},
+    {"href": "collections/lewisgibson"},
+    {"href": "collections/darwinhooker"},
+    {"href": "collections/japanese"},
+    {"href": "collections/tennyson"}
+  ]
+}

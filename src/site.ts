@@ -15,6 +15,16 @@ export function parseSiteXml(xml: string | Buffer): Promise<Site> {
     .then(loadSiteXml);
 }
 
+export function parseSiteJson(json: string): Site {
+    const site = JSON.parse(json);
+
+    if(!ajv.validate('site', site)) {
+        throw new Error(`site JSON is invalid: ${ajv.errorsText()}`);
+    }
+
+    return site;
+}
+
 /**
  * Represents the entire content of a CUDL instance.
  */
@@ -68,28 +78,33 @@ interface CollectionElement {
     };
 }
 
+function requireAllProperties(objSchema: {type: 'object', properties: object, [propName: string]: any}) {
+    return {
+        ...objSchema,
+        required: Object.keys(objSchema.properties),
+    };
+}
+
 const ajv = new Ajv();
-ajv.addSchema({
+ajv.addSchema(requireAllProperties({
     definitions: {
-        siteElement: {
+        siteElement: requireAllProperties({
             type: 'object',
             properties: {
-                $: {
+                $: requireAllProperties({
                     type: 'object',
                     properties: {
                         name: {type: 'string'},
                     },
-                    required: ['name'],
-                },
+                }),
                 collections: {
                     type: 'array',
                     items: {$ref: '#/definitions/collectionsElement'},
                 },
             },
-            required: ['$', 'collections'],
-        },
+        }),
 
-        collectionsElement: {
+        collectionsElement: requireAllProperties({
             type: 'object',
             properties: {
                 collection: {
@@ -97,27 +112,39 @@ ajv.addSchema({
                     items: {$ref: '#/definitions/collectionElement'},
                 },
             },
-            required: ['collection'],
-        },
+        }),
 
-        collectionElement: {
+        collectionElement: requireAllProperties({
             type: 'object',
             properties: {
-                $: {
+                $: requireAllProperties({
                     type: 'object',
                     properties: {
                         href: {type: 'string'},
                     },
-                    required: ['href'],
-                },
+                }),
             },
-            required: ['$'],
-        },
+        }),
     },
 
     type: 'object',
     properties: {
         site: {$ref: '#/definitions/siteElement'},
     },
-    required: ['site'],
-}, 'parsedSiteXml');
+}), 'parsedSiteXml');
+
+ajv.addSchema(requireAllProperties({
+    type: 'object',
+    properties: {
+        name: {type: 'string'},
+        collections: {
+            type: 'array',
+            items: requireAllProperties({
+                type: 'object',
+                properties: {
+                    href: {type: 'string'},
+                },
+            }),
+        },
+    },
+}), 'site');
