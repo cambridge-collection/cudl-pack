@@ -2,7 +2,7 @@ import MemoryFileSystem from 'memory-fs';
 import path from 'path';
 import webpack from 'webpack';
 
-export default (fixture: string, options = {}): Promise<webpack.Stats> => {
+export default (fixture: string, rules: webpack.RuleSetRule[]): Promise<webpack.Stats> => {
     const compiler = webpack({
         context: __dirname,
         entry: `./${fixture}`,
@@ -11,14 +11,7 @@ export default (fixture: string, options = {}): Promise<webpack.Stats> => {
             filename: 'bundle.js',
         },
         module: {
-            rules: [{
-                test: /\.xml$/,
-                use: [
-                    { loader: 'json-loader' },
-                    { loader: path.resolve(__dirname, '../src/loaders/site-xml-loader.ts') },
-                    // { loader: 'xml-loader' },
-                ],
-            }],
+            rules,
         },
     });
 
