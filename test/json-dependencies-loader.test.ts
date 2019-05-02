@@ -84,5 +84,7 @@ test('referenced modules not containing JSON are reported', async () => {
     ];
 
     await expect(compiler('./data/references/json-pointing-to-non-json', rules)).rejects
-        .toMatch(/Unable to parse referenced module as JSON. module type: javascript\/auto, reference: '.\/file.txt', parse error: SyntaxError: /);
+        .toMatch(new RegExp(
+            'Unable to parse referenced module as JSON. module type: javascript/auto, reference: \'./file.txt\', ' +
+            'parse error: SyntaxError: '));
 });

@@ -3,4 +3,4 @@ export function bindPromiseToCallback<T>(
 
     promise.then(
         (value) => {callback(null, value);}, callback);
-};
+}
