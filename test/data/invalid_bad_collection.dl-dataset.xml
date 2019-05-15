@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<site xmlns="http://cudl.lib.cam.ac.uk/1.0/site"
+<dl-dataset xmlns="http://cudl.lib.cam.ac.uk/1.0/dl-dataset"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://cudl.lib.cam.ac.uk/1.0/site site.xsd"
-
-      name="John Rylands">
+      xsi:schemaLocation="http://cudl.lib.cam.ac.uk/1.0/dl-dataset dl-dataset.xsd"
+      name="Foo">
 
     <collections>
         <collection href="collections/hebrew"/>
         <collection href="collections/petrarch"/>
-        <collection href="collections/landscapehistories"/>
+        <collection blah="collections/landscapehistories"/>
         <collection href="collections/treasures"/>
         <collection href="collections/sassoon"/>
         <collection href="collections/lewisgibson"/>
@@ -16,4 +15,4 @@
         <collection href="collections/japanese"/>
         <collection href="collections/tennyson"/>
     </collections>
-</site>
+</dl-dataset>

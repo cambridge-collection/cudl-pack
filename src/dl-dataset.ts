@@ -4,66 +4,66 @@ import xml2js from 'xml2js';
 
 const parseXml: (xml: string | Buffer) => Promise<object> = promisify(new xml2js.Parser().parseString);
 
-export function parseSiteXml(xml: string | Buffer): Promise<Site> {
+export function parseDlDatasetXml(xml: string | Buffer): Promise<DlDataset> {
     return parseXml(xml)
-    .then((siteXml) => {
-        if(!ajv.validate('parsedSiteXml', siteXml)) {
-            throw new Error(`Parsed site XML is invalid: ${ajv.errorsText()}`);
+    .then((dlDatasetXml) => {
+        if(!ajv.validate('parsedDlDatasetXml', dlDatasetXml)) {
+            throw new Error(`Parsed dl-dataset XML is invalid: ${ajv.errorsText()}`);
         }
-        return siteXml;
+        return dlDatasetXml;
     })
-    .then(loadSiteXml);
+    .then(loadDlDatasetXml);
 }
 
-export function parseSiteJson(json: string): Site {
-    const site = JSON.parse(json);
+export function parseDlDatasetJson(json: string): DlDataset {
+    const dlDataset = JSON.parse(json);
 
-    if(!ajv.validate('site', site)) {
-        throw new Error(`site JSON is invalid: ${ajv.errorsText()}`);
+    if(!ajv.validate('dl-dataset', dlDataset)) {
+        throw new Error(`dl-dataset JSON is invalid: ${ajv.errorsText()}`);
     }
 
-    return site;
+    return dlDataset;
 }
 
 /**
  * Represents the entire content of a CUDL instance.
  */
-export interface Site {
+export interface DlDataset {
     name: string;
     collections: CollectionRef[];
 }
 
 /**
- * A reference to a collection contained by a site.
+ * A reference to a collection contained by a dl-dataset.
  */
 export interface CollectionRef {
-    href: string;
+    '@id': string;
 }
 
-function loadSiteXml(siteXml: SiteXml): Site {
+function loadDlDatasetXml(dlDatasetXml: DlDatasetXml): DlDataset {
 
     return {
-        name: siteXml.site.$.name,
-        collections: [...getCollections(siteXml.site)],
+        name: dlDatasetXml['dl-dataset'].$.name,
+        collections: [...getCollections(dlDatasetXml['dl-dataset'])],
     };
 }
 
-function* getCollections(site: SiteElement) {
-    for(const collectionsEls of site.collections) {
+function* getCollections(dlDataset: DlDatasetElement) {
+    for(const collectionsEls of dlDataset.collections) {
         for(const collection of collectionsEls.collection) {
             yield {
-                href: collection.$.href,
+                '@id': collection.$.href,
             };
         }
     }
 }
 
-// These types represent the result of parsing the site XML with xml2js.
-interface SiteXml {
-    site: SiteElement;
+// These types represent the result of parsing the dl-dataset XML with xml2js.
+interface DlDatasetXml {
+    'dl-dataset': DlDatasetElement;
 }
 
-interface SiteElement {
+interface DlDatasetElement {
     $: {name: string};
     collections: CollectionsElement[];
 }
@@ -88,7 +88,7 @@ function requireAllProperties(objSchema: {type: 'object', properties: object, [p
 const ajv = new Ajv();
 ajv.addSchema(requireAllProperties({
     definitions: {
-        siteElement: requireAllProperties({
+        dlDatasetElement: requireAllProperties({
             type: 'object',
             properties: {
                 $: requireAllProperties({
@@ -129,9 +129,9 @@ ajv.addSchema(requireAllProperties({
 
     type: 'object',
     properties: {
-        site: {$ref: '#/definitions/siteElement'},
+        'dl-dataset': {$ref: '#/definitions/dlDatasetElement'},
     },
-}), 'parsedSiteXml');
+}), 'parsedDlDatasetXml');
 
 ajv.addSchema(requireAllProperties({
     type: 'object',
@@ -142,9 +142,9 @@ ajv.addSchema(requireAllProperties({
             items: requireAllProperties({
                 type: 'object',
                 properties: {
-                    href: {type: 'string'},
+                    '@id': {type: 'string'},
                 },
             }),
         },
     },
-}), 'site');
+}), 'dl-dataset');

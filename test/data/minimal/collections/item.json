@@ -1,0 +1,30 @@
+{
+  "type": { "name": "item", "version":  0 },
+
+  "base": "tei/MS-A-1.xml",
+
+  "imageType": "iiif",
+
+  "metadata": [
+    {
+      "id": "#metadata/main",
+
+    }
+  ],
+
+  "pages": [
+    {
+      "id": "#first",
+      "label": "cover",
+      "image": { "type": "iiif", "id": "http://.../MS-A-1" }
+    }
+  ],
+
+  "structure": [
+    {
+      "start": "#pages/by-name/first",
+      "end": "#pages/by-name/last",
+      "metadata": "#metadata/by-name/main"
+    }
+  ]
+}

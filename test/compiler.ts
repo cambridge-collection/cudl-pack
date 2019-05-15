@@ -13,6 +13,16 @@ export default (fixture: string, rules: webpack.RuleSetRule[]): Promise<webpack.
         module: {
             rules,
         },
+        resolve: {
+            extensions: [
+                // type extensions for our file types
+                '.dl-dataset.json',
+                '.collection.json',
+                '.item.json',
+                // default extensions
+                '.wasm', '.mjs', '.js', '.json',
+            ],
+        },
     });
 
     compiler.outputFileSystem = new MemoryFileSystem();

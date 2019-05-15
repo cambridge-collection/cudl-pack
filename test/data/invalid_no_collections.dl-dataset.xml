@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dl-dataset xmlns="http://cudl.lib.cam.ac.uk/1.0/dl-dataset"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://cudl.lib.cam.ac.uk/1.0/dl-dataset dl-dataset.xsd"
+      name="Foo">
+
+    <!-- Missing collections -->
+</dl-dataset>

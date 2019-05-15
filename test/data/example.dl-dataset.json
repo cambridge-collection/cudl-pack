@@ -1,0 +1,14 @@
+{
+  "name": "John Rylands",
+  "collections": [
+    {"@id": "collections/hebrew"},
+    {"@id": "collections/petrarch"},
+    {"@id": "collections/landscapehistories"},
+    {"@id": "collections/treasures"},
+    {"@id": "collections/sassoon"},
+    {"@id": "collections/lewisgibson"},
+    {"@id": "collections/darwinhooker"},
+    {"@id": "collections/japanese"},
+    {"@id": "collections/tennyson"}
+  ]
+}

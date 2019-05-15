@@ -1,5 +1,5 @@
 import webpack from 'webpack';
-import {parseSiteXml} from '../site';
+import {parseDlDatasetXml} from '../dl-dataset';
 import {bindPromiseToCallback} from '../utils';
 
 const loader: webpack.loader.Loader = function(source: string) {
@@ -7,7 +7,7 @@ const loader: webpack.loader.Loader = function(source: string) {
 };
 
 async function load(this: webpack.loader.LoaderContext, source: string): Promise<string> {
-    return await parseSiteXml(source)
+    return await parseDlDatasetXml(source)
         .then(JSON.stringify);
 }
 

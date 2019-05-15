@@ -1,6 +1,6 @@
 {
   "name": "John Rylands",
   "collections": [
-    {"href": "collections/hebrew"}
+    { "@id": "collections/hebrew" }
   ]
 }

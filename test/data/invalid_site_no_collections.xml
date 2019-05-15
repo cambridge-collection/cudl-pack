@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<site xmlns="http://cudl.lib.cam.ac.uk/1.0/site"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://cudl.lib.cam.ac.uk/1.0/site site.xsd"
-      name="Foo">
-
-    <!-- Missing collections -->
-</site>

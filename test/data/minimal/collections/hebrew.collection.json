@@ -1,0 +1,20 @@
+{
+  "type": { "name": "collection", "version":  0 },
+
+  "title": "Board of Longitude",
+  "shortName": "longitude",
+  "collectionType": "parent",
+  "shortDescription": "Papers of the Board of Longitude and related material from the National Maritime Museum, Greenwich",
+  "summary": "summary.html",
+  "sponsors": "../html/longitude-sponsors.html",
+
+  "items": [
+    "/items/by-id/MS-A-123",
+
+    "bundle:///items/MS-A-123"
+  ],
+
+  "collections": [
+    ""
+  ]
+}
