@@ -37,12 +37,22 @@ const optionsSchema = {
     },
 };
 
+enum ReferenceReplacement {
+    Self = 'self',
+    Parent = 'parent',
+}
+
+interface ReferenceSelector {
+    path: string;
+    replace: ReferenceReplacement;
+}
+
 interface InputOptions {
-    references?: string | string[];
+    references?: string | ReferenceSelector | string[] | ReferenceSelector[];
 }
 
 interface NormalisedOptions {
-    references: string[];
+    referenceSelectors: ReferenceSelector[];
 }
 
 function getNormalisedOptions(loaderContext: webpack.loader.LoaderContext): NormalisedOptions {
@@ -50,9 +60,12 @@ function getNormalisedOptions(loaderContext: webpack.loader.LoaderContext): Norm
     validateOptions(optionsSchema, options);
     const iOpts = options as InputOptions;
 
+    const references = (Array.isArray(iOpts.references) ?
+        iOpts.references : [iOpts.references]);
+
     return {
-        references: Array.isArray(iOpts.references) ? iOpts.references :
-            (iOpts.references === null ? [] : [iOpts.references]),
+        referenceSelectors: references.map((ref) => (typeof ref === 'string' ?
+            {path: ref, replace: ReferenceReplacement.Self} : ref)),
     };
 }
 
@@ -62,11 +75,11 @@ async function load(this: webpack.loader.LoaderContext, source: string): Promise
     const options = getNormalisedOptions(this);
 
     const [referenceNodes, ignoredNodes] = selectReferences(
-        json, options.references || []);
+        json, options.referenceSelectors || []);
 
     for(const ignoredNode of ignoredNodes) {
         this.emitWarning(`Ignoring non-string reference value at \
-${util.inspect(ignoredNode.path)}, selected by ${ignoredNode.expr}: \
+${util.inspect(ignoredNode.path)}, selected by ${ignoredNode.selector.path}: \
 ${util.inspect(ignoredNode.value)}`);
     }
 
@@ -80,22 +93,23 @@ interface Node {
 }
 
 interface ReferenceNode extends Node {
-    expr: string;
+    selector: ReferenceSelector;
 }
 
-function selectReferences(root: object, jsonPaths: string[]) {
+function selectReferences(root: object, selectors: ReferenceSelector[]) {
     return fp.pipe(
-        fp.flatMap((jsonPath: string): ReferenceNode[] => {
+        fp.flatMap((selector: ReferenceSelector): ReferenceNode[] => {
             return fp.map((node: Node) => {
-                return {expr: jsonPath, ...node};
-            })(jsonpath.nodes(root, jsonPath));
+                return {selector, ...node};
+            })(jsonpath.nodes(root, selector.path));
         }),
         fp.sortBy((node) => node.path.join('.')),
         fp.partition((node) => typeof node.value === 'string'),
-    )(jsonPaths);
+    )(selectors);
 }
 
-async function resolveReferences(context: webpack.loader.LoaderContext, json: any, nodes: Node[]): Promise<any> {
+async function resolveReferences(context: webpack.loader.LoaderContext, json: any, nodes: ReferenceNode[]):
+        Promise<any> {
 
     // We filter out non-string matches in order to avoid the problem of
     // references matching parent objects of other references (and needing to
@@ -110,15 +124,41 @@ async function resolveReferences(context: webpack.loader.LoaderContext, json: an
         if(node.path.length === 0 || node.path[0] !== '$') {
             throw Error(`Unsupported path: ${util.inspect(node.path)}`);
         }
-        if(node.path.length === 1) {
-            // root is a string, no parent to replace the value in
-            assert.strictEqual(typeof jsonRoot, 'string');
+
+        let path = node.path;
+        if(node.selector.replace === ReferenceReplacement.Parent) {
+            if(node.path.length === 1) {
+                throw Error('Attempted to replace parent of reference value at document root');
+            }
+            path = node.path.slice(0, -1);
+        }
+
+        if(path.length === 1) {
+            // We're replacing the root value
             return node.result;
         }
         else {
+            assert(path.length > 1);
             const [parentPath, leafAttr] = [
-                node.path.slice(1, -1), node.path[node.path.length - 1]];
+                path.slice(1, -1), path[path.length - 1]];
             const parent = parentPath.length === 0 ? jsonRoot : fp.get(parentPath)(jsonRoot);
+
+            if(node.selector.replace === ReferenceReplacement.Self) {
+                assert(typeof parent[leafAttr] === 'string');
+            }
+            else {
+                if(fp.size(parent[leafAttr]) !== 1) {
+                    // Could have some kind of merge function here to combine the existing value with the merged value.
+                    // However I think the right thing to do is to implement an actual JSON-LD module type which can
+                    // natively represent references, rather than trying to enhance this workaround for baseline JSON
+                    // modules.
+                    context.emitWarning(
+`Replaced parent of a dependency reference contains values other than the \
+reference which will be lost. path: ${util.inspect(path)}, selected by: \
+${node.selector.path}, value: ${util.inspect(node.value)}\``);
+                }
+            }
+
             parent[leafAttr] = node.result;
             return jsonRoot;
         }

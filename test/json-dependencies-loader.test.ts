@@ -28,6 +28,32 @@ test('references are replaced by resolved JSON objects', async () => {
     );
 });
 
+test('parent of reference value can be replaced', async () => {
+    const rules = [{
+        test: /\.json$/,
+        use: [{
+            loader: path.resolve(__dirname, '../src/loaders/json-dependencies-loader.ts'),
+            options: {references: '$..'},
+        }],
+    }];
+
+    const stats = await compiler('./data/references/a', rules);
+    const module = stats.toJson().modules[0];
+
+    expect(stats.compilation.modules[0].type).toEqual('json');
+
+    expect(JSON.parse(module.source)).toEqual({
+            thisIs: 'a',
+            ref: {
+                thisIs: 'b',
+                ref: {
+                    thisIs: 'c',
+                },
+            },
+        },
+    );
+});
+
 test('references are replaced by resolved JSON strings', async () => {
     const rules: webpack.RuleSetRule[] = [
         {
