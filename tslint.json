@@ -1,12 +1,35 @@
 {
+  // https://github.com/palantir/tslint/blob/master/src/configs/recommended.ts
   "extends": "tslint:recommended",
   "rules": {
-    "quotemark": [true, "single", "avoid-template", "avoid-escape"],
+    "quotemark": {
+      "options": [
+        "single",
+        "avoid-template",
+        "avoid-escape"]
+    },
     "object-literal-sort-keys": false,
-    "whitespace": [true, {
-      "check-branch": false
-    }],
+    "whitespace": {
+      "options":  [
+        "check-decl",
+        "check-operator",
+        "check-separator",
+        "check-type",
+        "check-typecast"
+      ]
+    },
     "interface-name": false,
-    "one-line": [true, "check-open-brace"]
+    "one-line": {
+      "options": [
+        "check-open-brace"
+      ]
+    },
+    "variable-name": {
+      "options": [
+        "check-format",
+        "allow-leading-underscore",
+        "ban-keywords"
+      ]
+    }
   }
 }
