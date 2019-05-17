@@ -6,8 +6,7 @@ test('references are replaced by resolved JSON objects', async () => {
     const rules = [{
         test: /\.json$/,
         use: [{
-                loader: path.resolve(__dirname, '../src/loaders/json-dependencies-loader.ts'),
-                options: {references: '$..ref'},
+                loader: '../src/loaders/json-dependencies-loader.ts',
         }],
     }];
 
@@ -18,9 +17,9 @@ test('references are replaced by resolved JSON objects', async () => {
 
     expect(JSON.parse(module.source)).toEqual({
             thisIs: 'a',
-            ref: {
+            b: {
                 thisIs: 'b',
-                ref: {
+                c: {
                     thisIs: 'c',
                 },
             },
@@ -28,28 +27,37 @@ test('references are replaced by resolved JSON objects', async () => {
     );
 });
 
-test('parent of reference value can be replaced', async () => {
+test('references in arrays are replaced by resolved JSON objects', async () => {
     const rules = [{
         test: /\.json$/,
-        use: [{
-            loader: path.resolve(__dirname, '../src/loaders/json-dependencies-loader.ts'),
-            options: {references: '$..'},
-        }],
+        use: ['../src/loaders/json-dependencies-loader.ts'],
     }];
 
-    const stats = await compiler('./data/references/a', rules);
+    const stats = await compiler('./data/references/ref-list', rules);
     const module = stats.toJson().modules[0];
 
     expect(stats.compilation.modules[0].type).toEqual('json');
 
     expect(JSON.parse(module.source)).toEqual({
-            thisIs: 'a',
-            ref: {
-                thisIs: 'b',
-                ref: {
-                    thisIs: 'c',
+            references: [
+                {this:  'is not a ref'},
+                {
+                    thisIs: 'a',
+                    b: {
+                        thisIs: 'b',
+                        c: {
+                            thisIs: 'c',
+                        },
+                    },
                 },
-            },
+                {
+                    thisIs: 'b',
+                    c: {
+                        thisIs: 'c',
+                    },
+                },
+                {this:  'is also not a ref'},
+            ],
         },
     );
 });
@@ -59,8 +67,7 @@ test('references are replaced by resolved JSON strings', async () => {
         {
             test: /\.json$/,
             use: [{
-                    loader: path.resolve(__dirname, '../src/loaders/json-dependencies-loader.ts'),
-                    options: {references: '$..ref'},
+                loader: '../src/loaders/json-dependencies-loader.ts',
             }],
         },
         {
@@ -76,7 +83,7 @@ test('references are replaced by resolved JSON strings', async () => {
     expect(stats.compilation.modules[0].type).toEqual('json');
 
     expect(JSON.parse(module.source)).toEqual({
-        ref: 'Plain text.\n',
+        nonJsonThing: 'Plain text.\n',
     });
 });
 
@@ -84,8 +91,7 @@ test('references to missing modules are reported', async () => {
     const rules: webpack.RuleSetRule[] = [{
         test: /\.json$/,
         use: [{
-                loader: path.resolve(__dirname, '../src/loaders/json-dependencies-loader.ts'),
-                options: {references: '$..ref'},
+            loader: '../src/loaders/json-dependencies-loader.ts',
         }],
     }];
 
@@ -98,8 +104,7 @@ test('referenced modules not containing JSON are reported', async () => {
         {
             test: /\.json$/,
             use: [{
-                loader: path.resolve(__dirname, '../src/loaders/json-dependencies-loader.ts'),
-                options: {references: '$..ref'},
+                loader: '../src/loaders/json-dependencies-loader.ts',
             }],
         },
         {

@@ -1,4 +1,4 @@
 {
   "thisIs": "b",
-  "ref": "c.json"
+  "c": { "@id": "c.json" }
 }

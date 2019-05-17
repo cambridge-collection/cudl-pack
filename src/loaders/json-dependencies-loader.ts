@@ -4,87 +4,76 @@
  * This is basically a workaround for not having a proper custom JSON module,
  * with a parser that can find references in the module.
  *
- * The loader accepts a list of JSON path expressions in its `references`
- * option. Elements in the JSON matching those expressions are treated as module
- * references and they're resolved by webpack.
+ * The loader finds "@id" keys on objects and treats their value as a module
+ * path to resolve. The value of the resolved module replaces the object
+ * containing the "@id" key.
+ *
+ * Because the parent is replaced, "@id" references should only be used in
+ * objects in which the reference is the only value.
  */
 import assert from 'assert';
 import parseJson from 'json-parse-better-errors';
 import jsonpath from 'jsonpath';
-import {getOptions, urlToRequest} from 'loader-utils';
+import {urlToRequest} from 'loader-utils';
 import fp from 'lodash/fp';
-import validateOptions from 'schema-utils';
 import {RawSourceMap} from 'source-map';
 import * as util from 'util';
 import webpack from 'webpack';
 
 import {bindPromiseToCallback} from '../utils';
 
-const loader: webpack.loader.Loader = function(source: string) {
-    bindPromiseToCallback(load.call(this, source), this.async());
-};
+type PathComponent = string | number;
+type Path = PathComponent[];
 
-const optionsSchema = {
-    type: 'object',
-    properties: {
-        references: {
-            oneOf: [
-                { type: 'null' },
-                { type: 'string' },
-                { type: 'array', items: { type: 'string' } },
-            ],
-        },
-    },
-};
-
-enum ReferenceReplacement {
-    Self = 'self',
-    Parent = 'parent',
+/**
+ * A point in a JSON tree that is to be substituted with the result of resolving a module reference.
+ */
+interface Reference {
+    substitutionPoint: Path;
+    reference: string;
 }
 
-interface ReferenceSelector {
-    path: string;
-    replace: ReferenceReplacement;
+interface JSONPathReferenceSelector {
+    expression: string;
+    substitutionLevel: number;
 }
 
-interface InputOptions {
-    references?: string | ReferenceSelector | string[] | ReferenceSelector[];
-}
+type ReferenceSelector = (options: {context: webpack.loader.LoaderContext, json: any}) => Reference[];
 
-interface NormalisedOptions {
-    referenceSelectors: ReferenceSelector[];
-}
+class JsonDependenciesLoader {
+    public static matchReferencesFromJSONPath(
+        references: string | string[] | JSONPathReferenceSelector | JSONPathReferenceSelector[],
+    ): JsonDependenciesLoader {
+        const selectors: JSONPathReferenceSelector[] = (Array.isArray(references) ? references : [references])
+            .map((ref) => (typeof ref === 'string' ?
+                {expression: ref, substitutionLevel: 0} : ref));
 
-function getNormalisedOptions(loaderContext: webpack.loader.LoaderContext): NormalisedOptions {
-    const options = getOptions(loaderContext) || {};
-    validateOptions(optionsSchema, options);
-    const iOpts = options as InputOptions;
+        for(const selector of selectors) {
+            if(selector.substitutionLevel < 0) {
+                throw new Error(`substitutionLevel cannot be negative: ${selector.substitutionLevel}`);
+            }
+        }
 
-    const references = (Array.isArray(iOpts.references) ?
-        iOpts.references : [iOpts.references]);
-
-    return {
-        referenceSelectors: references.map((ref) => (typeof ref === 'string' ?
-            {path: ref, replace: ReferenceReplacement.Self} : ref)),
-    };
-}
-
-async function load(this: webpack.loader.LoaderContext, source: string): Promise<string> {
-    let json = parseJson(source);
-
-    const options = getNormalisedOptions(this);
-
-    const [referenceNodes, ignoredNodes] = selectReferences(
-        json, options.referenceSelectors || []);
-
-    for(const ignoredNode of ignoredNodes) {
-        this.emitWarning(`Ignoring non-string reference value at \
-${util.inspect(ignoredNode.path)}, selected by ${ignoredNode.selector.path}: \
-${util.inspect(ignoredNode.value)}`);
+        return new JsonDependenciesLoader((options: {context: webpack.loader.LoaderContext, json: any}) => {
+            return selectReferencesWithJSONPath(options.context, selectors, options.json);
+        });
     }
 
-    json = await resolveReferences(this, json, referenceNodes);
-    return JSON.stringify(json);
+    public readonly load: (this: webpack.loader.LoaderContext, source: string) => void;
+    private readonly refSelector: ReferenceSelector;
+
+    constructor(refSelector: ReferenceSelector) {
+        this.refSelector = refSelector;
+
+        const self = this;
+        this.load = function(this: webpack.loader.LoaderContext, source: string) {
+            bindPromiseToCallback(self._load(this, source), this.async());
+        };
+    }
+
+    private async _load(context: webpack.loader.LoaderContext, source: string): Promise<string> {
+        return load(context, source, this.refSelector);
+    }
 }
 
 interface Node {
@@ -92,74 +81,81 @@ interface Node {
     value: any;
 }
 
-interface ReferenceNode extends Node {
-    selector: ReferenceSelector;
-}
+interface ReferenceNode extends Node, JSONPathReferenceSelector { }
 
-function selectReferences(root: object, selectors: ReferenceSelector[]) {
-    return fp.pipe(
-        fp.flatMap((selector: ReferenceSelector): ReferenceNode[] => {
+function selectReferencesWithJSONPath(context: webpack.loader.LoaderContext,
+                                      selectors: JSONPathReferenceSelector[], json: any): Reference[] {
+    const [referenceNodes, ignoredNodes] = fp.pipe(
+        fp.flatMap((selector: JSONPathReferenceSelector): ReferenceNode[] => {
             return fp.map((node: Node) => {
-                return {selector, ...node};
-            })(jsonpath.nodes(root, selector.path));
+                // JSONPath paths always start with '$', drop that
+                let path = node.path.slice(1);
+                const end = path.length - selector.substitutionLevel;
+                if(end < 0) {
+                    throw Error(`\
+JSONPath expression matched a reference too close to the document root for the substitutionLevel: \
+${selector.substitutionLevel}, matched path:, ${util.inspect(node.path)}, expression: ${selector.expression}`);
+                }
+                assert(end <= path.length);
+                path = path.slice(0, end);
+
+                return {...selector, value: node.value, path};
+            })(jsonpath.nodes(json, selector.expression));
         }),
         fp.sortBy((node) => node.path.join('.')),
         fp.partition((node) => typeof node.value === 'string'),
     )(selectors);
+
+    for(const ignoredNode of ignoredNodes) {
+        context.emitWarning(`Ignoring non-string reference value at \
+${util.inspect(ignoredNode.path)}, selected by ${ignoredNode.expression}: \
+${util.inspect(ignoredNode.value)}`);
+    }
+
+    return referenceNodes.map((node) => ({substitutionPoint: node.path, reference: node.value}));
 }
 
-async function resolveReferences(context: webpack.loader.LoaderContext, json: any, nodes: ReferenceNode[]):
-        Promise<any> {
+async function load(
+    context: webpack.loader.LoaderContext, source: string, selectReferences: ReferenceSelector,
+): Promise<string> {
 
-    // We filter out non-string matches in order to avoid the problem of
-    // references matching parent objects of other references (and needing to
-    // replace the parents, or resolve references in the replaced value).
-    assert(nodes.every((node) => typeof node.value === 'string'));
+    let json = parseJson(source);
+    const referenceNodes = selectReferences({context, json});
+
+    json = await resolveReferences(context, json, referenceNodes);
+    return JSON.stringify(json);
+}
+
+async function resolveReferences(
+    context: webpack.loader.LoaderContext, json: any, references: Reference[],
+): Promise<any> {
 
     const resolvedReferences = await Promise.all(
-        nodes.map((node) => resolveReference(context, node.value)
-            .then((result) => ({...node, result}))));
+        references.map((ref) => resolveReference(context, ref.reference)
+            .then((result) => ({...ref, result}))));
 
-    return resolvedReferences.reduce((jsonRoot, node) => {
-        if(node.path.length === 0 || node.path[0] !== '$') {
-            throw Error(`Unsupported path: ${util.inspect(node.path)}`);
-        }
-
-        let path = node.path;
-        if(node.selector.replace === ReferenceReplacement.Parent) {
-            if(node.path.length === 1) {
-                throw Error('Attempted to replace parent of reference value at document root');
-            }
-            path = node.path.slice(0, -1);
-        }
-
-        if(path.length === 1) {
+    return resolvedReferences.reduce((jsonRoot, ref) => {
+        if(ref.substitutionPoint.length === 0) {
             // We're replacing the root value
-            return node.result;
+            return ref.result;
         }
         else {
-            assert(path.length > 1);
             const [parentPath, leafAttr] = [
-                path.slice(1, -1), path[path.length - 1]];
+                ref.substitutionPoint.slice(0, -1), ref.substitutionPoint[ref.substitutionPoint.length - 1]];
             const parent = parentPath.length === 0 ? jsonRoot : fp.get(parentPath)(jsonRoot);
 
-            if(node.selector.replace === ReferenceReplacement.Self) {
-                assert(typeof parent[leafAttr] === 'string');
-            }
-            else {
-                if(fp.size(parent[leafAttr]) !== 1) {
-                    // Could have some kind of merge function here to combine the existing value with the merged value.
-                    // However I think the right thing to do is to implement an actual JSON-LD module type which can
-                    // natively represent references, rather than trying to enhance this workaround for baseline JSON
-                    // modules.
-                    context.emitWarning(
-`Replaced parent of a dependency reference contains values other than the \
-reference which will be lost. path: ${util.inspect(path)}, selected by: \
-${node.selector.path}, value: ${util.inspect(node.value)}\``);
-                }
+            if(parent === undefined) {
+                context.emitWarning(`\
+Substitution point ${util.inspect(ref.substitutionPoint)} for reference to ${util.inspect(ref.reference)} does not \
+exist`);
+                return jsonRoot;
             }
 
-            parent[leafAttr] = node.result;
+            // Could have some kind of merge function here to combine the existing value with the merged value.
+            // However I think the right thing to do is to implement an actual JSON-LD module type which can
+            // natively represent references, rather than trying to enhance this workaround for baseline JSON
+            // modules.
+            parent[leafAttr] = ref.result;
             return jsonRoot;
         }
     }, json);
@@ -201,5 +197,12 @@ function loadModule(loaderContext: webpack.loader.LoaderContext, request: string
         });
     });
 }
+
+// Was going to support specifying the ReferenceSelector used by the loader, but
+// that's a faff as you have to configure the loader via constant data values,
+// you can't pass functions. Can work around by pre-defining ReferenceSelector
+// by name, then specifying a name via loader options if required...
+const loader: webpack.loader.Loader = JsonDependenciesLoader.matchReferencesFromJSONPath({
+    expression: '$..["@id"]', substitutionLevel: 1}).load;
 
 export default loader;

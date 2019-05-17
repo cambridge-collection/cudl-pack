@@ -1,0 +1,8 @@
+{
+  "references": [
+    {"this":  "is not a ref"},
+    {"@id": "a.json"},
+    {"@id": "b.json"},
+    {"this":  "is also not a ref"}
+  ]
+}
