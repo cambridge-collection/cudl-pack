@@ -12,6 +12,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/ajv": "^1.0.0",
+    "@types/clone": "^0.1.30",
     "@types/jest": "^24.0.11",
     "@types/json-parse-better-errors": "^1.0.0",
     "@types/json5": "0.0.30",
@@ -40,9 +41,11 @@
   },
   "dependencies": {
     "ajv": "^6.10.0",
+    "clone": "^2.1.2",
     "json-parse-better-errors": "^1.0.2",
     "json5": "^2.1.0",
     "jsonpath": "^1.0.1",
+    "jsonpointer": "^4.0.1",
     "loader-utils": "^1.2.3",
     "lodash": "^4.17.11",
     "schema-utils": "^1.0.0",
