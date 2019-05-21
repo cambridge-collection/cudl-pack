@@ -1,0 +1,6 @@
+{
+  "base": "../minimal.json",
+  "patch": [
+    {"op":  "remove", "path": "/@type"}
+  ]
+}

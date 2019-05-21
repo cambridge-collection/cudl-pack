@@ -1,0 +1,44 @@
+{
+  "@type": "https://schemas.cudl.lib.cam.ac.uk/package/v1/collection.json",
+
+  "name": {
+    "url-slug": "hebrew",
+    "sort": "0. Hebrew Manuscripts",
+    "short": "Hebrew Manuscripts",
+    "full": "The Hebrew Manuscripts of Cambridge University Library"
+  },
+
+  "description": {
+    "short": "Manuscripts and printed books from Cambridge University Library's Hebrew collections",
+    "medium": "For over five hundred years Cambridge University has been building up one of the world’s most important collections of Hebrew manuscripts.",
+    "full": {"@id":  "hebrew-description.html"}
+  },
+
+  "credit": {
+    "parties": [
+      {
+        "@type": "Organisation",
+        "name": "Example Organisation 2",
+        "url":  "http://exampleorganisation2.example.com/",
+        "knowsAbout": "Potatoes"
+      },
+      {
+        "@type": "Person",
+        "name": "Example Person 1",
+        "url":  "http://exampleperson1.example.com/",
+        "knowsAbout": "Onions"
+      },
+      {"@id": "referenced-modules/funder-organisation.json"},
+      {"@id": "referenced-modules/funder-person.json"}
+    ],
+    "prose": {"@id": "hebrew-funders.html"}
+  },
+
+  "items": [
+    {"@id": "item.json"}
+  ],
+
+  "collections": [
+    {"@id": "minimal.json"}
+  ]
+}

@@ -1,20 +1,25 @@
 {
-  "type": { "name": "collection", "version":  0 },
+  "@type": "https://schemas.cudl.lib.cam.ac.uk/package/v1/collection.json",
 
-  "title": "Board of Longitude",
-  "shortName": "longitude",
-  "collectionType": "parent",
-  "shortDescription": "Papers of the Board of Longitude and related material from the National Maritime Museum, Greenwich",
-  "summary": "summary.html",
-  "sponsors": "../html/longitude-sponsors.html",
+  "name": {
+    "url-slug": "hebrew",
+    "short": "Hebrew Manuscripts"
+  },
+
+  "description": {
+    "short": "Manuscripts and printed books from Cambridge University Library's Hebrew collections",
+    "medium": "For over five hundred years Cambridge University has been building up one of the world’s most important collections of Hebrew manuscripts.",
+    "full": {"@id":  "hebrew-description.html"}
+  },
+
+  "credit": {
+    "parties": [
+      {"@type": "Organisation", "name": "Polonsky Foundation", "url":  "http://polonskyfoundation.com/"}
+    ],
+    "prose": {"@id": "hebrew-funders.html"}
+  },
 
   "items": [
-    "/items/by-id/MS-A-123",
-
-    "bundle:///items/MS-A-123"
-  ],
-
-  "collections": [
-    ""
+    {"@id": "item.json"}
   ]
 }

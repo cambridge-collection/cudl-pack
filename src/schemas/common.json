@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.cudl.lib.cam.ac.uk/package/v1/common.json",
+
+  "definitions": {
+    "moduleReference": {
+      "type": "object",
+      "properties": {
+        "@id": {"type": "string", "format": "uri-reference"}
+      },
+      "required": ["@id"],
+      "additionalProperties": false
+    },
+
+    "html": {
+      "type": "object",
+      "properties": {
+        "@type": {"const": "html"},
+        "value": {"type": "string"}
+      },
+      "required": ["@id"],
+      "additionalProperties": false
+    },
+
+    "htmlReference": {
+      "oneOf": [
+        {"$ref": "#/definitions/moduleReference"},
+        {"$ref": "#/definitions/html"}
+      ]
+    }
+  }
+}
