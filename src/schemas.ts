@@ -1,8 +1,8 @@
 import Ajv from 'ajv';
 import url from 'url';
 
-import collectionSchema from './schemas/collection.json';
-import commonSchema from './schemas/common.json';
+import collectionSchema from 'cudl-schema-package-json/schemas/collection.json';
+import commonSchema from 'cudl-schema-package-json/schemas/common.json';
 
 const base = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/';
 const commonId = url.resolve(base, 'common.json');
