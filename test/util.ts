@@ -1,5 +1,5 @@
-import url from 'url';
 import fileUrl from 'file-url';
+import url from 'url';
 
 export function dirUrl(dirPath: string) {
     const u = new url.URL(fileUrl(dirPath, {resolve: false}));

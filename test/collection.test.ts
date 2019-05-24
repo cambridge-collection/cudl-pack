@@ -1,12 +1,11 @@
 import jsonpatch from 'fast-json-patch';
 import fs from 'fs';
+import json5 from 'json5';
 import path from 'path';
+import url from 'url';
 import {promisify} from 'util';
 import {parseCollectionJson} from '../src/collection';
-import fileUrl from 'file-url';
-import url from 'url';
 import {dirUrl, resolve} from './util';
-import json5 from 'json5';
 
 async function readData(target: string): Promise<string> {
     if(target.startsWith('file://')) {
