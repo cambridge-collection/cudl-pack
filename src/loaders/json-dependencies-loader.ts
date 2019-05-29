@@ -5,7 +5,7 @@
  * with a parser that can find references in the module.
  *
  * The loader finds "@id" keys on objects and treats their value as a module
- * path to resolve. The value of the resolved module replaces the object
+ * path to resolveUrls. The value of the resolved module replaces the object
  * containing the "@id" key.
  *
  * Because the parent is replaced, "@id" references should only be used in

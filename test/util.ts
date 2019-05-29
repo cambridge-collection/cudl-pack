@@ -1,20 +1,40 @@
 import jsonpatch from 'fast-json-patch';
-import fileUrl from 'file-url';
+import _fileUrl from 'file-url';
 import fs from 'fs';
 import json5 from 'json5';
-import {join} from 'path';
+import {join, resolve} from 'path';
 import url from 'url';
 import {promisify} from 'util';
 
-export function dirUrl(dirPath: string) {
-    const u = new url.URL(fileUrl(dirPath, {resolve: false}));
-    if(!u.pathname.endsWith('/')) {
+/**
+ * Return the contents of a file as bytes.
+ * @param pathSegments relative or absolute paths to resolve against the test dir
+ */
+export async function readPath(...pathSegments: string[]): Promise<Buffer> {
+    return (await promisify(fs.readFile)(resolve(__dirname, ...pathSegments)));
+}
+
+/**
+ * Return the contents of a file as as a string.
+ *
+ * The file is assumed to contain UTF-8-encoded text.
+ *
+ * @param pathSegments relative or absolute paths to resolve against the test dir
+ */
+export async function readPathAsString(...pathSegments: string[]): Promise<string> {
+    return (await readPath(...pathSegments)).toString();
+}
+
+export function fileUrl(path: string) {
+    const u = new url.URL(_fileUrl(path, {resolve: false}));
+    // Preserve trailing slashes as they're significant for URL resolution
+    if(path.endsWith('/')) {
         u.pathname = u.pathname + '/';
     }
     return u.toString();
 }
 
-export function resolve(start: string, ...urls: string[]) {
+export function resolveUrls(start: string, ...urls: string[]) {
     return urls.reduce((base, next) => url.resolve(base, next), start);
 }
 
@@ -55,14 +75,6 @@ export function getSchemaData(): Schemas {
 }
 
 export class NegativeSchemaTestCase {
-    public static allFromDir(dir: string): Promise<NegativeSchemaTestCase[]> {
-        return promisify(fs.readdir)(dir)
-            .then((names: string[]) => {
-                const paths = names.map((n) => join(dir, n));
-                return Promise.all(paths.map(this.fromPath));
-            });
-    }
-
     public static fromPath(path: string): Promise<NegativeSchemaTestCase> {
         return promisify(fs.readFile)(path, 'utf-8')
             .then(json5.parse)
@@ -105,12 +117,11 @@ export class NegativeSchemaTestCase {
     }
 
     public async readBaseJSON(): Promise<object> {
-        const path = url.resolve(this.testcasePath, this.baseJSONPath);
-        const json = await promisify(fs.readFile)(path, 'utf-8')
-            .then(json5.parse);
+        const baseLoc = resolveUrls(fileUrl(this.testcasePath), this.baseJSONPath);
+        const json = json5.parse(await readPathAsString(url.fileURLToPath(baseLoc)));
 
         if(typeof json !== 'object') {
-            throw new Error(`Expected an object after parsing ${path} but got ${typeof json}`);
+            throw new Error(`Expected an object after parsing ${baseLoc} but got ${typeof json}`);
         }
         return json;
     }
@@ -131,14 +142,3 @@ type ErrorMessageMatcher = SubstringErrorMessageMatcher | ExactErrorMessageMatch
 interface RegexErrorMessageMatcher { regex: string; }
 interface ExactErrorMessageMatcher { exact: string; }
 interface SubstringErrorMessageMatcher { contains: string; }
-
-/*
-{
-  base: "../valid/minimal.json",
-  patch: [
-    {op:  "remove", path: "/@type"}
-  ],
-  expectedErrors: "'@type' is a required property"
-}
-
- */

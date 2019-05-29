@@ -1,6 +1,0 @@
-{
-  "base": "../minimal.json",
-  "patch": [
-    {"op":  "add", "path": "/foo", "value":  "bar"}
-  ]
-}
