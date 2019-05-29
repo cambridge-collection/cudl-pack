@@ -3,7 +3,7 @@ import parseJson from 'json-parse-better-errors';
 import {promisify} from 'util';
 import xml2js from 'xml2js';
 
-import {dlDatasetId, validateDlDataset, ValidationOptions} from './schemas';
+import {validateDlDataset, ValidationOptions} from './schemas';
 
 const parseXml: (xml: string | Buffer) => Promise<object> = promisify(new xml2js.Parser().parseString);
 
