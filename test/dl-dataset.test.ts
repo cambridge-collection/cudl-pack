@@ -69,10 +69,10 @@ test('parseDlDatasetJson()', async () => {
 });
 
 test.each(getSchemaData()['dl-dataset'].validTestCases)
-('parseDlDatasetXml() on the valid dl-dataset %s should succeed', async (dlDatasetPath) => {
+('parseDlDatasetJson() parses valid dl-dataset %s and returns its JSON representation', async (dlDatasetPath) => {
     const json = (await readData(require.resolve(dlDatasetPath))).toString();
 
-    await expect(typeof parseDlDatasetJson(json)).toEqual('object');
+    await expect(parseDlDatasetJson(json)).toEqual(JSON.parse(json));
 });
 
 test.each(getSchemaData()['dl-dataset'].invalidTestCases)
