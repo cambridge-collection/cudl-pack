@@ -11,7 +11,7 @@
   "description": {
     "short": "Manuscripts and printed books from Cambridge University Library's Hebrew collections",
     "medium": "For over five hundred years Cambridge University has been building up one of the world’s most important collections of Hebrew manuscripts.",
-    "full": {"@id":  "hebrew-description.html"}
+    "full": {"@id": "referenced-modules/hebrew-description.html"}
   },
 
   "credit": {
@@ -31,14 +31,14 @@
       {"@id": "referenced-modules/funder-organisation.json"},
       {"@id": "referenced-modules/funder-person.json"}
     ],
-    "prose": {"@id": "hebrew-funders.html"}
+    "prose": {"@id": "referenced-modules/hebrew-funders.html"}
   },
 
   "items": [
-    {"@id": "item.json"}
+    {"@id": "referenced-modules/mock.item.json"}
   ],
 
   "collections": [
-    {"@id": "minimal.json"}
+    {"@id": "referenced-modules/nested.collection.json"}
   ]
 }

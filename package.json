@@ -25,6 +25,7 @@
     "@types/xml2js": "^0.4.4",
     "extract-loader": "^3.1.0",
     "file-loader": "^3.0.1",
+    "html-loader": "^0.5.5",
     "jest": "^24",
     "json-loader": "^0.5.7",
     "memory-fs": "^0.4.1",
