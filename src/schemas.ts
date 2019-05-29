@@ -3,14 +3,17 @@ import url from 'url';
 
 import collectionSchema from 'cudl-schema-package-json/schemas/collection.json';
 import commonSchema from 'cudl-schema-package-json/schemas/common.json';
+import dlDatasetSchema from 'cudl-schema-package-json/schemas/dl-dataset.json';
 
 const base = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/';
 const commonId = url.resolve(base, 'common.json');
 const collectionId = url.resolve(base, 'collection.json');
+export const dlDatasetId = url.resolve(base, 'dl-dataset.json');
 
 const ajv = new Ajv();
-ajv.addSchema(commonSchema, url.resolve(base, commonId));
 ajv.addSchema(collectionSchema, url.resolve(base, collectionId));
+ajv.addSchema(commonSchema, url.resolve(base, commonId));
+ajv.addSchema(dlDatasetSchema, url.resolve(base, dlDatasetId));
 
 export interface ValidationOptions {
     /**
@@ -67,3 +70,4 @@ function createValidator(schemaId: string, name: string) {
 }
 
 export const validateCollection = createValidator(collectionId, 'collection');
+export const validateDlDataset = createValidator(dlDatasetId, 'dl-dataset');

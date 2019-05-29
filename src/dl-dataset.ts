@@ -1,6 +1,9 @@
 import Ajv from 'ajv';
+import parseJson from 'json-parse-better-errors';
 import {promisify} from 'util';
 import xml2js from 'xml2js';
+
+import {dlDatasetId, validateDlDataset, ValidationOptions} from './schemas';
 
 const parseXml: (xml: string | Buffer) => Promise<object> = promisify(new xml2js.Parser().parseString);
 
@@ -15,12 +18,9 @@ export function parseDlDatasetXml(xml: string | Buffer): Promise<DlDataset> {
     .then(loadDlDatasetXml);
 }
 
-export function parseDlDatasetJson(json: string): DlDataset {
-    const dlDataset = JSON.parse(json);
-
-    if(!ajv.validate('dl-dataset', dlDataset)) {
-        throw new Error(`dl-dataset JSON is invalid: ${ajv.errorsText()}`);
-    }
+export function parseDlDatasetJson(json: string, options?: ValidationOptions): DlDataset {
+    const dlDataset = parseJson(json);
+    validateDlDataset(dlDataset, options);
 
     return dlDataset;
 }
@@ -29,6 +29,7 @@ export function parseDlDatasetJson(json: string): DlDataset {
  * Represents the entire content of a CUDL instance.
  */
 export interface DlDataset {
+    '@type': 'https://schemas.cudl.lib.cam.ac.uk/package/v1/dl-dataset.json';
     name: string;
     collections: CollectionRef[];
 }
@@ -43,8 +44,9 @@ export interface CollectionRef {
 function loadDlDatasetXml(dlDatasetXml: DlDatasetXml): DlDataset {
 
     return {
-        name: dlDatasetXml['dl-dataset'].$.name,
-        collections: [...getCollections(dlDatasetXml['dl-dataset'])],
+        '@type': 'https://schemas.cudl.lib.cam.ac.uk/package/v1/dl-dataset.json',
+        'name': dlDatasetXml['dl-dataset'].$.name,
+        'collections': [...getCollections(dlDatasetXml['dl-dataset'])],
     };
 }
 
@@ -132,19 +134,3 @@ ajv.addSchema(requireAllProperties({
         'dl-dataset': {$ref: '#/definitions/dlDatasetElement'},
     },
 }), 'parsedDlDatasetXml');
-
-ajv.addSchema(requireAllProperties({
-    type: 'object',
-    properties: {
-        name: {type: 'string'},
-        collections: {
-            type: 'array',
-            items: requireAllProperties({
-                type: 'object',
-                properties: {
-                    '@id': {type: 'string'},
-                },
-            }),
-        },
-    },
-}), 'dl-dataset');

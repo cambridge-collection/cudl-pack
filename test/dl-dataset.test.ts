@@ -2,6 +2,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import {promisify} from 'util';
 import {parseDlDatasetJson, parseDlDatasetXml} from '../src/dl-dataset';
+import {validateDlDataset} from '../src/schemas';
+import {getSchemaData, NegativeSchemaTestCase} from './util';
 
 async function readData(...relPath: string[]): Promise<Buffer> {
     return await promisify(fs.readFile)(
@@ -13,12 +15,15 @@ async function readString(...relPath: string[]): Promise<string> {
     return data.toString('utf-8');
 }
 
-test('parseDlDatasetXml()', async () => {
+test('parseDlDatasetXml() should return a valid dl-dataset instance', async () => {
     const xml = await readData('./data/example.dl-dataset.xml');
 
-    expect((await parseDlDatasetXml(xml))).toEqual({
-        name: 'John Rylands',
-        collections: [
+    const dlDataset = await parseDlDatasetXml(xml);
+    validateDlDataset(dlDataset);
+    expect(dlDataset).toEqual({
+        '@type': 'https://schemas.cudl.lib.cam.ac.uk/package/v1/dl-dataset.json',
+        'name': 'John Rylands',
+        'collections': [
             {'@id': 'collections/hebrew'},
             {'@id': 'collections/petrarch'},
             {'@id': 'collections/landscapehistories'},
@@ -32,23 +37,24 @@ test('parseDlDatasetXml()', async () => {
     });
 });
 
-test.each`
-    badXmlFile
-    ${'invalid_no_name.dl-dataset.xml'}
-    ${'invalid_no_collections.dl-dataset.xml'}
-    ${'invalid_bad_collection.dl-dataset.xml'}
-`('should raise an error when parsing file containing invalid XML: $badXmlFile', async ({badXmlFile}) => {
+test.each([
+    'invalid_no_name.dl-dataset.xml',
+    'invalid_no_collections.dl-dataset.xml',
+    'invalid_bad_collection.dl-dataset.xml',
+])('parseDlDatasetXml() on %s should raise an error about invalid XML', async (badXmlFile) => {
     const xml = await readData('./data', badXmlFile);
 
     await expect(parseDlDatasetXml(xml)).rejects.toThrowError(/^Parsed dl-dataset XML is invalid: /);
 });
 
 test('parseDlDatasetJson()', async () => {
-    const json = await readString('./data/example.dl-dataset.json');
+    const json = await readString(require.resolve(
+        'cudl-schema-package-json/tests/dl-dataset/valid/multiple-collections.json'));
 
     expect(parseDlDatasetJson(json)).toEqual({
-        name: 'John Rylands',
-        collections: [
+        '@type': 'https://schemas.cudl.lib.cam.ac.uk/package/v1/dl-dataset.json',
+        'name': 'John Rylands',
+        'collections': [
             {'@id': 'collections/hebrew'},
             {'@id': 'collections/petrarch'},
             {'@id': 'collections/landscapehistories'},
@@ -62,14 +68,18 @@ test('parseDlDatasetJson()', async () => {
     });
 });
 
-test.each`
-    badJsonFile
-    ${'invalid_no_name.dl-dataset.json'}
-    ${'invalid_no_collections.dl-dataset.json'}
-    ${'invalid_bad_collection.dl-dataset.json'}
-`('should raise an error when parsing file containing invalid JSON: $badJsonFile', async ({badJsonFile}) => {
-    const json = await readString('./data', badJsonFile);
+test.each(getSchemaData()['dl-dataset'].validTestCases)
+('parseDlDatasetXml() on the valid dl-dataset %s should succeed', async (dlDatasetPath) => {
+    const json = (await readData(require.resolve(dlDatasetPath))).toString();
 
-    await expect(() => { parseDlDatasetJson(json); })
-        .toThrowError(/^dl-dataset JSON is invalid: /);
+    await expect(typeof parseDlDatasetJson(json)).toEqual('object');
+});
+
+test.each(getSchemaData()['dl-dataset'].invalidTestCases)
+('parseDlDatasetJson() rejects invalid collection described by %s', async (testcasePath) => {
+    const tc = await NegativeSchemaTestCase.fromPath(require.resolve(testcasePath));
+    const invalidDlDataset = await tc.getPatchedJSON();
+
+    expect(() => parseDlDatasetJson(JSON.stringify(invalidDlDataset))).toThrowError(`\
+input does not match the https://schemas.cudl.lib.cam.ac.uk/package/v1/dl-dataset.json schema:`);
 });

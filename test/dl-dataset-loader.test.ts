@@ -35,8 +35,9 @@ test('collection references are resolved', async () => {
     const output = stats.toJson().modules[0].source;
 
     expect(JSON.parse(output)).toEqual({
-        name: 'John Rylands',
-        collections: [
+        '@type': 'https://schemas.cudl.lib.cam.ac.uk/package/v1/dl-dataset.json',
+        'name': 'John Rylands',
+        'collections': [
             {'@id': 'bundled/data/minimal/collections/hebrew.collection.json'},
         ],
     });
