@@ -4,16 +4,19 @@ import url from 'url';
 import collectionSchema from 'cudl-schema-package-json/schemas/collection.json';
 import commonSchema from 'cudl-schema-package-json/schemas/common.json';
 import dlDatasetSchema from 'cudl-schema-package-json/schemas/dl-dataset.json';
+import itemSchema from 'cudl-schema-package-json/schemas/item.json';
 
 const base = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/';
 const commonId = url.resolve(base, 'common.json');
 const collectionId = url.resolve(base, 'collection.json');
-export const dlDatasetId = url.resolve(base, 'dl-dataset.json');
+const dlDatasetId = url.resolve(base, 'dl-dataset.json');
+const itemId = url.resolve(base, 'item.json');
 
 const ajv = new Ajv();
-ajv.addSchema(collectionSchema, url.resolve(base, collectionId));
-ajv.addSchema(commonSchema, url.resolve(base, commonId));
-ajv.addSchema(dlDatasetSchema, url.resolve(base, dlDatasetId));
+ajv.addSchema(collectionSchema, collectionId);
+ajv.addSchema(commonSchema, commonId);
+ajv.addSchema(dlDatasetSchema, dlDatasetId);
+ajv.addSchema(itemSchema, itemId);
 
 export interface ValidationOptions {
     /**
@@ -71,3 +74,4 @@ function createValidator(schemaId: string, name: string) {
 
 export const validateCollection = createValidator(collectionId, 'collection');
 export const validateDlDataset = createValidator(dlDatasetId, 'dl-dataset');
+export const validateItem = createValidator(itemId, 'item');

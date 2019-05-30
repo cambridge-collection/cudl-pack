@@ -91,6 +91,9 @@ export class NegativeSchemaTestCase {
         if(typeof errorMatchers === 'string' || typeof errorMatchers === 'object') {
             matchers = [errorMatchers as (string | ErrorMessageMatcher)];
         }
+        else if(errorMatchers === undefined) {
+            matchers = [];
+        }
         else {
             matchers = errorMatchers;
         }

@@ -66,7 +66,7 @@ test.each(getSchemaData()['dl-dataset'].validTestCases)
 });
 
 test.each(getSchemaData()['dl-dataset'].invalidTestCases)
-('parseDlDatasetJson() rejects invalid collection described by %s', async (testcasePath) => {
+('parseDlDatasetJson() rejects invalid dl-dataset described by %s', async (testcasePath) => {
     const tc = await NegativeSchemaTestCase.fromPath(require.resolve(testcasePath));
     const invalidDlDataset = await tc.getPatchedJSON();
 
