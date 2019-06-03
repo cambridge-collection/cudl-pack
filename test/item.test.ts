@@ -1,9 +1,9 @@
 import json5 from 'json5';
-import fp from 'lodash/fp';
-import {parseItemJson} from '../src/item';
+import lodash from 'lodash';
+import {generateItemJson, ItemJson, parseItemJson} from '../src/item';
 import {getSchemaData, NegativeSchemaTestCase, readPathAsString} from './util';
 
-test.each(fp.flatten([
+test.each(lodash.flatten([
     getSchemaData('cudl-schema-package-json').item.validTestCases,
     getSchemaData('cudl-schema-package-json')['cudl-item'].validTestCases,
     getSchemaData('cudl-schema-package-json')['mudl-item'].validTestCases,
@@ -25,4 +25,22 @@ test.each(getSchemaData('cudl-schema-package-json').item.invalidTestCases)
 
     expect(() => parseItemJson(JSON.stringify(invalidItem))).toThrowError(`\
 input does not match the https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json schema:`);
+});
+
+const minimalItem: ItemJson = {
+    descriptions: {
+        main: {coverage: {firstPage: true, lastPage: true}},
+    },
+    pages: {},
+    properties: {},
+};
+
+test('generateItemJson() adds @type', () => {
+    expect(JSON.parse(generateItemJson(minimalItem))['@type'])
+        .toEqual('https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json');
+});
+
+test('minimal data satisfying ItemJson type is valid item instance', () => {
+    const item: ItemJson = parseItemJson(generateItemJson(minimalItem));
+    expect(lodash.omit(item, ['@type'])).toEqual(minimalItem);
 });
