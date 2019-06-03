@@ -4,9 +4,9 @@ import {parseItemJson} from '../src/item';
 import {getSchemaData, NegativeSchemaTestCase, readPathAsString} from './util';
 
 test.each(fp.flatten([
-    getSchemaData().item.validTestCases,
-    getSchemaData()['cudl-item'].validTestCases,
-    getSchemaData()['mudl-item'].validTestCases,
+    getSchemaData('cudl-schema-package-json').item.validTestCases,
+    getSchemaData('cudl-schema-package-json')['cudl-item'].validTestCases,
+    getSchemaData('cudl-schema-package-json')['mudl-item'].validTestCases,
 ]))
 ('parseItemJson() parses valid item %s and returns its JSON representation', async (itemPath) => {
     let json = (await readPathAsString(require.resolve(itemPath))).toString();
@@ -18,7 +18,7 @@ test.each(fp.flatten([
 });
 
 // Note that the invalid cudl/mudl items are not necessarily invalid /items/
-test.each(getSchemaData().item.invalidTestCases)
+test.each(getSchemaData('cudl-schema-package-json').item.invalidTestCases)
 ('parseItemJson() rejects invalid item described by %s', async (testcasePath) => {
     const tc = await NegativeSchemaTestCase.fromPath(require.resolve(testcasePath));
     const invalidItem = await tc.getPatchedJSON();

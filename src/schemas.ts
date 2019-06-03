@@ -1,10 +1,11 @@
 import Ajv from 'ajv';
-import url from 'url';
+import internalItemSchema from 'cudl-schema-internal-json/schemas/item.json';
 
 import collectionSchema from 'cudl-schema-package-json/schemas/collection.json';
 import commonSchema from 'cudl-schema-package-json/schemas/common.json';
 import dlDatasetSchema from 'cudl-schema-package-json/schemas/dl-dataset.json';
 import itemSchema from 'cudl-schema-package-json/schemas/item.json';
+import url from 'url';
 
 const base = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/';
 const commonId = url.resolve(base, 'common.json');
@@ -12,11 +13,15 @@ const collectionId = url.resolve(base, 'collection.json');
 const dlDatasetId = url.resolve(base, 'dl-dataset.json');
 const itemId = url.resolve(base, 'item.json');
 
+const internalBase = 'https://schemas.cudl.lib.cam.ac.uk/__internal__/v1/item.json';
+const internalItemId = url.resolve(internalBase, 'item.json');
+
 const ajv = new Ajv();
 ajv.addSchema(collectionSchema, collectionId);
 ajv.addSchema(commonSchema, commonId);
 ajv.addSchema(dlDatasetSchema, dlDatasetId);
 ajv.addSchema(itemSchema, itemId);
+ajv.addSchema(internalItemSchema, internalItemId);
 
 export interface ValidationOptions {
     /**
@@ -75,3 +80,4 @@ function createValidator(schemaId: string, name: string) {
 export const validateCollection = createValidator(collectionId, 'collection');
 export const validateDlDataset = createValidator(dlDatasetId, 'dl-dataset');
 export const validateItem = createValidator(itemId, 'item');
+export const validateInternalItem = createValidator(internalItemId, 'item');

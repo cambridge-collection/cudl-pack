@@ -47,12 +47,18 @@ interface SchemaResources {
     invalidTestCases: string[];
 }
 
-function schemaPackagePath(path: string) {
-    return join('cudl-schema-package-json', path);
+function schemaPackagePath(packageName: string, path: string) {
+    return join(packageName, path);
 }
 
-export function getSchemaData(): Schemas {
-    const files = require('cudl-schema-package-json').files as string[];
+/**
+ * Load the schemas and test data from one of our schema packages.
+ *
+ * @param packageName The name of the NPM package, e.g. `cudl-schema-package-json`
+ */
+export function getSchemaData(packageName: string): Schemas {
+    const packagePath = schemaPackagePath.bind(undefined, packageName);
+    const files = require(packageName).files as string[];
 
     const schemas = files.filter((f) => /^schemas\//.test(f))
         .map((f) => {
@@ -64,11 +70,9 @@ export function getSchemaData(): Schemas {
     for(const schema of schemas) {
         const name = schema.name;
         data[name] = {
-            schema: schemaPackagePath(schema.schemaPath),
-            validTestCases: files.filter((f) => f.startsWith(`tests/${name}/valid/`))
-                .map(schemaPackagePath),
-            invalidTestCases: files.filter((f) => f.startsWith(`tests/${name}/invalid/`))
-                .map(schemaPackagePath),
+            schema: packagePath(schema.schemaPath),
+            validTestCases: files.filter((f) => f.startsWith(`tests/${name}/valid/`)).map(packagePath),
+            invalidTestCases: files.filter((f) => f.startsWith(`tests/${name}/invalid/`)).map(packagePath),
         };
     }
     return data;

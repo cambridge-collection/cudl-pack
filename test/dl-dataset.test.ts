@@ -58,14 +58,14 @@ test('parseDlDatasetJson()', async () => {
     });
 });
 
-test.each(getSchemaData()['dl-dataset'].validTestCases)
+test.each(getSchemaData('cudl-schema-package-json')['dl-dataset'].validTestCases)
 ('parseDlDatasetJson() parses valid dl-dataset %s and returns its JSON representation', async (dlDatasetPath) => {
     const json = (await readPathAsString(require.resolve(dlDatasetPath))).toString();
 
     await expect(parseDlDatasetJson(json)).toEqual(JSON.parse(json));
 });
 
-test.each(getSchemaData()['dl-dataset'].invalidTestCases)
+test.each(getSchemaData('cudl-schema-package-json')['dl-dataset'].invalidTestCases)
 ('parseDlDatasetJson() rejects invalid dl-dataset described by %s', async (testcasePath) => {
     const tc = await NegativeSchemaTestCase.fromPath(require.resolve(testcasePath));
     const invalidDlDataset = await tc.getPatchedJSON();
