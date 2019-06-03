@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
+    "docs": "typedoc --out docs src",
     "test": "jest",
     "lint": "tslint --project tsconfig.json"
   },
@@ -33,6 +34,7 @@
     "raw-loader": "^1.0.0",
     "ts-jest": "^24.0.2",
     "tslint": "^5.15.0",
+    "typedoc": "^0.14.2",
     "typescript": "^3.4.3",
     "webpack": "^4.29.6",
     "xml-loader": "^1.2.1"
