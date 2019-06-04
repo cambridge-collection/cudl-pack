@@ -63,11 +63,12 @@ export function getSchemaData(packageName: string): Schemas {
     const schemas = files.filter((f) => /^schemas\//.test(f))
         .map((f) => {
             const match = /^schemas\/([^/]+)\.json5?$/.exec(f);
-            return {name: match[1], schemaPath: match[0]};
+            return match ? {name: match[1], schemaPath: match[0]} : undefined;
         });
 
     const data: Schemas = {};
     for(const schema of schemas) {
+        if(schema === undefined) { continue; }
         const name = schema.name;
         data[name] = {
             schema: packagePath(schema.schemaPath),
@@ -89,7 +90,7 @@ export class NegativeSchemaTestCase {
     }
 
     private static normaliseErrorMatchers(
-        errorMatchers: string | string[] | ErrorMessageMatcher | ErrorMessageMatcher[]) {
+        errorMatchers?: string | string[] | ErrorMessageMatcher | ErrorMessageMatcher[]) {
 
         let matchers: Array<string | ErrorMessageMatcher>;
         if(typeof errorMatchers === 'string' || typeof errorMatchers === 'object') {

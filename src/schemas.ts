@@ -23,43 +23,46 @@ ajv.addSchema(dlDatasetSchema, dlDatasetId);
 ajv.addSchema(itemSchema, itemId);
 ajv.addSchema(internalItemSchema, internalItemId);
 
-export interface ValidationOptions {
+export interface StrictValidationOptions {
     /**
      * A description of the thing being validated, e.g. the file path it originated from.
      *
      * @default 'input'
      */
-    inputDescription?: string;
+    inputDescription: string;
     /**
      * Produce more verbose error messages.
      *
      * Currently this results in the path to the failed schema rule being included in error messages.
      * @default true
      */
-    verbose?: boolean;
+    verbose: boolean;
 }
 
-function defaultValidationOptions(opts?: ValidationOptions) {
+export type ValidationOptions = Partial<StrictValidationOptions>;
+
+function defaultValidationOptions(opts?: ValidationOptions): StrictValidationOptions {
     opts = opts || {};
     return {
         inputDescription: opts.inputDescription || 'input',
-        verbose: opts.hasOwnProperty('verbose') ? opts.verbose : true,
+        verbose: opts.hasOwnProperty('verbose') && opts.verbose !== undefined ? opts.verbose : true,
     };
 }
 
 function expectValid(this: {schemaId: string, validate: Ajv.ValidateFunction, name: string},
                      obj: any, options?: ValidationOptions): void {
-    options = defaultValidationOptions(options);
-    const inputDescription = options.inputDescription;
+    const resolvedOptions = defaultValidationOptions(options);
+    const inputDescription = resolvedOptions.inputDescription;
     const valid = this.validate(obj);
     if(!valid) {
-        const errors = this.validate.errors.map((e) => errorMessage(e, this.name, options.verbose));
+        const errors = (this.validate.errors || [])
+            .map((e) => errorMessage(e, this.name, resolvedOptions.verbose));
 
-        const msg = options.verbose ?
+        const msg = resolvedOptions.verbose ?
             '\n' + errors.map((e) => '  - ' + e).join('\n') :
             ' ' + errors.join('; ');
 
-        const schemaName = options.verbose ? this.schemaId : this.name;
+        const schemaName = resolvedOptions.verbose ? this.schemaId : this.name;
         throw new Error(`${inputDescription} does not match the ${schemaName} schema:${msg}`);
     }
 }

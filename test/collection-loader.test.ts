@@ -65,10 +65,9 @@ test('collection references are resolved', async () => {
         .toEqual({'@id': 'bundled/data/collections/referenced-modules/mock.item.json'});
 
     expect(fp.pipe(
-        fp.drop(1),
         fp.map((mod: {name: string, source: string}) => ({name: mod.name, source: mod.source})),
         fp.sortBy(['name']),
-    )(modules)).toEqual([
+    )(modules.slice(1))).toEqual([
         {name: './data/collections/referenced-modules/from-nested-collection.item.json',
          source: '{"@id":"bundled/data/collections/referenced-modules/from-nested-collection.item.json"}'},
         {name: './data/collections/referenced-modules/funder-organisation.json',

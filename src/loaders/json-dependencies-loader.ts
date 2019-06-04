@@ -20,7 +20,7 @@ import {RawSourceMap} from 'source-map';
 import * as util from 'util';
 import webpack from 'webpack';
 
-import {bindPromiseToCallback} from '../utils';
+import {bindPromiseToCallback, createAsyncLoader, createAsyncLoaderFromMethod} from '../utils';
 
 type PathComponent = string | number;
 type Path = PathComponent[];
@@ -65,10 +65,7 @@ class JsonDependenciesLoader {
     constructor(refSelector: ReferenceSelector) {
         this.refSelector = refSelector;
 
-        const self = this;
-        this.load = function(this: webpack.loader.LoaderContext, source: string) {
-            bindPromiseToCallback(self._load(this, source), this.async());
-        };
+        this.load = createAsyncLoaderFromMethod(this._load, this);
     }
 
     private async _load(context: webpack.loader.LoaderContext, source: string): Promise<string> {
