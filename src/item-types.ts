@@ -49,9 +49,9 @@ export interface ItemDescriptions {
 }
 
 /**
- * A CDL Package JSON ItemJson.
+ * A CDL Package JSON Item.
  */
-export interface ItemJson {
+export interface Item {
     '@type'?: 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json';
     properties: ItemProperties;
     descriptions: ItemDescriptions;

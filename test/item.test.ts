@@ -1,7 +1,7 @@
 import json5 from 'json5';
 import lodash from 'lodash';
 import {generateItemJson, parseItemJson} from '../src/item';
-import {ItemJson} from '../src/item-types';
+import {Item} from '../src/item-types';
 import {getSchemaData, NegativeSchemaTestCase, readPathAsString} from './util';
 
 test.each(lodash.flatten([
@@ -28,7 +28,7 @@ test.each(getSchemaData('cudl-schema-package-json').item.invalidTestCases)
 input does not match the https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json schema:`);
 });
 
-const minimalItem: ItemJson = {
+const minimalItem: Item = {
     descriptions: {
         main: {coverage: {firstPage: true, lastPage: true}},
     },
@@ -41,7 +41,7 @@ test('generateItemJson() adds @type', () => {
         .toEqual('https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json');
 });
 
-test('minimal data satisfying ItemJson type is valid item instance', () => {
-    const item: ItemJson = parseItemJson(generateItemJson(minimalItem));
+test('minimal data satisfying Item type is valid item instance', () => {
+    const item: Item = parseItemJson(generateItemJson(minimalItem));
     expect(lodash.omit(item, ['@type'])).toEqual(minimalItem);
 });
