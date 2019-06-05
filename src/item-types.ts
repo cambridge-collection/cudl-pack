@@ -52,7 +52,7 @@ export interface ItemDescriptions {
  * A CDL Package JSON Item.
  */
 export interface Item {
-    '@type'?: 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json';
+    '@type': TypeUri.PackageItem;
     properties: ItemProperties;
     descriptions: ItemDescriptions;
     pages: ItemPages;

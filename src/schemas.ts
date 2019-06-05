@@ -14,7 +14,7 @@ const collectionId = url.resolve(base, 'collection.json');
 const dlDatasetId = url.resolve(base, 'dl-dataset.json');
 const itemId = url.resolve(base, 'item.json');
 
-const internalBase = 'https://schemas.cudl.lib.cam.ac.uk/__internal__/v1/item.json';
+const internalBase = TypeUri.InternalItem;
 const internalItemId = url.resolve(internalBase, 'item.json');
 
 const ajv = new Ajv();

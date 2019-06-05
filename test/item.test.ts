@@ -29,6 +29,7 @@ input does not match the https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json
 });
 
 const minimalItem: Item = {
+    '@type': TypeUri.PackageItem,
     descriptions: {
         main: {coverage: {firstPage: true, lastPage: true}},
     },
@@ -36,12 +37,7 @@ const minimalItem: Item = {
     properties: {},
 };
 
-test('generateItemJson() adds @type', () => {
-    expect(JSON.parse(generateItemJson(minimalItem))['@type'])
-        .toEqual('https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json');
-});
-
 test('minimal data satisfying Item type is valid item instance', () => {
     const item: Item = parseItemJson(generateItemJson(minimalItem));
-    expect(lodash.omit(item, ['@type'])).toEqual(minimalItem);
+    expect(item).toEqual(minimalItem);
 });
