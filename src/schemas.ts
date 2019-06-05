@@ -6,6 +6,7 @@ import commonSchema from 'cudl-schema-package-json/schemas/common.json';
 import dlDatasetSchema from 'cudl-schema-package-json/schemas/dl-dataset.json';
 import itemSchema from 'cudl-schema-package-json/schemas/item.json';
 import url from 'url';
+import {ItemJson} from './item-types';
 
 const base = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/';
 const commonId = url.resolve(base, 'common.json');
@@ -49,8 +50,8 @@ function defaultValidationOptions(opts?: ValidationOptions): StrictValidationOpt
     };
 }
 
-function expectValid(this: {schemaId: string, validate: Ajv.ValidateFunction, name: string},
-                     obj: any, options?: ValidationOptions): void {
+function expectValid<T>(this: {schemaId: string, validate: Ajv.ValidateFunction, name: string},
+                        obj: unknown, options?: ValidationOptions): T {
     const resolvedOptions = defaultValidationOptions(options);
     const inputDescription = resolvedOptions.inputDescription;
     const valid = this.validate(obj);
@@ -65,6 +66,7 @@ function expectValid(this: {schemaId: string, validate: Ajv.ValidateFunction, na
         const schemaName = resolvedOptions.verbose ? this.schemaId : this.name;
         throw new Error(`${inputDescription} does not match the ${schemaName} schema:${msg}`);
     }
+    return obj as T;
 }
 
 function errorMessage(errorObject: Ajv.ErrorObject, name: string, includeSchemaPath: boolean): string {
@@ -76,11 +78,11 @@ function errorMessage(errorObject: Ajv.ErrorObject, name: string, includeSchemaP
     return msg;
 }
 
-function createValidator(schemaId: string, name: string) {
+function createValidator<T>(schemaId: string, name: string): (obj: any, options?: ValidationOptions) => T {
     return expectValid.bind({schemaId, validate: ajv.getSchema(schemaId), name});
 }
 
 export const validateCollection = createValidator(collectionId, 'collection');
 export const validateDlDataset = createValidator(dlDatasetId, 'dl-dataset');
-export const validateItem = createValidator(itemId, 'item');
-export const validateInternalItem = createValidator(internalItemId, 'item');
+export const validateItem = createValidator<ItemJson>(itemId, 'item');
+export const validateInternalItem = createValidator<InternalItem>(internalItemId, 'item');

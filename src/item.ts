@@ -3,10 +3,9 @@ import {ItemJson} from './item-types';
 import {validateItem, ValidationOptions} from './schemas';
 
 export function parseItemJson(json: string, options?: ValidationOptions): ItemJson {
-    const object = parseJson(json);
-    validateItem(object, options);
+    const object: unknown = parseJson(json);
 
-    return object;
+    return validateItem(object, options);
 }
 
 export function generateItemJson(item: ItemJson): string {
