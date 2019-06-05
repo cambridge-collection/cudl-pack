@@ -1,6 +1,7 @@
 import json5 from 'json5';
 import lodash from 'lodash';
-import {generateItemJson, ItemJson, parseItemJson} from '../src/item';
+import {generateItemJson, parseItemJson} from '../src/item';
+import {ItemJson} from '../src/item-types';
 import {getSchemaData, NegativeSchemaTestCase, readPathAsString} from './util';
 
 test.each(lodash.flatten([
