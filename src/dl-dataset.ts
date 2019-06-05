@@ -45,8 +45,8 @@ function loadDlDatasetXml(dlDatasetXml: DlDatasetXml): DlDataset {
 
     return {
         '@type': 'https://schemas.cudl.lib.cam.ac.uk/package/v1/dl-dataset.json',
-        'name': dlDatasetXml['dl-dataset'].$.name,
-        'collections': [...getCollections(dlDatasetXml['dl-dataset'])],
+        name: dlDatasetXml['dl-dataset'].$.name,
+        collections: [...getCollections(dlDatasetXml['dl-dataset'])],
     };
 }
 

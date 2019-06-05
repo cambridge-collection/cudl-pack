@@ -16,8 +16,8 @@ test('dl-dataset-xml-loader', async () => {
 
     expect(JSON.parse(output)).toEqual({
         '@type': 'https://schemas.cudl.lib.cam.ac.uk/package/v1/dl-dataset.json',
-        'name': 'John Rylands',
-        'collections': [
+        name: 'John Rylands',
+        collections: [
             {'@id': 'collections/hebrew'},
             {'@id': 'collections/petrarch'},
             {'@id': 'collections/landscapehistories'},

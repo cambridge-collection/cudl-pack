@@ -12,8 +12,8 @@ test('parseDlDatasetXml() should return a valid dl-dataset instance', async () =
     validateDlDataset(dlDataset);
     expect(dlDataset).toEqual({
         '@type': 'https://schemas.cudl.lib.cam.ac.uk/package/v1/dl-dataset.json',
-        'name': 'John Rylands',
-        'collections': [
+        name: 'John Rylands',
+        collections: [
             {'@id': 'collections/hebrew'},
             {'@id': 'collections/petrarch'},
             {'@id': 'collections/landscapehistories'},
@@ -43,8 +43,8 @@ test('parseDlDatasetJson()', async () => {
 
     expect(parseDlDatasetJson(json)).toEqual({
         '@type': 'https://schemas.cudl.lib.cam.ac.uk/package/v1/dl-dataset.json',
-        'name': 'John Rylands',
-        'collections': [
+        name: 'John Rylands',
+        collections: [
             {'@id': 'collections/hebrew'},
             {'@id': 'collections/petrarch'},
             {'@id': 'collections/landscapehistories'},
