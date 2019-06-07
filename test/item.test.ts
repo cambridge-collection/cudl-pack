@@ -35,7 +35,6 @@ const minimalItem: Item = {
         main: {coverage: {firstPage: true, lastPage: true}},
     },
     pages: {},
-    properties: {},
 };
 
 test('minimal data satisfying Item type is valid item instance', () => {

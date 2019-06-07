@@ -4,18 +4,56 @@ export type ItemPropertyScalar = string | boolean | number;
 export type ItemProperty = ItemPropertyScalar | ItemPropertyScalar[];
 export interface ItemProperties { [key: string]: ItemProperty; }
 
-export interface PageImage {
-    /** The type of image resource identified by the [[href]] URL. */
-    type: string;
+export interface UriReference {
+    '@id': string;
+}
 
-    /** The location of the image as a URL. */
+export interface TypeBearer {
+    '@type': string;
+}
+
+export interface RoleBearer {
+    '@role'?: string[];
+}
+
+export interface NamespaceMap {
+    [key: string]: string;
+}
+
+export interface NamespaceBearer {
+    '@namespace'?: string | NamespaceMap;
+}
+
+export interface ItemData extends TypeBearer, RoleBearer { }
+
+export interface LinkItemData extends ItemData {
     href: string;
+}
+
+export type PropertiesItemData = ItemData | ItemProperties;
+
+export type ItemResource = TypeBearer;
+
+export interface ImageItemResource extends TypeBearer {
+    /** The type of image resource identified by the [[image]] URL. */
+    imageType: string;
+    /** The location of the image as a URL. */
+    image: UriReference;
+}
+
+export interface TranscriptionItemResource extends TypeBearer {
+    transcriptionType: string;
+    html: UriReference;
+}
+
+export interface TranslationItemResource extends TypeBearer {
+    html: UriReference;
 }
 
 export interface Page {
     label: string;
     order?: string;
-    image: PageImage;
+    resources?: ItemResource[];
 }
 
 /** A mapping of page IDs to [[Page]]s. */
@@ -53,9 +91,9 @@ export interface ItemDescriptions {
 /**
  * A CDL Package JSON Item.
  */
-export interface Item {
+export interface Item extends NamespaceBearer {
     '@type': TypeUri.PackageItem;
-    properties: ItemProperties;
+    data?: ItemData[];
     descriptions: ItemDescriptions;
     pages: ItemPages;
 }
