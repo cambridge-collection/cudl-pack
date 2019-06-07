@@ -8,6 +8,7 @@ import itemSchema from 'cudl-schema-package-json/schemas/item.json';
 import url from 'url';
 import {InternalItem} from './internal-item-types';
 import {Item} from './item-types';
+import {TypeUri} from './uris';
 
 const base = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/';
 const commonId = url.resolve(base, 'common.json');

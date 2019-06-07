@@ -2,6 +2,7 @@ import json5 from 'json5';
 import lodash from 'lodash';
 import {generateItemJson, parseItemJson} from '../src/item';
 import {Item} from '../src/item-types';
+import {TypeUri} from '../src/uris';
 import {getSchemaData, NegativeSchemaTestCase, readPathAsString} from './util';
 
 test.each(lodash.flatten([

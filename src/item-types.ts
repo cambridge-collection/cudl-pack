@@ -1,3 +1,5 @@
+import {TypeUri} from './uris';
+
 export type ItemPropertyScalar = string | boolean | number;
 export type ItemProperty = ItemPropertyScalar | ItemPropertyScalar[];
 export interface ItemProperties { [key: string]: ItemProperty; }
