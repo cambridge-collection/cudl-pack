@@ -6,6 +6,7 @@ import commonSchema from 'cudl-schema-package-json/schemas/common.json';
 import dlDatasetSchema from 'cudl-schema-package-json/schemas/dl-dataset.json';
 import itemSchema from 'cudl-schema-package-json/schemas/item.json';
 import url from 'url';
+import {InternalItem} from './internal-item-types';
 import {Item} from './item-types';
 
 const base = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/';

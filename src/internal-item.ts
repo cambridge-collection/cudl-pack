@@ -1,4 +1,5 @@
 import parseJson from 'json-parse-better-errors';
+import {InternalItem} from './internal-item-types';
 import {ValidationOptions} from './schemas';
 
 import {validateInternalItem} from './schemas';

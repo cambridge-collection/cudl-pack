@@ -1,6 +1,9 @@
-type Orientation = 'portrait' | 'landscape';
+export enum Orientation {
+    Portrait = 'portrait',
+    Landscape = 'landscape',
+}
 
-interface TopLevelDescriptiveMetadataProperties {
+export interface TopLevelDescriptiveMetadataProperties {
     ID: string;
     thumbnailUrl?: string;
     thumbnailOrientation?: Orientation;
@@ -13,19 +16,19 @@ interface TopLevelDescriptiveMetadataProperties {
     itemReferences?: Array<{ID: string}>;
 }
 
-interface NestedMetadata {
+export interface NestedMetadata {
     label?: never;
     value: MetadataContainer[];
     [key: string]: any;
 }
 
-interface DisplayableMetadataBase {
+export interface DisplayableMetadataBase {
     display: boolean;
     seq: number;
     label: string;
 }
 
-interface SingleDisplayableMetadata {
+export interface SingleDisplayableMetadata {
     displayForm: string;
     linktype?: 'keyword search';
     value?: never;
@@ -34,7 +37,7 @@ interface SingleDisplayableMetadata {
     [key: string]: any;
 }
 
-interface MultipleDisplayableMetadata {
+export interface MultipleDisplayableMetadata {
     value: SingleDisplayableMetadata[];
     displayForm?: never;
 
@@ -42,21 +45,21 @@ interface MultipleDisplayableMetadata {
     [key: string]: any;
 }
 
-type DisplayableMetadata = DisplayableMetadataBase & (SingleDisplayableMetadata | MultipleDisplayableMetadata);
+export type DisplayableMetadata = DisplayableMetadataBase & (SingleDisplayableMetadata | MultipleDisplayableMetadata);
 
-type MetadataKeys = 'display' | 'displayForm' | 'label' | 'linktype' | 'seq' | 'value';
-type NonDisplayableMetadata = {
+export type MetadataKeys = 'display' | 'displayForm' | 'label' | 'linktype' | 'seq' | 'value';
+export type NonDisplayableMetadata = {
     // Anything except reserved metadata keys
     [K in string]: K extends MetadataKeys ? never : any
 };
 
-interface MetadataContainer {
+export interface MetadataContainer {
     [key: string]: NestedMetadata | DisplayableMetadata | NonDisplayableMetadata;
 }
 
-type DescriptiveMetadataSection = TopLevelDescriptiveMetadataProperties & MetadataContainer;
+export type DescriptiveMetadataSection = TopLevelDescriptiveMetadataProperties & MetadataContainer;
 
-interface Page {
+export interface Page {
     label: string;
     physID: string;
     sequence: number;
@@ -75,7 +78,7 @@ interface Page {
     pageType?: string;
 }
 
-interface LogicalStructureNode {
+export interface LogicalStructureNode {
     descriptiveMetadataID: string;
     endPagePosition: number;
     label: string;
@@ -88,7 +91,7 @@ interface LogicalStructureNode {
     startPageID?: string;
 }
 
-interface ListItemPage {
+export interface ListItemPage {
     fileID: string;
     dmdID: string;
     startPageLabel: string;
@@ -97,7 +100,7 @@ interface ListItemPage {
     listItemText: string;
 }
 
-interface ItemProperties {
+export interface ItemProperties {
     textDirection?: 'L' | 'R';
     itemType?: 'essay';
     numberOfPages?: number;
@@ -111,11 +114,11 @@ interface ItemProperties {
     completeness?: string;
 }
 
-interface ItemStructure {
+export interface ItemStructure {
     descriptiveMetadata: DescriptiveMetadataSection[];
     page: Page[];
     logicalStructures: LogicalStructureNode[];
     listItemPages: ListItemPage[];
 }
 
-type InternalItem = ItemProperties & ItemStructure;
+export type InternalItem = ItemProperties & ItemStructure;
