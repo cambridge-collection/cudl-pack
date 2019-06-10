@@ -2,8 +2,8 @@ import {Namespace} from '../src/uris';
 
 function getNamespace() {
     return new Namespace([
-        ['foo', 'http://example.com/'],
-        ['bar', 'file:///tmp/'],
+        {curiePrefix: 'foo', uriPrefix: 'http://example.com/'},
+        {curiePrefix: 'bar', uriPrefix: 'file:///tmp/'},
     ]);
 }
 

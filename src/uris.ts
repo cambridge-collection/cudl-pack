@@ -1,23 +1,39 @@
-import {BiMap, CurieUtil, parseContext} from '@geneontology/curie-util-es5';
+import clone from 'clone';
 
 export const enum TypeUri {
     PackageItem = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json',
     InternalItem = 'https://schemas.cudl.lib.cam.ac.uk/__internal__/v1/item.json',
 }
 
-type UriMap = Array<[string, string]>;
+interface CurieDefinition {
+    /** The part of the CURIE before the first colon. */
+    curiePrefix: string;
+
+    /** The base URI that a CURIE suffix is appended to when expanding. */
+    uriPrefix: string;
+}
 
 /**
  * Expand/compact URIs/CURIEs according to short names and URI prefixes.
+ *
+ * CURIEs/URIs are expanded compacted deterministically according to the order
+ * of CURIE definitions used to create the Namespace: Both when expanding and
+ * compacting, the first-matching definition in the list is used to
+ * expand/compact.
  */
 export class Namespace {
-    private readonly curieTranslator: CurieUtil;
+    // expand/compact are implemented in quite a simple O(n) manner in order to
+    // ensure we provide deterministic expansion/compaction according to the
+    // contract described in the class description. The number of entries is
+    // expected to be < 10, often < 5, so this shouldn't be a problem.
+
+    private readonly curies: CurieDefinition[];
 
     /**
-     * @param uriMap
+     * @param curies The CURIEs to include in the namespace.
      */
-    constructor(uriMap: UriMap) {
-        this.curieTranslator = getCurieTranslator(uriMap);
+    constructor(curies: CurieDefinition[]) {
+        this.curies = clone(curies);
     }
 
     /**
@@ -25,7 +41,17 @@ export class Namespace {
      * in this namespace, otherwise return the value unchanged.
      */
     public getExpandedUri(curieOrUri: string): string {
-        return this.curieTranslator.getIri(curieOrUri) || curieOrUri;
+        const [prefix, ...suffix] = curieOrUri.split(':');
+
+        if(suffix.length > 0) {
+            for(const curie of this.curies) {
+                if(curie.curiePrefix === prefix) {
+                    return `${curie.uriPrefix}${suffix.join(':')}`;
+                }
+            }
+        }
+
+        return curieOrUri;
     }
 
     /**
@@ -33,15 +59,14 @@ export class Namespace {
      * namespace.
      */
     public getCompactedUri(uri: string): string {
-        return this.curieTranslator.getCurie(uri) || uri;
-    }
-}
+        for(const curie of this.curies) {
+            if(uri.startsWith(curie.uriPrefix)) {
+                const curieSuffix = uri.substr(curie.uriPrefix.length);
+                return `${curie.curiePrefix}:${curieSuffix}`;
+            }
+        }
 
-function getCurieTranslator(uriMap: UriMap): CurieUtil {
-    const context: {[key: string]: string} = {};
-    for(const [curiePrefix, iriPrefix] of uriMap) {
-        context[curiePrefix] = iriPrefix;
+        return uri;
     }
 
-    return new CurieUtil(parseContext({'@context': context}));
 }

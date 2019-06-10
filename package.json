@@ -43,7 +43,6 @@
     "webpack": "^4.0.0"
   },
   "dependencies": {
-    "@geneontology/curie-util-es5": "1.2.2",
     "ajv": "^6.10.0",
     "clone": "^2.1.2",
     "cudl-schema-internal-json": "https://s3-eu-west-1.amazonaws.com/cudl-artefacts/projects/cudl-packaging/dist/cudl-schema-internal-json-1.0.0-alpha.8.tgz",
