@@ -26,3 +26,31 @@ test.each([
 ('Namespace compacts %j to %j', (input, result) => {
     expect(getNamespace().getCompactedUri(input)).toEqual(result);
 });
+
+function getNamespaceFromNamespaceMap() {
+    return Namespace.fromNamespaceMap({
+        // redefine cdl-data
+        'aa-cdl-data': 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/data/',
+        a: 'http://example.com/',
+        b: 'http://example.com/abc',
+        c: 'http://example.com/abcd/3/',
+        z: 'http://example.com/abcd/3/',
+        d: 'http://example.com/abcd/3/',
+    });
+}
+
+test.each([
+    // Default CURIE definitions are higher priority than user-defined ones, so aa-cdl-data is not used (even though its
+    // CURIE prefix sorts before cdl-data).
+    ['https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/data/', 'cdl-data:'],
+
+    ['http://example.com/', 'a:'],
+    ['http://example.com/abc', 'b:'],
+    ['http://example.com/abcd', 'b:d'],
+    ['http://example.com/abcd/3/', 'c:'],
+    ['http://example.com/abcd/3/', 'c:'],
+])
+('Namespace.fromNamespaceMap() compacts URIs deterministically', (uri, expectedCurie) => {
+    const ns = getNamespaceFromNamespaceMap();
+    expect(ns.getCompactedUri(uri)).toEqual(expectedCurie);
+});

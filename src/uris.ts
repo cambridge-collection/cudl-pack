@@ -1,4 +1,6 @@
 import clone from 'clone';
+import lodash from 'lodash';
+import {NamespaceMap} from './item-types';
 
 export const enum TypeUri {
     PackageItem = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json',
@@ -26,6 +28,24 @@ export class Namespace {
     // ensure we provide deterministic expansion/compaction according to the
     // contract described in the class description. The number of entries is
     // expected to be < 10, often < 5, so this shouldn't be a problem.
+
+    /**
+     * Create a Namespace from CURIE definitions from an item's NamespaceMap
+     * with a deterministic order.
+     *
+     * The definitions are ordered with longer prefixes first, so the most
+     * specific CURIE will be used when compressing.
+     */
+    public static fromNamespaceMap(namespaceMap: NamespaceMap): Namespace {
+        const orderedEntries: Array<[string, string]> = lodash.orderBy(lodash.toPairs(namespaceMap), [
+            ([curiePrefix, uriPrefix]) => uriPrefix.length,
+            ([curiePrefix, uriPrefix]) => uriPrefix,
+            ([curiePrefix, uriPrefix]) => curiePrefix,
+        ], ['desc', 'asc', 'asc']);
+
+        return new Namespace(defaultCuries().concat(
+            orderedEntries.map(([curiePrefix, uriPrefix]) => ({curiePrefix, uriPrefix}))));
+    }
 
     private readonly curies: CurieDefinition[];
 
@@ -68,5 +88,15 @@ export class Namespace {
 
         return uri;
     }
+}
 
+export function defaultCuries(): CurieDefinition[] {
+    return [
+        {curiePrefix: 'cdl-data',
+         uriPrefix: 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/data/'},
+        {curiePrefix: 'cdl-role',
+         uriPrefix: 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#data-role-'},
+        {curiePrefix: 'cdl-page',
+         uriPrefix: 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/pageResources/'},
+    ];
 }
