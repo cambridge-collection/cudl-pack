@@ -11,3 +11,15 @@ test('identify() attaches object key to object value as `identifiedID`', () => {
         {[identify.id]: 'bar', a: 2},
     ]);
 });
+
+test('identify.index() creates object from identify IDs', () => {
+    const start = {
+        a: {foo: 1},
+        b: {foo: 2},
+    };
+    const identified = identify(start);
+    expect(identify.index(identified)).toEqual({
+        a: {foo: 1},
+        b: {foo: 2},
+    });
+});

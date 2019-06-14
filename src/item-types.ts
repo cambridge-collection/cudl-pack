@@ -1,4 +1,4 @@
-import {TypeUri} from './uris';
+import {CDLType, Namespace, TypeUri} from './uris';
 
 export type ItemPropertyScalar = string | boolean | number;
 export type ItemProperty = ItemPropertyScalar | ItemPropertyScalar[];
@@ -32,13 +32,19 @@ export interface LinkItemData extends ItemData {
 
 export type PropertiesItemData = ItemData | ItemProperties;
 
-export type ItemResource = TypeBearer;
+export interface ItemResource extends TypeBearer {
+    [key: string]: unknown;
+}
 
 export interface ImageItemResource extends TypeBearer {
     /** The type of image resource identified by the [[image]] URL. */
     imageType: string;
     /** The location of the image as a URL. */
     image: UriReference;
+}
+
+export function isImageItemResource(resource: ItemResource, ns: Namespace): resource is ImageItemResource {
+    return ns.getExpandedUri(resource['@type']) === CDLType.Image;
 }
 
 export interface TranscriptionItemResource extends TypeBearer {

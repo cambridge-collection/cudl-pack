@@ -1,10 +1,16 @@
 import clone from 'clone';
 import lodash from 'lodash';
-import {NamespaceMap} from './item-types';
+import {NamespaceBearer, NamespaceMap} from './item-types';
 
 export const enum TypeUri {
     PackageItem = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json',
     InternalItem = 'https://schemas.cudl.lib.cam.ac.uk/__internal__/v1/item.json',
+}
+
+export const enum CDLType {
+    Image = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/pageResources/image',
+    Translation = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/pageResources/translation',
+    Transcription = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/pageResources/transcription',
 }
 
 interface CurieDefinition {
