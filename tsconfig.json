@@ -6,7 +6,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": true,
-    "outDir": "dist",
+    "outDir": "build/dist-root",
     "paths": {
       "*": [
         "node_modules/*",

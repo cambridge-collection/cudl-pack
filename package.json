@@ -1,8 +1,7 @@
 {
   "name": "cudl-pack",
-  "version": "0.0.0",
-  "description": "Package metadata for a CUDL instance",
-  "main": "index.js",
+  "version": "0.0.0-alpha.0",
+  "description": "Data package compiler for Cambridge Digital Library instances",
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
     "docs": "typedoc --out docs src",
