@@ -1,5 +1,6 @@
 import json5 from 'json5';
-import {parseInternalItemJson} from '../src/internal-item';
+import {generateInternalItemJson, parseInternalItemJson} from '../src/internal-item';
+import {InternalItem} from '../src/internal-item-types';
 import {getSchemaData, NegativeSchemaTestCase, readPathAsString} from './util';
 
 test.each(getSchemaData('cudl-schema-internal-json').item.validTestCases)
@@ -20,4 +21,36 @@ test.each(getSchemaData('cudl-schema-internal-json').item.invalidTestCases)
 
     expect(() => parseInternalItemJson(JSON.stringify(invalidInternalItem))).toThrowError(`\
 input does not match the https://schemas.cudl.lib.cam.ac.uk/__internal__/v1/item.json schema:`);
+});
+
+test('generateInternalItemJson', () => {
+    const json = generateInternalItemJson({
+        descriptiveMetadata: [],
+        pages: [],
+        logicalStructures: [],
+    });
+    expect(JSON.parse(json)).toEqual({
+        descriptiveMetadata: [],
+        pages: [],
+        logicalStructures: [],
+    });
+});
+
+test.each`
+    options              | shouldFail
+    ${undefined}         | ${true}
+    ${{validate: true}}  | ${true}
+    ${{validate: false}} | ${false}
+`(`it is $shouldFail that generateInternalItemJson should throw when generating JSON for an invalid item with \
+options: $options`, ({options, shouldFail}) => {
+    const invalidItem = {} as InternalItem;
+
+    function generate() {
+        return generateInternalItemJson(invalidItem, options);
+    }
+
+    if(shouldFail)
+        expect(generate).toThrowError();
+    else
+        expect(typeof generate()).toBe('string');
 });
