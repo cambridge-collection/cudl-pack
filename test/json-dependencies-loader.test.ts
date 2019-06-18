@@ -1,5 +1,6 @@
 import path from 'path';
 import webpack from 'webpack';
+import IgnorePlugin from 'webpack/lib/IgnorePlugin';
 import {JSONDependenciesLoaderOptions, ReferenceSelector} from '../src/loaders/json-dependencies-loader';
 import compiler from './compiler';
 import {readPathAsString} from './util';
@@ -184,4 +185,36 @@ test('referenced modules not containing JSON are reported', async () => {
         .toMatch(new RegExp(
             'Unable to parse referenced module as JSON. module type: javascript/auto, reference: \'./file.txt\', ' +
             'parse error: SyntaxError: '));
+});
+
+test('references to ignored dependencies are left as-is', async () => {
+    const config: webpack.Configuration = {
+        entry: './data/references/a',
+        module: {
+            rules: [{
+                test: /\.json$/,
+                use: [{
+                    loader: '../src/loaders/json-dependencies-loader.ts',
+                }],
+            }],
+        },
+        plugins: [
+            // c.json is ignored
+            new IgnorePlugin({resourceRegExp: /c\.json$/}),
+        ],
+    };
+
+    const stats = await compiler(config);
+    const module = stats.toJson().modules[0];
+
+    expect(stats.compilation.modules[0].type).toEqual('json');
+    expect(JSON.parse(module.source)).toEqual({
+            thisIs: 'a',
+            b: {
+                thisIs: 'b',
+                // The reference to c.json is ignored, so it remains unchanged.
+                c: {'@id': 'c.json'},
+            },
+        },
+    );
 });

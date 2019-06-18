@@ -2,16 +2,24 @@ import MemoryFileSystem from 'memory-fs';
 import path from 'path';
 import webpack from 'webpack';
 
-export default (fixture: string, rules: webpack.RuleSetRule[]): Promise<webpack.Stats> => {
+function run(options: webpack.Configuration): Promise<webpack.Stats>;
+function run(fixture: string, rules: webpack.RuleSetRule[]): Promise<webpack.Stats>;
+function run(options: string | webpack.Configuration, rules?: webpack.RuleSetRule[]): Promise<webpack.Stats> {
+    let configuration: webpack.Configuration;
+    if(typeof options === 'string') {
+        configuration = {
+            entry: `./${options}`,
+            module: {rules: rules || []},
+        };
+    }
+    else
+        configuration = options;
+
     const compiler = webpack({
         context: __dirname,
-        entry: `./${fixture}`,
         output: {
             path: path.resolve(__dirname),
             filename: 'bundle.js',
-        },
-        module: {
-            rules,
         },
         resolve: {
             extensions: [
@@ -23,6 +31,7 @@ export default (fixture: string, rules: webpack.RuleSetRule[]): Promise<webpack.
                 '.wasm', '.mjs', '.js', '.json',
             ],
         },
+        ...configuration,
     });
 
     compiler.outputFileSystem = new MemoryFileSystem();
@@ -36,4 +45,6 @@ export default (fixture: string, rules: webpack.RuleSetRule[]): Promise<webpack.
             resolve(stats);
         });
     });
-};
+}
+
+export default run;

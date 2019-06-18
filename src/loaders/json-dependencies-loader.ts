@@ -22,10 +22,13 @@ import fp from 'lodash/fp';
 import {RawSourceMap} from 'source-map';
 import * as util from 'util';
 import webpack from 'webpack';
+import webpackLog from 'webpack-log';
 import {createValidator} from '../schemas';
 
 import {createAsyncLoaderFromMethod} from '../utils';
 import optionsSchemaJSON from './json-dependencies-loader-options.schema.json';
+
+const log = webpackLog({name: 'cudl-pack/loaders/json-dependencies-loader', unique: false});
 
 type PathComponent = string | number;
 type Path = PathComponent[];
@@ -137,9 +140,14 @@ async function resolveReferences(
             .then((result) => ({...ref, result}))));
 
     return resolvedReferences.reduce((jsonRoot, ref) => {
+        if(ref.result.status === 'ignored') {
+            log.debug(`Ignored module referenced by ${context.resourcePath}: ${ref.reference}`);
+            return jsonRoot;
+        }
+
         if(ref.substitutionPoint.length === 0) {
             // We're replacing the root value
-            return ref.result;
+            return ref.result.value;
         }
         else {
             const [parentPath, leafAttr] = [
@@ -157,28 +165,42 @@ exist`);
             // However I think the right thing to do is to implement an actual JSON-LD module type which can
             // natively represent references, rather than trying to enhance this workaround for baseline JSON
             // modules.
-            parent[leafAttr] = ref.result;
+            parent[leafAttr] = ref.result.value;
             return jsonRoot;
         }
     }, json);
 }
 
-function resolveReference(context: webpack.loader.LoaderContext, reference: string) {
+interface IgnoredResolveResult {
+    status: 'ignored';
+}
+interface SuccessfulResolveResult {
+    status: 'resolved';
+    value: any;
+}
+type ResolveResult = IgnoredResolveResult | SuccessfulResolveResult;
+
+async function resolveReference(context: webpack.loader.LoaderContext, reference: string): Promise<ResolveResult> {
     const request = urlToRequest(reference, context.rootContext);
 
-    return loadModule(context, request).then(({source, module}) => {
-        try {
-            return parseJson(source);
-        }
-        catch(e) {
-            return Promise.reject(new Error(`\
+    let result;
+    try { result = await loadModule(context, request); }
+    catch (e) {
+        throw new Error(`Unable to load module referenced by: ${util.inspect(reference)}: ${e}`);
+    }
+
+    const {source, module} = result;
+    if(!source || !module)
+        return {status: 'ignored'};
+
+    try {
+        return {status: 'resolved', value: parseJson(source)};
+    }
+    catch(e) {
+        throw new Error(`\
 Unable to parse referenced module as JSON. module type: ${module.type}, \
-reference: ${util.inspect(reference)}, parse error: ${e}`));
-        }
-    }).catch((reason) => {
-        return Promise.reject(new Error(`\
-Unable to load module referenced by: ${util.inspect(reference)}: ${reason}`));
-    });
+reference: ${util.inspect(reference)}, parse error: ${e}`);
+    }
 }
 
 interface WebpackModule extends webpack.Module {
@@ -186,15 +208,24 @@ interface WebpackModule extends webpack.Module {
 }
 
 interface LoadedModule {
-    source: string;
-    sourceMap: RawSourceMap;
-    module: WebpackModule;
+    source?: string;
+    sourceMap?: RawSourceMap;
+    module?: WebpackModule;
 }
 
 function loadModule(loaderContext: webpack.loader.LoaderContext, request: string): Promise<LoadedModule> {
     return new Promise((resolve, reject) => {
         loaderContext.loadModule(request, (err, source, sourceMap, module: WebpackModule) => {
-            if(err) { reject(err); }
+            if(err) {
+                // Webpack allows modules to be ignored, e.g. via the NormalModuleFactory beforeResolve hook.
+                // However the LoaderContext.loadModule() method doesn't handle ignored modules, and fails with the
+                // following error if it gets no module from its load request.
+                if(err.message === 'Cannot load the module') {
+                    resolve({});
+                    return;
+                }
+                reject(err);
+            }
             else { resolve({source, sourceMap, module}); }
         });
     });
