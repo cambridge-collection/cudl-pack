@@ -62,7 +62,7 @@ compile-typescript:
 	npm run build
 
 build/dist-root/package.json: package.json
-	jq '. + {main: "index.js"}' $< > $@
+	jq '. + {main: "index.js", types: "index.d.ts"}' $< > $@
 
 build/dist-root/README.md: README.md
 	cp $? $@
