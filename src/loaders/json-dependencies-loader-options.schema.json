@@ -1,0 +1,37 @@
+{
+  "$id": "cudl-pack/loaders/json-dependencies-loader-options.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "module-reference-pattern": {
+      "type": "string",
+      "description": "A JSONPath expression matching string properties which are module references"
+    },
+    "full-module-reference-selector": {
+      "type": "object",
+      "properties": {
+        "expression": {"$ref": "#/definitions/module-reference-pattern"},
+        "substitutionLevel": {"type": "number"}
+      },
+      "required": ["expression"]
+    },
+    "module-reference-selector": {
+      "oneOf": [
+        {"$ref": "#/definitions/module-reference-pattern"},
+        {"$ref": "#/definitions/full-module-reference-selector"}
+      ]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "references": {
+      "oneOf": [
+        {"$ref": "#/definitions/module-reference-selector"},
+        {
+          "type": "array",
+          "items": {"$ref": "#/definitions/module-reference-selector"}
+        },
+        {"typeof": "function"}
+      ]
+    }
+  }
+}

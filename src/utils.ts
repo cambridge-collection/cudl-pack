@@ -23,13 +23,13 @@ type AsyncLoadMethod<T> = (this: T, context: webpack.loader.LoaderContext, sourc
  * can use it directly.
  */
 export function createAsyncLoaderFromMethod<T>(load: AsyncLoadMethod<T>, thisArg?: T): webpack.loader.Loader {
-    return function(this: webpack.loader.LoaderContext, source: string | Buffer, sourceMap?: RawSourceMap) {
+    return function(this: webpack.loader.LoaderContext, source: string | Buffer, sourceMap?: RawSourceMap): void {
         const callback = this.async();
         if(callback === undefined) {
             throw new Error('loader context returned no callback from async()');
         }
 
-        return bindPromiseToCallback(load.call(thisArg, this, source, sourceMap), callback);
+        bindPromiseToCallback(load.call(thisArg, this, source, sourceMap), callback);
     };
 }
 

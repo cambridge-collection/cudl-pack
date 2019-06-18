@@ -44,6 +44,7 @@
   },
   "dependencies": {
     "ajv": "^6.10.0",
+    "ajv-keywords": "^3.4.0",
     "clone": "^2.1.2",
     "cudl-schema-internal-json": "https://s3-eu-west-1.amazonaws.com/cudl-artefacts/projects/cudl-packaging/dist/cudl-schema-internal-json-1.0.0-alpha.8.tgz",
     "cudl-schema-package-json": "https://s3-eu-west-1.amazonaws.com/cudl-artefacts/projects/cudl-packaging/dist/cudl-schema-package-json-1.0.0-alpha.10.tgz",

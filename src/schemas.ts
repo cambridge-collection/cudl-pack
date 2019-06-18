@@ -52,8 +52,8 @@ function defaultValidationOptions(opts?: ValidationOptions): StrictValidationOpt
     };
 }
 
-function expectValid<T>(this: {schemaId: string, validate: Ajv.ValidateFunction, name: string},
-                        obj: unknown, options?: ValidationOptions): T {
+interface SchemaSpec { schemaId: string; validate: Ajv.ValidateFunction; name: string; }
+function expectValid<T>(this: SchemaSpec, obj: unknown, options?: ValidationOptions): T {
     const resolvedOptions = defaultValidationOptions(options);
     const inputDescription = resolvedOptions.inputDescription;
     const valid = this.validate(obj);
@@ -80,11 +80,16 @@ function errorMessage(errorObject: Ajv.ErrorObject, name: string, includeSchemaP
     return msg;
 }
 
-function createValidator<T>(schemaId: string, name: string): (obj: any, options?: ValidationOptions) => T {
-    return expectValid.bind({schemaId, validate: ajv.getSchema(schemaId), name});
+export type Validator<T> = (obj: any, options?: ValidationOptions) => T;
+
+export function createValidator<T>(spec: SchemaSpec): Validator<T> {
+    return expectValid.bind(spec);
+}
+function createValidatorInternal<T>(schemaId: string, name: string): Validator<T> {
+    return createValidator<T>({schemaId, name, validate: ajv.getSchema(schemaId)});
 }
 
-export const validateCollection = createValidator(collectionId, 'collection');
-export const validateDlDataset = createValidator(dlDatasetId, 'dl-dataset');
-export const validateItem = createValidator<Item>(itemId, 'item');
-export const validateInternalItem = createValidator<InternalItem>(internalItemId, 'item');
+export const validateCollection = createValidatorInternal(collectionId, 'collection');
+export const validateDlDataset = createValidatorInternal(dlDatasetId, 'dl-dataset');
+export const validateItem = createValidatorInternal<Item>(itemId, 'item');
+export const validateInternalItem = createValidatorInternal<InternalItem>(internalItemId, 'item');

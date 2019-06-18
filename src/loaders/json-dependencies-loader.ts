@@ -11,16 +11,21 @@
  * Because the parent is replaced, "@id" references should only be used in
  * objects in which the reference is the only value.
  */
+import Ajv from 'ajv';
+import ajvKeywords from 'ajv-keywords';
 import assert from 'assert';
+import clone from 'clone';
 import parseJson from 'json-parse-better-errors';
 import jsonpath from 'jsonpath';
-import {urlToRequest} from 'loader-utils';
+import loaderUtils, {urlToRequest} from 'loader-utils';
 import fp from 'lodash/fp';
 import {RawSourceMap} from 'source-map';
 import * as util from 'util';
 import webpack from 'webpack';
+import {createValidator} from '../schemas';
 
-import {bindPromiseToCallback, createAsyncLoader, createAsyncLoaderFromMethod} from '../utils';
+import {createAsyncLoaderFromMethod} from '../utils';
+import optionsSchemaJSON from './json-dependencies-loader-options.schema.json';
 
 type PathComponent = string | number;
 type Path = PathComponent[];
@@ -38,7 +43,7 @@ interface JSONPathReferenceSelector {
     substitutionLevel: number;
 }
 
-type ReferenceSelector = (options: {context: webpack.loader.LoaderContext, json: any}) => Reference[];
+export type ReferenceSelector = (options: {context: webpack.loader.LoaderContext, json: any}) => Reference[];
 
 class JsonDependenciesLoader {
     public static matchReferencesFromJSONPath(
@@ -80,8 +85,8 @@ interface Node {
 
 interface ReferenceNode extends Node, JSONPathReferenceSelector { }
 
-function selectReferencesWithJSONPath(context: webpack.loader.LoaderContext,
-                                      selectors: JSONPathReferenceSelector[], json: any): Reference[] {
+export function selectReferencesWithJSONPath(context: webpack.loader.LoaderContext,
+                                             selectors: JSONPathReferenceSelector[], json: any): Reference[] {
     const [referenceNodes, ignoredNodes] = fp.pipe(
         fp.flatMap((selector: JSONPathReferenceSelector): ReferenceNode[] => {
             return fp.map((node: Node) => {
@@ -195,11 +200,46 @@ function loadModule(loaderContext: webpack.loader.LoaderContext, request: string
     });
 }
 
-// Was going to support specifying the ReferenceSelector used by the loader, but
-// that's a faff as you have to configure the loader via constant data values,
-// you can't pass functions. Can work around by pre-defining ReferenceSelector
-// by name, then specifying a name via loader options if required...
-const loader: webpack.loader.Loader = JsonDependenciesLoader.matchReferencesFromJSONPath({
-    expression: '$..["@id"]', substitutionLevel: 1}).load;
+interface Options {
+    references?: string | string[] | JSONPathReferenceSelector | JSONPathReferenceSelector[] | ReferenceSelector;
+}
+
+const ajv = new Ajv();
+ajvKeywords(ajv, 'typeof');
+
+const validateOptions = createValidator<Options>({
+    schemaId: 'cudl-pack/loaders/json-dependencies-loader-options.schema.json',
+    validate: ajv.compile(optionsSchemaJSON),
+    name: 'options',
+});
+
+const defaultReferenceSelector: JSONPathReferenceSelector = {
+    expression: '$..["@id"]',
+    substitutionLevel: 1,
+};
+
+const loader: webpack.loader.Loader = function(this: webpack.loader.LoaderContext, source: string | Buffer): void {
+    const options = validateOptions(clone(loaderUtils.getOptions(this) || {}));
+
+    let referenceSelector: ReferenceSelector;
+    if(typeof options.references === 'function')
+        referenceSelector = options.references;
+    else {
+        const jsonpathSelectors: JSONPathReferenceSelector[] =
+            (Array.isArray(options.references) ? options.references : [options.references || defaultReferenceSelector])
+            .map(ref => {
+                if(typeof ref === 'string')
+                    return {expression: ref, substitutionLevel: 0};
+                else
+                    return {substitutionLevel: 0, ...ref};
+            });
+        referenceSelector = ({context, json}) => selectReferencesWithJSONPath(context, jsonpathSelectors, json);
+    }
+
+    new JsonDependenciesLoader(referenceSelector).load.call(this, source);
+};
 
 export default loader;
+export {
+    Options as JSONDependenciesLoaderOptions,
+};

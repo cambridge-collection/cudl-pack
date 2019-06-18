@@ -1,6 +1,8 @@
 import path from 'path';
 import webpack from 'webpack';
+import {JSONDependenciesLoaderOptions, ReferenceSelector} from '../src/loaders/json-dependencies-loader';
 import compiler from './compiler';
+import {readPathAsString} from './util';
 
 test('references are replaced by resolved JSON objects', async () => {
     const rules = [{
@@ -25,6 +27,70 @@ test('references are replaced by resolved JSON objects', async () => {
             },
         },
     );
+});
+
+test('reference pattern can be specified via options', async () => {
+    const rules = [{
+        test: /\.json$/,
+        use: [{
+            loader: '../src/loaders/json-dependencies-loader.ts',
+            options: {
+                references: {
+                    expression: '$..["href"]',
+                    substitutionLevel: 1,
+                },
+            } as JSONDependenciesLoaderOptions,
+        }],
+    }];
+
+    const stats = await compiler('./data/references/alternate-syntax', rules);
+    const module = stats.toJson().modules[0];
+
+    expect(stats.compilation.modules[0].type).toEqual('json');
+
+    expect(JSON.parse(module.source)).toEqual({
+        c: {
+            thisIs: 'c',
+        },
+    });
+});
+
+test('a user-provided function can enumerate references', async () => {
+    const expectedJSONDoc = JSON.parse(await readPathAsString('data/references/alternate-syntax.json'));
+    const refSelector: ReferenceSelector = ({context, json}) => {
+        if(context.resourcePath.endsWith('/alternate-syntax.json')) {
+            expect(json).toEqual(expectedJSONDoc);
+            return [
+                {reference: 'c.json', substitutionPoint: ['c']},
+            ];
+        }
+        else {
+            expect(context.resourcePath.endsWith('/c.json')).toBeTruthy();
+            return [];
+        }
+    };
+
+    const rules = [{
+        test: /\.json$/,
+        use: [{
+            loader: '../src/loaders/json-dependencies-loader.ts',
+            options: {
+                references: refSelector,
+            } as JSONDependenciesLoaderOptions,
+        }],
+    }];
+
+    const stats = await compiler('./data/references/alternate-syntax', rules);
+    const module = stats.toJson().modules[0];
+
+    expect(stats.compilation.modules[0].type).toEqual('json');
+
+    expect(JSON.parse(module.source)).toEqual({
+        c: {
+            thisIs: 'c',
+        },
+    });
+    expect.assertions(4);
 });
 
 test('references in arrays are replaced by resolved JSON objects', async () => {
