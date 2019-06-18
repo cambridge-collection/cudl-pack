@@ -1,6 +1,6 @@
 {
   "name": "cudl-pack",
-  "version": "0.0.0-alpha.1",
+  "version": "0.0.0-alpha.2",
   "description": "Data package compiler for Cambridge Digital Library instances",
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
