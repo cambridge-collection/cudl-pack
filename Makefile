@@ -47,13 +47,6 @@ publish: package _require-clean-checkout
 
 bump-version-prerelease: _require-clean-checkout
 	npm version prerelease
-	git add package.json
-
-	packageName="$$(jq -r '.name' package.json)" ; \
-    packageVersion="$$(jq -r '.version' package.json)" ; \
-    tagName="$$packageName/$$packageVersion" ; \
-	git commit -m "Bump version of $$packageName to $$packageVersion" package.json ; \
-	git tag "$$tagName" HEAD
 
 build:
 	mkdir -p build
