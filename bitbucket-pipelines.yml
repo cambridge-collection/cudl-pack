@@ -1,4 +1,4 @@
-image: node:10.16
+image: camdl/cudl-pack-pipelines:1.0.0
 pipelines:
   default:
     - parallel:
