@@ -1,19 +1,44 @@
 import webpack from 'webpack';
 import compiler from './compiler';
 
-test('xslt-loader', async () => {
-    const rules: webpack.RuleSetRule[] = [{
+interface Options {
+    stylesheetPath: string;
+    inputPath?: string;
+    postLoaders?: webpack.RuleSetUseItem[];
+}
+function runXsltLoader({stylesheetPath, inputPath, postLoaders}: Options) {
+    inputPath = inputPath || './data/xslt/data.xml';
+    postLoaders = postLoaders || ['../src/loaders/json-raw-loader.ts'];
+
+    return compiler(inputPath, [{
         type: 'json',
         test: /\.xml$/,
-        use: [
-            '../src/loaders/json-raw-loader.ts',
-            '../src/loaders/xslt-loader.ts?stylesheet=./data/xslt/a.xslt',
-        ],
-    }];
+        use: postLoaders.concat([
+            {
+                loader: '../src/loaders/xslt-loader.ts',
+                options: {stylesheet: stylesheetPath},
+            },
+        ]),
+    }]);
+}
 
-    const stats = await compiler('./data/example.dl-dataset.xml', rules);
+test('xslt-loader supports XSLT 1.1', async () => {
+    const stats = await runXsltLoader({stylesheetPath: './data/xslt/one.xsl'});
     const module = stats.toJson().modules[0];
+    expect(JSON.parse(module.source)).toEqual(`\
+<?xml version="1.0" encoding="UTF-8"?><foobar><message>Hello World!</message></foobar>`);
+});
 
-    expect(stats.compilation.modules[0].type).toEqual('json');
-    expect(JSON.parse(module.source)).toEqual('<?xml version="1.0" encoding="UTF-8"?><foobar>Hi</foobar>');
+test('xslt-loader supports XSLT 3.0', async () => {
+    const stats = await runXsltLoader({stylesheetPath: './data/xslt/three.xsl'});
+    const module = stats.toJson().modules[0];
+    expect(JSON.parse(module.source)).toEqual(`\
+<?xml version="1.0" encoding="UTF-8"?><handledError/>`);
+});
+
+test('xslt-loader stylesheets can generate JSON', async () => {
+    const stats = await runXsltLoader({stylesheetPath: './data/xslt/json-output.xsl', postLoaders: []});
+    const module = stats.toJson().modules[0];
+    expect(module.source).toEqual('{"message":"Hello World!"}');
+    expect(JSON.parse(module.source)).toEqual({message: 'Hello World!'});
 });
