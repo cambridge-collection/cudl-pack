@@ -68,7 +68,7 @@ test('Apply TEI Prefilter XSLT', async () => {
             throw err;
         }
 
-        expect(module.source).toEqual(JSON.stringify(data.toString()));
+        expect(JSON.parse(module.source).trim()).toEqual(data.toString().trim());
     });
 
 });
@@ -86,7 +86,7 @@ test('Apply TEI DocFormatter XSLT', async () => {
             throw err;
         }
 
-        expect(module.source).toEqual(JSON.stringify(data.toString()));
+        expect(JSON.parse(module.source).trim()).toEqual(data.toString().trim());
     });
 
 });

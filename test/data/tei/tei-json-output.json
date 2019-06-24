@@ -397,7 +397,7 @@
                ],
             "numberOfPages": 602,
             "embeddable": true,
-            "sourceData": "/v1/metadata/tei/MS-HEBREW-GASTER-00086/",
+            "sourceData": "/v1/metadata/tei/tei-full-item/",
             "pages": 
                [
             
@@ -7643,7 +7643,7 @@
                [
             
          {
-            "fileID": "MS-HEBREW-GASTER-00086",
+            "fileID": "tei-full-item",
             "dmdID": "ITEM-1",
             "startPageLabel": "17a",
             "startPage": 39,
@@ -7651,7 +7651,7 @@
             "listItemText": "Folio 17a: Marginal indication of parashah decorated in ink."
          },
          {
-            "fileID": "MS-HEBREW-GASTER-00086",
+            "fileID": "tei-full-item",
             "dmdID": "ITEM-1",
             "startPageLabel": "111b",
             "startPage": 228,
@@ -7659,7 +7659,7 @@
             "listItemText": "Folios 111b, 230a, 239b, 246a, 249b, 252b, 255b, 258b, 267b, 270a, 277b, 281a: Marginal indication of sedarim decorated in ink."
          },
          {
-            "fileID": "MS-HEBREW-GASTER-00086",
+            "fileID": "tei-full-item",
             "dmdID": "ITEM-1",
             "startPageLabel": "41b",
             "startPage": 88,
@@ -7667,7 +7667,7 @@
             "listItemText": "Folio 41b: Red ink geometric design."
          },
          {
-            "fileID": "MS-HEBREW-GASTER-00086",
+            "fileID": "tei-full-item",
             "dmdID": "ITEM-1",
             "startPageLabel": "89a",
             "startPage": 183,
@@ -7675,7 +7675,7 @@
             "listItemText": "Folios 89a, 104a, 107b, 126b, 194a: Black ink decoration that indicates the middle of the book."
          },
          {
-            "fileID": "MS-HEBREW-GASTER-00086",
+            "fileID": "tei-full-item",
             "dmdID": "ITEM-1",
             "startPageLabel": "65b",
             "startPage": 136,
@@ -7683,7 +7683,7 @@
             "listItemText": "Folios 65b-66a: Pen trial."
          },
          {
-            "fileID": "MS-HEBREW-GASTER-00086",
+            "fileID": "tei-full-item",
             "dmdID": "ITEM-1",
             "startPageLabel": "70a",
             "startPage": 145,
@@ -7691,7 +7691,7 @@
             "listItemText": "Folio 70a: Erased addition."
          },
          {
-            "fileID": "MS-HEBREW-GASTER-00086",
+            "fileID": "tei-full-item",
             "dmdID": "ITEM-1",
             "startPageLabel": "124a",
             "startPage": 253,
@@ -7699,7 +7699,7 @@
             "listItemText": "Folios 124a-126b: Small additions in the margins."
          },
          {
-            "fileID": "MS-HEBREW-GASTER-00086",
+            "fileID": "tei-full-item",
             "dmdID": "ITEM-1",
             "startPageLabel": "290b",
             "startPage": 586,
@@ -7707,7 +7707,7 @@
             "listItemText": "Folios 290b-293a: Several texts in different hands and languages. According to Gaster they contain abstracts from Rashiâ€™s commentary to certain Psalms and folio 293a some aggadic matter referring to the kings of Judah."
          },
          {
-            "fileID": "MS-HEBREW-GASTER-00086",
+            "fileID": "tei-full-item",
             "dmdID": "ITEM-1",
             "startPageLabel": "293b",
             "startPage": 592,
@@ -7715,7 +7715,7 @@
             "listItemText": "Folio 293b: list of zodiacal signs and of planets in Hebrew and Judeo-Persian."
          },
          {
-            "fileID": "MS-HEBREW-GASTER-00086",
+            "fileID": "tei-full-item",
             "dmdID": "ITEM-1",
             "startPageLabel": "1a",
             "startPage": 7,
@@ -7723,7 +7723,7 @@
             "listItemText": "Folio 1a: Several ownership marks in Hebrew, mentioning such names as Judah, Isaac, Ezra."
          },
          {
-            "fileID": "MS-HEBREW-GASTER-00086",
+            "fileID": "tei-full-item",
             "dmdID": "ITEM-1",
             "startPageLabel": "1a",
             "startPage": 7,

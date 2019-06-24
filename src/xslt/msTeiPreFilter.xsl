@@ -16,10 +16,10 @@
    -->
 
     <!-- Variables expected by templates-->
-    <!--xsl:variable name="fileID" select="substring-before(tokenize(document-uri(/), '/')[last()], '.xml')"/-->
+    <xsl:variable name="fileID" select="substring-before(tokenize(document-uri(/), '/')[last()], '.xml')"/>
     <!-- Take the fileID from the name of the first image file instead of from filename -->
-    <xsl:variable name="images" select="normalize-space(//*:facsimile/*:surface[1]/*:graphic[1]/@url)"/>
-    <xsl:variable name="fileID" select="replace($images[1],'-\d\d\d-.*$','')"/>
+    <!--xsl:variable name="images" select="normalize-space(//*:facsimile/*:surface[1]/*:graphic[1]/@url)"/>
+    <xsl:variable name="fileID" select="replace($images[1],'-\d\d\d-.*$','')"/-->
 
     <!-- Common functions -->
     <!-- TODO: import these from one place -->

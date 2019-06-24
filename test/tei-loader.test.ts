@@ -22,6 +22,6 @@ test('Load full TEI Item to Internal JSON', async () => {
             throw err;
         }
 
-        expect(module.source).toEqual(data.toString());
+        expect(module.source.trim()).toEqual(data.toString().trim());
     });
 });

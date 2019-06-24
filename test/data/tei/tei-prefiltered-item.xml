@@ -117,7 +117,7 @@
          </dataSources>
          <collections/>
          <ID>ITEM-1</ID>
-         <fileID>MS-HEBREW-GASTER-00086</fileID>
+         <fileID>tei-full-item</fileID>
          <startPageLabel>Front board</startPageLabel>
          <startPage>1</startPage>
          <title display="false" displayForm="Ketuvim">Ketuvim</title>
@@ -142,7 +142,7 @@
    </descriptiveMetadata>
    <numberOfPages>602</numberOfPages>
    <embeddable>true</embeddable>
-   <sourceData>/v1/metadata/tei/MS-HEBREW-GASTER-00086/</sourceData>
+   <sourceData>/v1/metadata/tei/tei-full-item/</sourceData>
    <pages>
       <page>
          <label>Front board</label>
@@ -7382,7 +7382,7 @@
    </logicalStructures>
    <listItemPages>
       <listItemPage xmlns:xtf="http://cdlib.org/xtf" xtf:subDocument="listItem-1">
-         <fileID>MS-HEBREW-GASTER-00086</fileID>
+         <fileID>tei-full-item</fileID>
          <dmdID xtf:noindex="true">ITEM-1</dmdID>
          <startPageLabel>17a</startPageLabel>
          <startPage>39</startPage>
@@ -7390,7 +7390,7 @@
          <listItemText>Folio 17a: Marginal indication of parashah decorated in ink.</listItemText>
       </listItemPage>
       <listItemPage xmlns:xtf="http://cdlib.org/xtf" xtf:subDocument="listItem-2">
-         <fileID>MS-HEBREW-GASTER-00086</fileID>
+         <fileID>tei-full-item</fileID>
          <dmdID xtf:noindex="true">ITEM-1</dmdID>
          <startPageLabel>111b</startPageLabel>
          <startPage>228</startPage>
@@ -7398,7 +7398,7 @@
          <listItemText>Folios 111b, 230a, 239b, 246a, 249b, 252b, 255b, 258b, 267b, 270a, 277b, 281a: Marginal indication of sedarim decorated in ink.</listItemText>
       </listItemPage>
       <listItemPage xmlns:xtf="http://cdlib.org/xtf" xtf:subDocument="listItem-3">
-         <fileID>MS-HEBREW-GASTER-00086</fileID>
+         <fileID>tei-full-item</fileID>
          <dmdID xtf:noindex="true">ITEM-1</dmdID>
          <startPageLabel>41b</startPageLabel>
          <startPage>88</startPage>
@@ -7406,7 +7406,7 @@
          <listItemText>Folio 41b: Red ink geometric design.</listItemText>
       </listItemPage>
       <listItemPage xmlns:xtf="http://cdlib.org/xtf" xtf:subDocument="listItem-4">
-         <fileID>MS-HEBREW-GASTER-00086</fileID>
+         <fileID>tei-full-item</fileID>
          <dmdID xtf:noindex="true">ITEM-1</dmdID>
          <startPageLabel>89a</startPageLabel>
          <startPage>183</startPage>
@@ -7414,7 +7414,7 @@
          <listItemText>Folios 89a, 104a, 107b, 126b, 194a: Black ink decoration that indicates the middle of the book.</listItemText>
       </listItemPage>
       <listItemPage xmlns:xtf="http://cdlib.org/xtf" xtf:subDocument="listItem-5">
-         <fileID>MS-HEBREW-GASTER-00086</fileID>
+         <fileID>tei-full-item</fileID>
          <dmdID xtf:noindex="true">ITEM-1</dmdID>
          <startPageLabel>65b</startPageLabel>
          <startPage>136</startPage>
@@ -7422,7 +7422,7 @@
          <listItemText>Folios 65b-66a: Pen trial.</listItemText>
       </listItemPage>
       <listItemPage xmlns:xtf="http://cdlib.org/xtf" xtf:subDocument="listItem-6">
-         <fileID>MS-HEBREW-GASTER-00086</fileID>
+         <fileID>tei-full-item</fileID>
          <dmdID xtf:noindex="true">ITEM-1</dmdID>
          <startPageLabel>70a</startPageLabel>
          <startPage>145</startPage>
@@ -7430,7 +7430,7 @@
          <listItemText>Folio 70a: Erased addition.</listItemText>
       </listItemPage>
       <listItemPage xmlns:xtf="http://cdlib.org/xtf" xtf:subDocument="listItem-7">
-         <fileID>MS-HEBREW-GASTER-00086</fileID>
+         <fileID>tei-full-item</fileID>
          <dmdID xtf:noindex="true">ITEM-1</dmdID>
          <startPageLabel>124a</startPageLabel>
          <startPage>253</startPage>
@@ -7438,7 +7438,7 @@
          <listItemText>Folios 124a-126b: Small additions in the margins.</listItemText>
       </listItemPage>
       <listItemPage xmlns:xtf="http://cdlib.org/xtf" xtf:subDocument="listItem-8">
-         <fileID>MS-HEBREW-GASTER-00086</fileID>
+         <fileID>tei-full-item</fileID>
          <dmdID xtf:noindex="true">ITEM-1</dmdID>
          <startPageLabel>290b</startPageLabel>
          <startPage>586</startPage>
@@ -7446,7 +7446,7 @@
          <listItemText>Folios 290b-293a: Several texts in different hands and languages. According to Gaster they contain abstracts from Rashiâ€™s commentary to certain Psalms and folio 293a some aggadic matter referring to the kings of Judah.</listItemText>
       </listItemPage>
       <listItemPage xmlns:xtf="http://cdlib.org/xtf" xtf:subDocument="listItem-9">
-         <fileID>MS-HEBREW-GASTER-00086</fileID>
+         <fileID>tei-full-item</fileID>
          <dmdID xtf:noindex="true">ITEM-1</dmdID>
          <startPageLabel>293b</startPageLabel>
          <startPage>592</startPage>
@@ -7454,7 +7454,7 @@
          <listItemText>Folio 293b: list of zodiacal signs and of planets in Hebrew and Judeo-Persian.</listItemText>
       </listItemPage>
       <listItemPage xmlns:xtf="http://cdlib.org/xtf" xtf:subDocument="listItem-10">
-         <fileID>MS-HEBREW-GASTER-00086</fileID>
+         <fileID>tei-full-item</fileID>
          <dmdID xtf:noindex="true">ITEM-1</dmdID>
          <startPageLabel>1a</startPageLabel>
          <startPage>7</startPage>
@@ -7462,7 +7462,7 @@
          <listItemText>Folio 1a: Several ownership marks in Hebrew, mentioning such names as Judah, Isaac, Ezra.</listItemText>
       </listItemPage>
       <listItemPage xmlns:xtf="http://cdlib.org/xtf" xtf:subDocument="listItem-11">
-         <fileID>MS-HEBREW-GASTER-00086</fileID>
+         <fileID>tei-full-item</fileID>
          <dmdID xtf:noindex="true">ITEM-1</dmdID>
          <startPageLabel>1a</startPageLabel>
          <startPage>7</startPage>
