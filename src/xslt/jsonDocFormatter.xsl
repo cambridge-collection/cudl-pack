@@ -20,7 +20,9 @@
 
     <xsl:strip-space elements="*"/>
 
+
     <xsl:template match="/">
+
       <xsl:text>
          {</xsl:text>
 
@@ -36,6 +38,9 @@
                 <xsl:with-param name="cudl-element" select="$layout/cudl:element[@name=$thisname]"/>
                 <xsl:with-param name="seq" select="$seq"/>
                 <xsl:with-param name="cudl-parent" select="$layout"/>
+
+
+
             </xsl:apply-templates>
 
             <xsl:if test="position() != last()">,</xsl:if>
@@ -43,6 +48,7 @@
 
         <xsl:text>
          }</xsl:text>
+
     </xsl:template>
 
     <xsl:function name="cudl:get-pos">
@@ -375,6 +381,9 @@
                 <cudl:element name="ID" jsontype="string" />
                 <cudl:element name="physicalLocation" label="Physical Location" jsontype="string" />
                 <cudl:element name="shelfLocator"  label="Classmark" jsontype="string" />
+                <cudl:element name="altIdentifiers" label="Alternative Identifier(s)" jsontype="array">
+                    <cudl:element name="altIdentifier" jsontype="string" />
+                </cudl:element>
                 <cudl:element name="calendarnum"  label="Letter Number" jsontype="string" />
                 <cudl:element name="reference"  label="Reference" jsontype="string" />
                 <cudl:element name="title" label="Title" jsontype="string" />
@@ -619,6 +628,9 @@
                 <cudl:element name="bindings" label="Binding" jsontype="array">
                     <cudl:element name="binding" jsontype="string" />
                 </cudl:element>
+                <cudl:element name="accMats" label="Accompanying Material" jsontype="array">
+                    <cudl:element name="accMat" jsontype="string" />
+                </cudl:element>
                 <cudl:element name="scripts" label="Script"  jsontype="array">
                     <cudl:element name="script" jsontype="string" />
                 </cudl:element>
@@ -637,6 +649,12 @@
                 </cudl:element>
                 <cudl:element name="provenances" label="Provenance"  jsontype="array">
                     <cudl:element name="provenance" jsontype="string" />
+                </cudl:element>
+                <cudl:element name="origins" label="Origin"  jsontype="array">
+                    <cudl:element name="origin" jsontype="string" />
+                </cudl:element>
+                <cudl:element name="acquisitionTexts" label="Acquisition"  jsontype="array">
+                    <cudl:element name="acquisitionText" jsontype="string" />
                 </cudl:element>
                 <cudl:element name="acquisitions"  jsontype="array">
                     <cudl:element name="event" jsontype="object">
@@ -681,6 +699,7 @@
 
         <cudl:element name="numberOfPages" jsontype="number"/>
         <cudl:element name="embeddable" jsontype="boolean"/>
+        <cudl:element name="textDirection" jsontype="string"/>
         <cudl:element name="sourceData" jsontype="string"/>
         <cudl:element name="useTranscriptions" jsontype="boolean"/>
         <cudl:element name="useNormalisedTranscriptions" jsontype="boolean"/>

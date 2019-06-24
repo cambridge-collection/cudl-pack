@@ -8,18 +8,43 @@
                 extension-element-prefixes="date"
                 exclude-result-prefixes="#all">
 
+
     <!--All msdesc TEI gets sent here from docSelector.xsl. Transforms TEI into local xml format and passes it on to docFormatter for conversion into json
       Indexing for search and facetting are handled by a separate xtf instance, CUDL-XTF, maintained by the development team
 
       QUERY - do we need xtf:subDocument attributes here now that indexing is done in CUDL-XTF?
       QUERY - how are we handling top-level msParts? msParts are currently only catered for in the limited way they are used in the Sanskrit material, e.g. MS-ADD-01662
+
+
    -->
 
     <!-- Variables expected by templates-->
     <xsl:variable name="fileID" select="substring-before(tokenize(document-uri(/), '/')[last()], '.xml')"/>
-    <!-- Take the fileID from the name of the first image file instead of from filename -->
-    <!--xsl:variable name="images" select="normalize-space(//*:facsimile/*:surface[1]/*:graphic[1]/@url)"/>
-    <xsl:variable name="fileID" select="replace($images[1],'-\d\d\d-.*$','')"/-->
+
+    <!-- ====================================================================== -->
+    <!-- Languages and writing direction                                       -->
+    <!-- ====================================================================== -->
+
+    <!--default is left to right, so only list those which are not-->
+
+    <xsl:variable name="languages-direction">
+
+        <languages>
+            <language>
+                <code>heb</code><direction>R</direction>
+            </language>
+            <language>
+                <code>ara</code><direction>R</direction>
+            </language>
+            <language>
+                <code>arc</code><direction>R</direction>
+            </language>
+            <language>
+                <code>per</code><direction>R</direction>
+            </language>
+        </languages>
+
+    </xsl:variable>
 
     <!-- Common functions -->
     <!-- TODO: import these from one place -->
@@ -66,13 +91,27 @@
 
     </xsl:function>
 
+    <!--Gets text direction from language-->
+    <xsl:function name="cudl:get-language-direction">
+        <xsl:param name="languageCode" />
+
+        <xsl:choose>
+            <xsl:when test="normalize-space($languages-direction/languages/language[code=$languageCode]/direction)">
+                <xsl:value-of select="normalize-space($languages-direction/languages/language[code=$languageCode]/direction)"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:text>L</xsl:text>
+            </xsl:otherwise>
+        </xsl:choose>
+
+    </xsl:function>
+
     <!--Capitalises first letter of text-->
     <xsl:function name="cudl:first-upper-case">
         <xsl:param name="text" />
 
         <xsl:value-of select="concat(upper-case(substring($text,1,1)),substring($text, 2))" />
     </xsl:function>
-
 
     <!-- ====================================================================== -->
     <!-- Import Common Templates and Functions                                  -->
@@ -86,6 +125,7 @@
     <!-- ====================================================================== -->
 
     <xsl:output method="xml" indent="yes" encoding="UTF-8"/>
+    <xsl:strip-space elements="*"/>
 
     <!-- ====================================================================== -->
     <!-- Metadata Indexing                                                      -->
@@ -166,6 +206,8 @@
                         <xsl:call-template name="get-doc-events"/>
 
                         <xsl:call-template name="get-doc-physloc"/>
+                        <xsl:call-template name="get-doc-alt-ids"/>
+
                         <xsl:call-template name="get-doc-thumbnail"/>
 
                         <xsl:call-template name="get-doc-image-rights"/>
@@ -188,13 +230,13 @@
 
 
                         <!--not sure why this is called with a for-each - the above means that there will only ever be one msItem here-->
-                        <xsl:for-each select="//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]" >
+                        <xsl:for-each select="//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]">
 
                             <xsl:call-template name="get-item-dmdID"/>
 
 
                             <xsl:call-template name="get-item-title">
-                                <xsl:with-param name="display" select="'false'" />
+                                <xsl:with-param name="display" select="'false'"/>
                             </xsl:call-template>
                             <xsl:call-template name="get-item-alt-titles"/>
                             <xsl:call-template name="get-item-desc-titles"/>
@@ -213,9 +255,14 @@
                     </part>
 
                     <!-- Now process any sub-items -->
-                    <xsl:for-each select="//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]" >
-                        <xsl:apply-templates select="*:msContents/*:msItem|*:msItem" />
+                    <xsl:for-each select="//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]">
+                        <xsl:apply-templates select="*:msContents/*:msItem|*:msItem"/>
                     </xsl:for-each>
+
+
+                    <xsl:apply-templates select="//*:msPart/*:msContents/*:msItem"/>
+
+
 
                 </xsl:when>
                 <xsl:otherwise>
@@ -241,6 +288,8 @@
                         <xsl:call-template name="get-doc-events"/>
 
                         <xsl:call-template name="get-doc-physloc"/>
+                        <xsl:call-template name="get-doc-alt-ids"/>
+
                         <xsl:call-template name="get-doc-thumbnail"/>
 
                         <xsl:call-template name="get-doc-image-rights"/>
@@ -261,7 +310,7 @@
                     </part>
 
                     <!-- Now process top-level msItems -->
-                    <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:msContents/*:msItem" />
+                    <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:msContents/*:msItem"/>
 
                 </xsl:otherwise>
             </xsl:choose>
@@ -278,7 +327,9 @@
 
             <!--incrementing number to give a unique id-->
             <xsl:variable name="n-tree">
-                <xsl:value-of select="sum((count(ancestor-or-self::*[local-name()='msItem' or local-name()='msPart']), count(preceding::*[local-name()='msItem' or local-name()='msPart'])))" />
+                <xsl:value-of
+                    select="sum((count(ancestor-or-self::*[local-name()='msItem' or local-name()='msPart']), count(preceding::*[local-name()='msItem' or local-name()='msPart'])))"
+                />
             </xsl:variable>
 
             <xsl:attribute name="xtf:subDocument" select="concat('ITEM-', normalize-space($n-tree))"/>
@@ -287,7 +338,7 @@
             <xsl:call-template name="get-item-dmdID"/>
 
             <xsl:call-template name="get-item-title">
-                <xsl:with-param name="display" select="'true'" />
+                <xsl:with-param name="display" select="'true'"/>
             </xsl:call-template>
 
             <xsl:call-template name="get-item-alt-titles"/>
@@ -308,7 +359,7 @@
         </part>
 
         <!-- Any child items of this item -->
-        <xsl:apply-templates select="*:msContents/*:msItem|*:msItem" />
+        <xsl:apply-templates select="*:msContents/*:msItem|*:msItem"/>
 
     </xsl:template>
 
@@ -351,7 +402,9 @@
 
         <!--incrementing number to give a unique id-->
         <xsl:variable name="n-tree">
-            <xsl:value-of select="sum((count(ancestor-or-self::*[local-name()='msItem' or local-name()='msPart']), count(preceding::*[local-name()='msItem' or local-name()='msPart'])))" />
+            <xsl:value-of
+                select="sum((count(ancestor-or-self::*[local-name()='msItem' or local-name()='msPart']), count(preceding::*[local-name()='msItem' or local-name()='msPart'])))"
+            />
         </xsl:variable>
 
         <ID>
@@ -380,7 +433,7 @@
         </xsl:variable>
 
         <startPageLabel>
-            <xsl:value-of select="$startPageLabel" />
+            <xsl:value-of select="$startPageLabel"/>
 
         </startPageLabel>
 
@@ -403,7 +456,7 @@
         </xsl:variable>
 
         <startPage>
-            <xsl:value-of select="$startPage" />
+            <xsl:value-of select="$startPage"/>
         </startPage>
 
     </xsl:template>
@@ -420,8 +473,11 @@
             <xsl:variable name="title">
 
                 <xsl:choose>
-                    <xsl:when test="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:title[@type='general']">
-                        <xsl:for-each-group select="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:title[@type='general']" group-by="normalize-space(.)">
+                    <xsl:when
+                        test="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:title[@type='general']">
+                        <xsl:for-each-group
+                            select="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:title[@type='general']"
+                            group-by="normalize-space(.)">
                             <xsl:value-of select="normalize-space(.)"/>
                             <xsl:if test="not(position()=last())">
                                 <xsl:text>, </xsl:text>
@@ -431,8 +487,13 @@
                     <xsl:when test="//*:sourceDesc/*:msDesc/*:head">
                         <xsl:value-of select="normalize-space(//*:sourceDesc/*:msDesc/*:head)"/>
                     </xsl:when>
+                    <xsl:when test="//*:sourceDesc/*:msDesc/*:msIdentifier/*:msName">
+                        <xsl:value-of select="normalize-space(//*:sourceDesc/*:msDesc/*:msIdentifier/*:msName)"/>
+                    </xsl:when>
                     <xsl:when test="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:title[not(@type)]">
-                        <xsl:for-each-group select="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:title[not(@type)]" group-by="normalize-space(.)">
+                        <xsl:for-each-group
+                            select="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:title[not(@type)]"
+                            group-by="normalize-space(.)">
                             <xsl:value-of select="normalize-space(.)"/>
                             <xsl:if test="not(position()=last())">
                                 <xsl:text>, </xsl:text>
@@ -440,7 +501,8 @@
                         </xsl:for-each-group>
                     </xsl:when>
                     <xsl:when test="//*:sourceDesc/*:msDesc/*:msIdentifier/*:idno">
-                        <xsl:for-each-group select="//*:sourceDesc/*:msDesc/*:msIdentifier/*:idno" group-by="normalize-space(.)">
+                        <xsl:for-each-group select="//*:sourceDesc/*:msDesc/*:msIdentifier/*:idno"
+                                            group-by="normalize-space(.)">
                             <xsl:value-of select="normalize-space(.)"/>
                             <xsl:if test="not(position()=last())">
                                 <xsl:text>, </xsl:text>
@@ -453,11 +515,11 @@
                 </xsl:choose>
             </xsl:variable>
 
-            <xsl:attribute name="display" select="'false'" />
+            <xsl:attribute name="display" select="'false'"/>
 
-            <xsl:attribute name="displayForm" select="$title" />
+            <xsl:attribute name="displayForm" select="$title"/>
 
-            <xsl:value-of select="$title" />
+            <xsl:value-of select="$title"/>
 
         </title>
     </xsl:template>
@@ -465,7 +527,7 @@
 
     <!--item titles-->
     <xsl:template name="get-item-title">
-        <xsl:param name="display" select="'true'" />
+        <xsl:param name="display" select="'true'"/>
 
         <title>
 
@@ -511,11 +573,11 @@
                 </xsl:choose>
             </xsl:variable>
 
-            <xsl:attribute name="display" select="$display" />
+            <xsl:attribute name="display" select="$display"/>
 
-            <xsl:attribute name="displayForm" select="$title" />
+            <xsl:attribute name="displayForm" select="$title"/>
 
-            <xsl:value-of select="$title" />
+            <xsl:value-of select="$title"/>
 
         </title>
     </xsl:template>
@@ -528,9 +590,10 @@
 
             <alternativeTitles>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
-                <xsl:for-each select="//*:sourceDesc/*:msDesc/*:msContents/*:summary/*:title[@type='alt']">
+                <xsl:for-each
+                    select="//*:sourceDesc/*:msDesc/*:msContents/*:summary/*:title[@type='alt']">
 
                     <!-- <xsl:if test="not(normalize-space(.) = '')"> -->
 
@@ -538,9 +601,9 @@
 
                         <alternativeTitle>
 
-                            <xsl:attribute name="display" select="'true'" />
+                            <xsl:attribute name="display" select="'true'"/>
 
-                            <xsl:attribute name="displayForm" select="normalize-space(.)" />
+                            <xsl:attribute name="displayForm" select="normalize-space(.)"/>
 
                             <xsl:value-of select="normalize-space(.)"/>
                         </alternativeTitle>
@@ -562,7 +625,7 @@
 
             <alternativeTitles>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <xsl:for-each select="*:title[@type='alt']">
 
@@ -570,9 +633,9 @@
 
                         <alternativeTitle>
 
-                            <xsl:attribute name="display" select="'true'" />
+                            <xsl:attribute name="display" select="'true'"/>
 
-                            <xsl:attribute name="displayForm" select="normalize-space(.)" />
+                            <xsl:attribute name="displayForm" select="normalize-space(.)"/>
 
                             <xsl:value-of select="normalize-space(.)"/>
                         </alternativeTitle>
@@ -593,9 +656,10 @@
 
             <descriptiveTitles>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
-                <xsl:for-each select="//*:sourceDesc/*:msDesc/*:msContents/*:summary/*:title[@type='desc']">
+                <xsl:for-each
+                    select="//*:sourceDesc/*:msDesc/*:msContents/*:summary/*:title[@type='desc']">
 
                     <!-- <xsl:if test="not(normalize-space(.) = '')"> -->
 
@@ -603,9 +667,9 @@
 
                         <descriptiveTitle>
 
-                            <xsl:attribute name="display" select="'true'" />
+                            <xsl:attribute name="display" select="'true'"/>
 
-                            <xsl:attribute name="displayForm" select="normalize-space(.)" />
+                            <xsl:attribute name="displayForm" select="normalize-space(.)"/>
 
                             <xsl:value-of select="normalize-space(.)"/>
                         </descriptiveTitle>
@@ -626,7 +690,7 @@
 
             <descriptiveTitles>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <xsl:for-each select="*:title[@type='desc']">
 
@@ -634,9 +698,9 @@
 
                         <descriptiveTitle>
 
-                            <xsl:attribute name="display" select="'true'" />
+                            <xsl:attribute name="display" select="'true'"/>
 
-                            <xsl:attribute name="displayForm" select="normalize-space(.)" />
+                            <xsl:attribute name="displayForm" select="normalize-space(.)"/>
 
                             <xsl:value-of select="normalize-space(.)"/>
                         </descriptiveTitle>
@@ -654,15 +718,16 @@
     <!--uniform title-->
     <xsl:template name="get-doc-uniform-title">
 
-        <xsl:variable name="uniformTitle" select="//*:sourceDesc/*:msDesc/*:msContents/*:summary/*:title[@type='uniform'][1]"/>
+        <xsl:variable name="uniformTitle"
+                      select="//*:sourceDesc/*:msDesc/*:msContents/*:summary/*:title[@type='uniform'][1]"/>
 
         <xsl:if test="normalize-space($uniformTitle)">
 
             <uniformTitle>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
-                <xsl:attribute name="displayForm" select="normalize-space($uniformTitle)" />
+                <xsl:attribute name="displayForm" select="normalize-space($uniformTitle)"/>
 
                 <xsl:value-of select="normalize-space($uniformTitle)"/>
 
@@ -680,9 +745,9 @@
 
             <uniformTitle>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
-                <xsl:attribute name="displayForm" select="normalize-space($uniformTitle)" />
+                <xsl:attribute name="displayForm" select="normalize-space($uniformTitle)"/>
 
                 <xsl:value-of select="normalize-space($uniformTitle)"/>
 
@@ -702,12 +767,13 @@
             <abstract>
 
                 <xsl:variable name="abstract">
-                    <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:msContents/*:summary" mode="html" />
+                    <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:msContents/*:summary"
+                                         mode="html"/>
                 </xsl:variable>
 
-                <xsl:attribute name="display" select="'false'" />
+                <xsl:attribute name="display" select="'false'"/>
 
-                <xsl:attribute name="displayForm" select="normalize-space($abstract)" />
+                <xsl:attribute name="displayForm" select="normalize-space($abstract)"/>
 
                 <!-- <xsl:value-of select="normalize-space($abstract)" /> -->
                 <xsl:value-of select="normalize-space(replace($abstract, '&lt;[^&gt;]+&gt;', ''))"/>
@@ -725,13 +791,13 @@
             <xsl:when test=".//*:seg[@type='para']">
 
 
-                <xsl:apply-templates mode="html" />
+                <xsl:apply-templates mode="html"/>
 
             </xsl:when>
             <xsl:otherwise>
 
                 <xsl:text>&lt;p style=&apos;text-align: justify;&apos;&gt;</xsl:text>
-                <xsl:apply-templates mode="html" />
+                <xsl:apply-templates mode="html"/>
                 <xsl:text>&lt;/p&gt;</xsl:text>
 
 
@@ -745,11 +811,12 @@
     <!--SUBJECTS-->
     <xsl:template name="get-doc-subjects">
 
-        <xsl:if test="//*:profileDesc/*:textClass/*:keywords/*:list/*:item|//*:profileDesc/*:textClass/*:keywords[@scheme='Topic']/*:term">
+        <xsl:if
+            test="//*:profileDesc/*:textClass/*:keywords/*:list/*:item|//*:profileDesc/*:textClass/*:keywords[@scheme='Topic']/*:term">
 
             <subjects>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <xsl:for-each select="//*:profileDesc/*:textClass/*:keywords/*:list/*:item">
 
@@ -757,23 +824,27 @@
 
                         <subject>
 
-                            <xsl:attribute name="display" select="'true'" />
+                            <xsl:attribute name="display" select="'true'"/>
 
-                            <xsl:attribute name="displayForm" select="normalize-space(.)" />
+                            <xsl:attribute name="displayForm" select="normalize-space(.)"/>
 
                             <fullForm>
-                                <xsl:value-of select="normalize-space(.)" />
+                                <xsl:value-of select="normalize-space(.)"/>
                             </fullForm>
 
                             <xsl:if test="*:ref/@target">
                                 <authority>
-                                    <xsl:value-of select="normalize-space(id(substring-after(../../@scheme, '#'))/*:bibl/*:ref)"/>
+                                    <xsl:value-of
+                                        select="normalize-space(id(substring-after(../../@scheme, '#'))/*:bibl/*:ref)"
+                                    />
                                 </authority>
                                 <authorityURI>
-                                    <xsl:value-of select="normalize-space(id(substring-after(../../@scheme, '#'))/*:bibl/*:ref/@target)"/>
+                                    <xsl:value-of
+                                        select="normalize-space(id(substring-after(../../@scheme, '#'))/*:bibl/*:ref/@target)"
+                                    />
                                 </authorityURI>
                                 <valueURI>
-                                    <xsl:value-of select="*:ref/@target" />
+                                    <xsl:value-of select="*:ref/@target"/>
                                 </valueURI>
                             </xsl:if>
 
@@ -790,12 +861,12 @@
 
                         <subject>
 
-                            <xsl:attribute name="display" select="'true'" />
+                            <xsl:attribute name="display" select="'true'"/>
 
-                            <xsl:attribute name="displayForm" select="normalize-space(.)" />
+                            <xsl:attribute name="displayForm" select="normalize-space(.)"/>
 
                             <fullForm>
-                                <xsl:value-of select="normalize-space(.)" />
+                                <xsl:value-of select="normalize-space(.)"/>
                             </fullForm>
 
                         </subject>
@@ -816,12 +887,13 @@
     <xsl:template name="get-doc-events">
 
         <xsl:choose>
-            <xsl:when test="//*:respStmt/*:name[@role='pbl'] and //*:sourceDesc/*:msDesc/*:history/*:origin">
+            <xsl:when
+                test="//*:respStmt/*:name[@role='pbl'] and //*:sourceDesc/*:msDesc/*:history/*:origin">
 
                 <!--publication-->
                 <publications>
 
-                    <xsl:attribute name="display" select="'true'" />
+                    <xsl:attribute name="display" select="'true'"/>
 
                     <!--will there only ever be one of these?-->
                     <xsl:for-each select="//*:sourceDesc/*:msDesc/*:history/*:origin">
@@ -829,18 +901,18 @@
 
                             <type>publication</type>
 
-                            <xsl:if test="*:origPlace">
+                            <xsl:if test=".//*:origPlace">
                                 <places>
 
-                                    <xsl:attribute name="display" select="'true'" />
+                                    <xsl:attribute name="display" select="'true'"/>
 
-                                    <xsl:for-each select="*:origPlace">
+                                    <xsl:for-each select=".//*:origPlace">
                                         <place>
-                                            <xsl:attribute name="display" select="'true'" />
+                                            <xsl:attribute name="display" select="'true'"/>
 
-                                            <xsl:attribute name="displayForm" select="normalize-space(.)" />
+                                            <xsl:attribute name="displayForm" select="normalize-space(.)"/>
                                             <shortForm>
-                                                <xsl:value-of select="normalize-space(.)" />
+                                                <xsl:value-of select="normalize-space(.)"/>
                                             </shortForm>
                                         </place>
 
@@ -848,51 +920,50 @@
                                 </places>
                             </xsl:if>
 
-                            <xsl:for-each select="*:origDate[1]|*:date[1]"> <!-- filter by calendar? -->
+                            <xsl:for-each select=".//*:origDate[1]|.//*:date[1]">
+                                <!-- filter by calendar? -->
 
                                 <xsl:choose>
                                     <xsl:when test="@from">
                                         <dateStart>
-                                            <xsl:value-of select="@from" />
+                                            <xsl:value-of select="@from"/>
                                         </dateStart>
                                     </xsl:when>
                                     <xsl:when test="@notBefore">
                                         <dateStart>
-                                            <xsl:value-of select="@notBefore" />
+                                            <xsl:value-of select="@notBefore"/>
                                         </dateStart>
                                     </xsl:when>
                                     <xsl:when test="@when">
                                         <dateStart>
-                                            <xsl:value-of select="@when" />
+                                            <xsl:value-of select="@when"/>
                                         </dateStart>
                                     </xsl:when>
-                                    <xsl:otherwise>
-                                    </xsl:otherwise>
+                                    <xsl:otherwise> </xsl:otherwise>
                                 </xsl:choose>
 
                                 <xsl:choose>
                                     <xsl:when test="@to">
                                         <dateEnd>
-                                            <xsl:value-of select="@to" />
+                                            <xsl:value-of select="@to"/>
                                         </dateEnd>
                                     </xsl:when>
                                     <xsl:when test="@notAfter">
                                         <dateEnd>
-                                            <xsl:value-of select="@notBefore" />
+                                            <xsl:value-of select="@notBefore"/>
                                         </dateEnd>
                                     </xsl:when>
                                     <xsl:when test="@when">
                                         <dateEnd>
-                                            <xsl:value-of select="@when" />
+                                            <xsl:value-of select="@when"/>
                                         </dateEnd>
                                     </xsl:when>
-                                    <xsl:otherwise>
-                                    </xsl:otherwise>
+                                    <xsl:otherwise> </xsl:otherwise>
                                 </xsl:choose>
 
                                 <dateDisplay>
 
-                                    <xsl:attribute name="display" select="'true'" />
+                                    <xsl:attribute name="display" select="'true'"/>
 
                                     <!--<xsl:attribute name="displayForm" select="normalize-space(.)" />-->
 
@@ -904,7 +975,7 @@
 
 
 
-                                    <xsl:value-of select="normalize-space(.)" />
+                                    <xsl:value-of select="normalize-space(.)"/>
 
 
 
@@ -914,9 +985,10 @@
                             </xsl:for-each>
 
                             <publishers>
-                                <xsl:attribute name="display" select="'true'" />
+                                <xsl:attribute name="display" select="'true'"/>
 
-                                <xsl:apply-templates select="//*:respStmt/*:name[@role='pbl']" mode="publisher"/>
+                                <xsl:apply-templates select="//*:respStmt/*:name[@role='pbl']"
+                                                     mode="publisher"/>
 
                             </publishers>
 
@@ -932,31 +1004,32 @@
 
             </xsl:when>
 
-            <xsl:when test="//*:sourceDesc/*:msDesc/*:history/*:origin or exists(//*:sourceDesc/*:msDesc/*:msPart/*:history/*:origin)">
+            <xsl:when
+                test="//*:sourceDesc/*:msDesc/*:history/*:origin or exists(//*:sourceDesc/*:msDesc/*:msPart/*:history/*:origin)">
 
 
                 <!--creation-->
                 <creations>
 
-                    <xsl:attribute name="display" select="'true'" />
+                    <xsl:attribute name="display" select="'true'"/>
                     <!--will there only ever be one of these?-->
                     <xsl:for-each select="//*:sourceDesc/*:msDesc/*:history/*:origin">
                         <event>
 
                             <type>creation</type>
 
-                            <xsl:if test="*:origPlace">
+                            <xsl:if test=".//*:origPlace">
                                 <places>
 
-                                    <xsl:attribute name="display" select="'true'" />
+                                    <xsl:attribute name="display" select="'true'"/>
 
-                                    <xsl:for-each select="*:origPlace">
+                                    <xsl:for-each select=".//*:origPlace">
                                         <place>
-                                            <xsl:attribute name="display" select="'true'" />
+                                            <xsl:attribute name="display" select="'true'"/>
 
-                                            <xsl:attribute name="displayForm" select="normalize-space(.)" />
+                                            <xsl:attribute name="displayForm" select="normalize-space(.)"/>
                                             <shortForm>
-                                                <xsl:value-of select="normalize-space(.)" />
+                                                <xsl:value-of select="normalize-space(.)"/>
                                             </shortForm>
                                         </place>
 
@@ -964,51 +1037,50 @@
                                 </places>
                             </xsl:if>
 
-                            <xsl:for-each select="*:origDate[1]|*:date[1]"> <!-- filter by calendar? -->
+                            <xsl:for-each select=".//*:origDate[1]|.//*:date[1]">
+                                <!-- filter by calendar? -->
 
                                 <xsl:choose>
                                     <xsl:when test="@from">
                                         <dateStart>
-                                            <xsl:value-of select="@from" />
+                                            <xsl:value-of select="@from"/>
                                         </dateStart>
                                     </xsl:when>
                                     <xsl:when test="@notBefore">
                                         <dateStart>
-                                            <xsl:value-of select="@notBefore" />
+                                            <xsl:value-of select="@notBefore"/>
                                         </dateStart>
                                     </xsl:when>
                                     <xsl:when test="@when">
                                         <dateStart>
-                                            <xsl:value-of select="@when" />
+                                            <xsl:value-of select="@when"/>
                                         </dateStart>
                                     </xsl:when>
-                                    <xsl:otherwise>
-                                    </xsl:otherwise>
+                                    <xsl:otherwise> </xsl:otherwise>
                                 </xsl:choose>
 
                                 <xsl:choose>
                                     <xsl:when test="@to">
                                         <dateEnd>
-                                            <xsl:value-of select="@to" />
+                                            <xsl:value-of select="@to"/>
                                         </dateEnd>
                                     </xsl:when>
                                     <xsl:when test="@notAfter">
                                         <dateEnd>
-                                            <xsl:value-of select="@notBefore" />
+                                            <xsl:value-of select="@notBefore"/>
                                         </dateEnd>
                                     </xsl:when>
                                     <xsl:when test="@when">
                                         <dateEnd>
-                                            <xsl:value-of select="@when" />
+                                            <xsl:value-of select="@when"/>
                                         </dateEnd>
                                     </xsl:when>
-                                    <xsl:otherwise>
-                                    </xsl:otherwise>
+                                    <xsl:otherwise> </xsl:otherwise>
                                 </xsl:choose>
 
                                 <dateDisplay>
 
-                                    <xsl:attribute name="display" select="'true'" />
+                                    <xsl:attribute name="display" select="'true'"/>
 
                                     <!--<xsl:attribute name="displayForm" select="normalize-space(.)" />-->
 
@@ -1020,7 +1092,7 @@
 
 
 
-                                    <xsl:value-of select="normalize-space(.)" />
+                                    <xsl:value-of select="normalize-space(.)"/>
 
 
 
@@ -1036,20 +1108,20 @@
 
                             <type>creation</type>
 
-                            <xsl:if test="*:origPlace">
+                            <xsl:if test=".//*:origPlace">
                                 <places>
 
-                                    <xsl:attribute name="display" select="'true'" />
+                                    <xsl:attribute name="display" select="'true'"/>
 
-                                    <xsl:for-each select="*:origPlace">
+                                    <xsl:for-each select=".//*:origPlace">
                                         <place>
-                                            <xsl:attribute name="display" select="'true'" />
+                                            <xsl:attribute name="display" select="'true'"/>
 
                                             <xsl:variable name="place">
                                                 <xsl:for-each select="../../../*:altIdentifier/*:idno">
 
                                                     <xsl:text>&lt;b&gt;</xsl:text>
-                                                    <xsl:apply-templates mode="html" />
+                                                    <xsl:apply-templates mode="html"/>
                                                     <xsl:text>:</xsl:text>
                                                     <xsl:text>&lt;/b&gt;</xsl:text>
                                                     <xsl:text> </xsl:text>
@@ -1060,10 +1132,10 @@
 
                                             </xsl:variable>
 
-                                            <xsl:attribute name="displayForm" select="normalize-space($place)" />
+                                            <xsl:attribute name="displayForm" select="normalize-space($place)"/>
 
                                             <shortForm>
-                                                <xsl:value-of select="normalize-space(.)" />
+                                                <xsl:value-of select="normalize-space(.)"/>
                                             </shortForm>
                                         </place>
 
@@ -1071,57 +1143,56 @@
                                 </places>
                             </xsl:if>
 
-                            <xsl:for-each select="*:origDate[1]|*:date[1]"> <!-- filter by calendar? -->
+                            <xsl:for-each select=".//*:origDate[1]|.//*:date[1]">
+                                <!-- filter by calendar? -->
 
                                 <xsl:choose>
                                     <xsl:when test="@from">
                                         <dateStart>
-                                            <xsl:value-of select="@from" />
+                                            <xsl:value-of select="@from"/>
                                         </dateStart>
                                     </xsl:when>
                                     <xsl:when test="@notBefore">
                                         <dateStart>
-                                            <xsl:value-of select="@notBefore" />
+                                            <xsl:value-of select="@notBefore"/>
                                         </dateStart>
                                     </xsl:when>
                                     <xsl:when test="@when">
                                         <dateStart>
-                                            <xsl:value-of select="@when" />
+                                            <xsl:value-of select="@when"/>
                                         </dateStart>
                                     </xsl:when>
-                                    <xsl:otherwise>
-                                    </xsl:otherwise>
+                                    <xsl:otherwise> </xsl:otherwise>
                                 </xsl:choose>
 
                                 <xsl:choose>
                                     <xsl:when test="@to">
                                         <dateEnd>
-                                            <xsl:value-of select="@to" />
+                                            <xsl:value-of select="@to"/>
                                         </dateEnd>
                                     </xsl:when>
                                     <xsl:when test="@notAfter">
                                         <dateEnd>
-                                            <xsl:value-of select="@notBefore" />
+                                            <xsl:value-of select="@notBefore"/>
                                         </dateEnd>
                                     </xsl:when>
                                     <xsl:when test="@when">
                                         <dateEnd>
-                                            <xsl:value-of select="@when" />
+                                            <xsl:value-of select="@when"/>
                                         </dateEnd>
                                     </xsl:when>
-                                    <xsl:otherwise>
-                                    </xsl:otherwise>
+                                    <xsl:otherwise> </xsl:otherwise>
                                 </xsl:choose>
 
                                 <dateDisplay>
 
-                                    <xsl:attribute name="display" select="'true'" />
+                                    <xsl:attribute name="display" select="'true'"/>
 
                                     <xsl:variable name="date">
                                         <xsl:for-each select="../../../*:altIdentifier/*:idno">
 
                                             <xsl:text>&lt;b&gt;</xsl:text>
-                                            <xsl:apply-templates mode="html" />
+                                            <xsl:apply-templates mode="html"/>
                                             <xsl:text>:</xsl:text>
                                             <xsl:text>&lt;/b&gt;</xsl:text>
                                             <xsl:text> </xsl:text>
@@ -1132,9 +1203,9 @@
 
                                     </xsl:variable>
 
-                                    <xsl:attribute name="displayForm" select="normalize-space($date)" />
+                                    <xsl:attribute name="displayForm" select="normalize-space($date)"/>
 
-                                    <xsl:value-of select="normalize-space(.)" />
+                                    <xsl:value-of select="normalize-space(.)"/>
                                 </dateDisplay>
 
                             </xsl:for-each>
@@ -1152,62 +1223,60 @@
 
             <acquisitions>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <xsl:for-each select="//*:sourceDesc/*:msDesc/*:history/*:acquisition">
                     <event>
 
                         <type>acquisition</type>
 
-                        <xsl:for-each select="*:date[1]">
+                        <xsl:for-each select=".//*:date[1]">
 
                             <xsl:choose>
                                 <xsl:when test="@from">
                                     <dateStart>
-                                        <xsl:value-of select="@from" />
+                                        <xsl:value-of select="@from"/>
                                     </dateStart>
                                 </xsl:when>
                                 <xsl:when test="@notBefore">
                                     <dateStart>
-                                        <xsl:value-of select="@notBefore" />
+                                        <xsl:value-of select="@notBefore"/>
                                     </dateStart>
                                 </xsl:when>
                                 <xsl:when test="@when">
                                     <dateStart>
-                                        <xsl:value-of select="@when" />
+                                        <xsl:value-of select="@when"/>
                                     </dateStart>
                                 </xsl:when>
-                                <xsl:otherwise>
-                                </xsl:otherwise>
+                                <xsl:otherwise> </xsl:otherwise>
                             </xsl:choose>
 
                             <xsl:choose>
                                 <xsl:when test="@to">
                                     <dateEnd>
-                                        <xsl:value-of select="@to" />
+                                        <xsl:value-of select="@to"/>
                                     </dateEnd>
                                 </xsl:when>
                                 <xsl:when test="@notAfter">
                                     <dateEnd>
-                                        <xsl:value-of select="@notBefore" />
+                                        <xsl:value-of select="@notBefore"/>
                                     </dateEnd>
                                 </xsl:when>
                                 <xsl:when test="@when">
                                     <dateEnd>
-                                        <xsl:value-of select="@when" />
+                                        <xsl:value-of select="@when"/>
                                     </dateEnd>
                                 </xsl:when>
-                                <xsl:otherwise>
-                                </xsl:otherwise>
+                                <xsl:otherwise> </xsl:otherwise>
                             </xsl:choose>
 
                             <dateDisplay>
 
-                                <xsl:attribute name="display" select="'true'" />
+                                <xsl:attribute name="display" select="'true'"/>
 
-                                <xsl:attribute name="displayForm" select="normalize-space(.)" />
+                                <xsl:attribute name="displayForm" select="normalize-space(.)"/>
 
-                                <xsl:value-of select="normalize-space(.)" />
+                                <xsl:value-of select="normalize-space(.)"/>
                             </dateDisplay>
 
                         </xsl:for-each>
@@ -1224,17 +1293,19 @@
 
         <publisher>
 
-            <xsl:attribute name="display" select="'true'" />
+            <xsl:attribute name="display" select="'true'"/>
 
             <xsl:choose>
                 <xsl:when test="normalize-space(*:persName[@type='standard'])">
-                    <xsl:attribute name="displayForm" select="normalize-space(*:persName[@type='standard'])"/>
+                    <xsl:attribute name="displayForm"
+                                   select="normalize-space(*:persName[@type='standard'])"/>
 
                     <xsl:value-of select="normalize-space(*:persName[@type='standard'])"/>
 
                 </xsl:when>
                 <xsl:when test="normalize-space(*:orgName[@type='standard'])">
-                    <xsl:attribute name="displayForm" select="normalize-space(*:orgName[@type='standard'])"/>
+                    <xsl:attribute name="displayForm"
+                                   select="normalize-space(*:orgName[@type='standard'])"/>
 
                     <xsl:value-of select="normalize-space(*:orgName[@type='standard'])"/>
 
@@ -1263,25 +1334,61 @@
 
         <physicalLocation>
 
-            <xsl:attribute name="display" select="'true'" />
+            <xsl:attribute name="display" select="'true'"/>
 
-            <xsl:attribute name="displayForm" select="normalize-space(//*:sourceDesc/*:msDesc/*:msIdentifier/*:repository)" />
+            <xsl:attribute name="displayForm"
+                           select="normalize-space(//*:sourceDesc/*:msDesc/*:msIdentifier/*:repository)"/>
 
-            <xsl:value-of select="normalize-space(//*:sourceDesc/*:msDesc/*:msIdentifier/*:repository)" />
+            <xsl:value-of select="normalize-space(//*:sourceDesc/*:msDesc/*:msIdentifier/*:repository)"/>
 
         </physicalLocation>
 
         <shelfLocator>
 
-            <xsl:attribute name="display" select="'true'" />
+            <xsl:attribute name="display" select="'true'"/>
 
-            <xsl:attribute name="displayForm" select="normalize-space(//*:sourceDesc/*:msDesc/*:msIdentifier/*:idno)" />
+            <xsl:attribute name="displayForm"
+                           select="normalize-space(//*:sourceDesc/*:msDesc/*:msIdentifier/*:idno)"/>
 
-            <xsl:value-of select="normalize-space(//*:sourceDesc/*:msDesc/*:msIdentifier/*:idno)" />
+            <xsl:value-of select="normalize-space(//*:sourceDesc/*:msDesc/*:msIdentifier/*:idno)"/>
 
         </shelfLocator>
 
     </xsl:template>
+
+    <!--ALTERNATIVE IDENTIFIERS-->
+    <xsl:template name="get-doc-alt-ids">
+
+        <xsl:if
+            test="normalize-space(//*:sourceDesc/*:msDesc/*:msIdentifier/*:altIdentifier[not(@type='internal')][1]/*:idno)">
+
+            <altIdentifiers>
+
+                <xsl:attribute name="display" select="'true'"/>
+
+
+                <xsl:for-each
+                    select="//*:sourceDesc/*:msDesc/*:msIdentifier/*:altIdentifier[not(@type='internal')]/*:idno">
+
+                    <altIdentifier>
+                        <xsl:attribute name="display" select="'true'"/>
+                        <xsl:attribute name="displayForm" select="normalize-space(.)"/>
+
+                        <xsl:value-of select="normalize-space(.)"/>
+
+
+                    </altIdentifier>
+
+
+
+                </xsl:for-each>
+
+            </altIdentifiers>
+
+        </xsl:if>
+
+    </xsl:template>
+
 
     <!--THUMBNAIL-->
     <xsl:template name="get-doc-thumbnail">
@@ -1292,11 +1399,7 @@
         <xsl:if test="$graphic">
 
             <thumbnailUrl>
-
-                <xsl:variable name="imageUrl" select="normalize-space($graphic/@url)"/>
-                <xsl:variable name="imageUrlShort" select="replace($imageUrl, 'http://cudl.lib.cam.ac.uk/(newton|content)','/content')"/>
-
-                <xsl:value-of select="normalize-space($imageUrlShort)"/>
+                <xsl:value-of select="normalize-space($graphic/@url)"/>
             </thumbnailUrl>
 
             <thumbnailOrientation>
@@ -1323,15 +1426,21 @@
     <xsl:template name="get-doc-image-rights">
 
         <displayImageRights>
-            <xsl:value-of select="normalize-space(//*:publicationStmt/*:availability[@xml:id='displayImageRights'])" />
+            <xsl:value-of
+                select="normalize-space(//*:publicationStmt/*:availability[@xml:id='displayImageRights'])"
+            />
         </displayImageRights>
 
         <downloadImageRights>
-            <xsl:value-of select="normalize-space(//*:publicationStmt/*:availability[@xml:id='downloadImageRights'])" />
+            <xsl:value-of
+                select="normalize-space(//*:publicationStmt/*:availability[@xml:id='downloadImageRights'])"
+            />
         </downloadImageRights>
 
         <imageReproPageURL>
-            <xsl:value-of select="cudl:get-imageReproPageURL(normalize-space(//*:sourceDesc/*:msDesc/*:msIdentifier/*:repository), normalize-space(//*:sourceDesc/*:msDesc/*:msIdentifier/*:idno))"/>
+            <xsl:value-of
+                select="cudl:get-imageReproPageURL(normalize-space(//*:sourceDesc/*:msDesc/*:msIdentifier/*:repository), normalize-space(//*:sourceDesc/*:msDesc/*:msIdentifier/*:idno))"
+            />
         </imageReproPageURL>
 
     </xsl:template>
@@ -1339,7 +1448,8 @@
     <xsl:template name="get-doc-metadata-rights">
 
         <metadataRights>
-            <xsl:value-of select="normalize-space(//*:publicationStmt/*:availability[@xml:id='metadataRights'])" />
+            <xsl:value-of
+                select="normalize-space(//*:publicationStmt/*:availability[@xml:id='metadataRights'])"/>
         </metadataRights>
 
     </xsl:template>
@@ -1382,11 +1492,11 @@
                 <xsl:apply-templates select="//*:titleStmt/*:funder" mode="html"/>
             </xsl:variable>
 
-            <xsl:attribute name="display" select="'true'" />
+            <xsl:attribute name="display" select="'true'"/>
             <funding>
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
                 <xsl:attribute name="displayForm" select="normalize-space($funding)"/>
-                <xsl:value-of select="normalize-space($funding)" />
+                <xsl:value-of select="normalize-space($funding)"/>
             </funding>
         </fundings>
 
@@ -1396,14 +1506,17 @@
     <!--general physical description either in p tag or a list - often used as a general summary for composite manuscripts where physDesc has msParts-->
     <xsl:template name="get-doc-physdesc">
 
-        <xsl:if test="exists(//*:sourceDesc/*:msDesc/*:physDesc/*:p|//*:sourceDesc/*:msDesc/*:physDesc/*:list) or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:p|//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:list)">
+        <xsl:if
+            test="exists(//*:sourceDesc/*:msDesc/*:physDesc/*:p|//*:sourceDesc/*:msDesc/*:physDesc/*:list) or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:p|//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:list)">
 
             <physdesc>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <xsl:variable name="physdesc">
-                    <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:physDesc/*:p|//*:sourceDesc/*:msDesc/*:physDesc/*:list" mode="html"/>
+                    <xsl:apply-templates
+                        select="//*:sourceDesc/*:msDesc/*:physDesc/*:p|//*:sourceDesc/*:msDesc/*:physDesc/*:list"
+                        mode="html"/>
 
                     <xsl:if test="exists(//*:sourceDesc/*:msDesc/*:msPart)">
 
@@ -1419,7 +1532,7 @@
 
                                     <!-- <xsl:text>&lt;p&gt;</xsl:text> -->
                                     <xsl:text>&lt;b&gt;</xsl:text>
-                                    <xsl:apply-templates mode="html" />
+                                    <xsl:apply-templates mode="html"/>
                                     <xsl:text>:</xsl:text>
                                     <xsl:text>&lt;/b&gt;</xsl:text>
                                     <!-- <xsl:text>&lt;/p&gt;</xsl:text> -->
@@ -1427,7 +1540,7 @@
 
                                 </xsl:for-each>
 
-                                <xsl:apply-templates select="*:physDesc/*:p|*:physDesc/*:list" mode="html" />
+                                <xsl:apply-templates select="*:physDesc/*:p|*:physDesc/*:list" mode="html"/>
 
                                 <xsl:text>&lt;/div&gt;</xsl:text>
 
@@ -1441,7 +1554,7 @@
 
                 </xsl:variable>
 
-                <xsl:attribute name="displayForm" select="normalize-space($physdesc)" />
+                <xsl:attribute name="displayForm" select="normalize-space($physdesc)"/>
 
                 <!-- <xsl:value-of select="normalize-space($physdesc)" /> -->
                 <xsl:value-of select="normalize-space(replace($physdesc, '&lt;[^&gt;]+&gt;', ''))"/>
@@ -1450,19 +1563,21 @@
 
         </xsl:if>
 
-        <xsl:if test="normalize-space(//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/@form) or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:objectDesc/@form)">
+        <xsl:if
+            test="normalize-space(//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/@form) or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:objectDesc/@form)">
 
             <form>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <xsl:variable name="form">
-                    <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/@form" mode="html" />
+                    <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/@form"
+                                         mode="html"/>
 
 
                 </xsl:variable>
 
-                <xsl:attribute name="displayForm" select="normalize-space($form)" />
+                <xsl:attribute name="displayForm" select="normalize-space($form)"/>
 
                 <xsl:value-of select="normalize-space(replace($form, '&lt;[^&gt;]+&gt;', ''))"/>
 
@@ -1470,14 +1585,17 @@
 
         </xsl:if>
 
-        <xsl:if test="normalize-space(//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:support) or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:objectDesc/*:supportDesc/*:support)">
+        <xsl:if
+            test="normalize-space(//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:support) or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:objectDesc/*:supportDesc/*:support)">
 
             <material>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <xsl:variable name="material">
-                    <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:support" mode="html"/>
+                    <xsl:apply-templates
+                        select="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:support"
+                        mode="html"/>
 
                     <xsl:if test="exists(//*:sourceDesc/*:msDesc/*:msPart)">
 
@@ -1493,14 +1611,15 @@
 
                                     <!-- <xsl:text> </xsl:text> -->
                                     <xsl:text>&lt;b&gt;</xsl:text>
-                                    <xsl:apply-templates mode="html" />
+                                    <xsl:apply-templates mode="html"/>
                                     <xsl:text>:</xsl:text>
                                     <xsl:text>&lt;/b&gt;</xsl:text>
                                     <xsl:text> </xsl:text>
 
                                 </xsl:for-each>
 
-                                <xsl:apply-templates select="*:physDesc/*:objectDesc/*:supportDesc/*:support" mode="html" />
+                                <xsl:apply-templates
+                                    select="*:physDesc/*:objectDesc/*:supportDesc/*:support" mode="html"/>
 
                                 <xsl:text>&lt;/div&gt;</xsl:text>
 
@@ -1514,7 +1633,7 @@
 
                 </xsl:variable>
 
-                <xsl:attribute name="displayForm" select="normalize-space($material)" />
+                <xsl:attribute name="displayForm" select="normalize-space($material)"/>
 
                 <!-- <xsl:value-of select="normalize-space($material)" /> -->
                 <xsl:value-of select="normalize-space(replace($material, '&lt;[^&gt;]+&gt;', ''))"/>
@@ -1523,14 +1642,17 @@
 
         </xsl:if>
 
-        <xsl:if test="normalize-space(//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:extent) or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:objectDesc/*:supportDesc/*:extent)">
+        <xsl:if
+            test="normalize-space(//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:extent) or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:objectDesc/*:supportDesc/*:extent)">
 
             <extent>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <xsl:variable name="extent">
-                    <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:extent" mode="html"/>
+                    <xsl:apply-templates
+                        select="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:extent"
+                        mode="html"/>
 
                     <xsl:if test="exists(//*:sourceDesc/*:msDesc/*:msPart)">
 
@@ -1546,7 +1668,7 @@
 
                                     <!-- <xsl:text>&lt;p&gt;</xsl:text> -->
                                     <xsl:text>&lt;b&gt;</xsl:text>
-                                    <xsl:apply-templates mode="html" />
+                                    <xsl:apply-templates mode="html"/>
                                     <xsl:text>:</xsl:text>
                                     <xsl:text>&lt;/b&gt;</xsl:text>
                                     <!-- <xsl:text>&lt;/p&gt;</xsl:text> -->
@@ -1554,7 +1676,8 @@
 
                                 </xsl:for-each>
 
-                                <xsl:apply-templates select="*:physDesc/*:objectDesc/*:supportDesc/*:extent" mode="html" />
+                                <xsl:apply-templates select="*:physDesc/*:objectDesc/*:supportDesc/*:extent"
+                                                     mode="html"/>
 
                                 <xsl:text>&lt;/div&gt;</xsl:text>
 
@@ -1567,7 +1690,7 @@
 
                 </xsl:variable>
 
-                <xsl:attribute name="displayForm" select="normalize-space($extent)" />
+                <xsl:attribute name="displayForm" select="normalize-space($extent)"/>
 
                 <!-- <xsl:value-of select="normalize-space($extent)" /> -->
                 <xsl:value-of select="normalize-space(replace($extent, '&lt;[^&gt;]+&gt;', ''))"/>
@@ -1576,14 +1699,17 @@
 
         </xsl:if>
 
-        <xsl:if test="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:foliation or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:objectDesc/*:supportDesc/*:foliation)">
+        <xsl:if
+            test="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:foliation or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:objectDesc/*:supportDesc/*:foliation)">
 
             <foliation>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <xsl:variable name="foliation">
-                    <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:foliation" mode="html"/>
+                    <xsl:apply-templates
+                        select="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:foliation"
+                        mode="html"/>
 
                     <xsl:if test="exists(//*:sourceDesc/*:msDesc/*:msPart)">
 
@@ -1599,7 +1725,7 @@
 
                                     <!-- <xsl:text>&lt;p&gt;</xsl:text> -->
                                     <xsl:text>&lt;b&gt;</xsl:text>
-                                    <xsl:apply-templates mode="html" />
+                                    <xsl:apply-templates mode="html"/>
                                     <xsl:text>:</xsl:text>
                                     <xsl:text>&lt;/b&gt;</xsl:text>
                                     <!-- <xsl:text>&lt;/p&gt;</xsl:text> -->
@@ -1607,7 +1733,8 @@
 
                                 </xsl:for-each>
 
-                                <xsl:apply-templates select="*:physDesc/*:objectDesc/*:supportDesc/*:foliation" mode="html" />
+                                <xsl:apply-templates
+                                    select="*:physDesc/*:objectDesc/*:supportDesc/*:foliation" mode="html"/>
 
                                 <xsl:text>&lt;/div&gt;</xsl:text>
 
@@ -1621,7 +1748,7 @@
 
                 </xsl:variable>
 
-                <xsl:attribute name="displayForm" select="normalize-space($foliation)" />
+                <xsl:attribute name="displayForm" select="normalize-space($foliation)"/>
                 <!-- <xsl:value-of select="normalize-space($foliation)" /> -->
                 <xsl:value-of select="normalize-space(replace($foliation, '&lt;[^&gt;]+&gt;', ''))"/>
 
@@ -1630,14 +1757,17 @@
         </xsl:if>
 
 
-        <xsl:if test="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:collation or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:objectDesc/*:supportDesc/*:collation)">
+        <xsl:if
+            test="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:collation or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:objectDesc/*:supportDesc/*:collation)">
 
             <collation>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <xsl:variable name="collation">
-                    <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:collation" mode="html"/>
+                    <xsl:apply-templates
+                        select="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:collation"
+                        mode="html"/>
 
                     <xsl:if test="exists(//*:sourceDesc/*:msDesc/*:msPart)">
 
@@ -1653,7 +1783,7 @@
 
                                     <!-- <xsl:text>&lt;p&gt;</xsl:text> -->
                                     <xsl:text>&lt;b&gt;</xsl:text>
-                                    <xsl:apply-templates mode="html" />
+                                    <xsl:apply-templates mode="html"/>
                                     <xsl:text>:</xsl:text>
                                     <xsl:text>&lt;/b&gt;</xsl:text>
                                     <!-- <xsl:text>&lt;/p&gt;</xsl:text> -->
@@ -1661,7 +1791,8 @@
 
                                 </xsl:for-each>
 
-                                <xsl:apply-templates select="*:physDesc/*:objectDesc/*:supportDesc/*:collation" mode="html" />
+                                <xsl:apply-templates
+                                    select="*:physDesc/*:objectDesc/*:supportDesc/*:collation" mode="html"/>
 
                                 <xsl:text>&lt;/div&gt;</xsl:text>
 
@@ -1675,7 +1806,7 @@
 
                 </xsl:variable>
 
-                <xsl:attribute name="displayForm" select="normalize-space($collation)" />
+                <xsl:attribute name="displayForm" select="normalize-space($collation)"/>
                 <xsl:value-of select="normalize-space(replace($collation, '&lt;[^&gt;]+&gt;', ''))"/>
 
             </collation>
@@ -1683,18 +1814,21 @@
         </xsl:if>
 
 
-        <xsl:if test="normalize-space(//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:condition) or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:objectDesc/*:supportDesc/*:condition)">
+        <xsl:if
+            test="normalize-space(//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:condition) or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:objectDesc/*:supportDesc/*:condition)">
 
             <conditions>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <condition>
 
-                    <xsl:attribute name="display" select="'true'" />
+                    <xsl:attribute name="display" select="'true'"/>
 
                     <xsl:variable name="condition">
-                        <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:condition" mode="html"/>
+                        <xsl:apply-templates
+                            select="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:supportDesc/*:condition"
+                            mode="html"/>
 
                         <xsl:if test="exists(//*:sourceDesc/*:msDesc/*:msPart)">
 
@@ -1702,7 +1836,8 @@
 
                             <xsl:for-each select="//*:sourceDesc/*:msDesc/*:msPart">
 
-                                <xsl:if test="normalize-space(*:physDesc/*:objectDesc/*:supportDesc/*:condition)">
+                                <xsl:if
+                                    test="normalize-space(*:physDesc/*:objectDesc/*:supportDesc/*:condition)">
 
                                     <xsl:text>&lt;div style=&apos;display: list-item; margin-left: 20px;&apos;&gt;</xsl:text>
 
@@ -1710,7 +1845,7 @@
 
                                         <!-- <xsl:text>&lt;p&gt;</xsl:text> -->
                                         <xsl:text>&lt;b&gt;</xsl:text>
-                                        <xsl:apply-templates mode="html" />
+                                        <xsl:apply-templates mode="html"/>
                                         <xsl:text>:</xsl:text>
                                         <xsl:text>&lt;/b&gt;</xsl:text>
                                         <!-- <xsl:text>&lt;/p&gt;</xsl:text> -->
@@ -1718,7 +1853,8 @@
 
                                     </xsl:for-each>
 
-                                    <xsl:apply-templates select="*:physDesc/*:objectDesc/*:supportDesc/*:condition" mode="html" />
+                                    <xsl:apply-templates
+                                        select="*:physDesc/*:objectDesc/*:supportDesc/*:condition" mode="html"/>
 
                                     <xsl:text>&lt;/div&gt;</xsl:text>
 
@@ -1731,7 +1867,7 @@
                         </xsl:if>
                     </xsl:variable>
 
-                    <xsl:attribute name="displayForm" select="normalize-space($condition)" />
+                    <xsl:attribute name="displayForm" select="normalize-space($condition)"/>
 
                     <!-- <xsl:value-of select="normalize-space($condition)" /> -->
                     <xsl:value-of select="normalize-space(replace($condition, '&lt;[^&gt;]+&gt;', ''))"/>
@@ -1742,18 +1878,21 @@
 
         </xsl:if>
 
-        <xsl:if test="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:layoutDesc or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:objectDesc/*:layoutDesc)">
+        <xsl:if
+            test="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:layoutDesc or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:objectDesc/*:layoutDesc)">
 
             <layouts>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <layout>
 
-                    <xsl:attribute name="display" select="'true'" />
+                    <xsl:attribute name="display" select="'true'"/>
 
                     <xsl:variable name="layout">
-                        <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:layoutDesc" mode="html"/>
+                        <xsl:apply-templates
+                            select="//*:sourceDesc/*:msDesc/*:physDesc/*:objectDesc/*:layoutDesc"
+                            mode="html"/>
 
                         <xsl:if test="exists(//*:sourceDesc/*:msDesc/*:msPart)">
 
@@ -1769,7 +1908,7 @@
 
                                         <!-- <xsl:text>&lt;p&gt;</xsl:text> -->
                                         <xsl:text>&lt;b&gt;</xsl:text>
-                                        <xsl:apply-templates mode="html" />
+                                        <xsl:apply-templates mode="html"/>
                                         <xsl:text>:</xsl:text>
                                         <xsl:text>&lt;/b&gt;</xsl:text>
                                         <!-- <xsl:text>&lt;/p&gt;</xsl:text> -->
@@ -1777,7 +1916,8 @@
 
                                     </xsl:for-each>
 
-                                    <xsl:apply-templates select="*:physDesc/*:objectDesc/*:layoutDesc" mode="html" />
+                                    <xsl:apply-templates select="*:physDesc/*:objectDesc/*:layoutDesc"
+                                                         mode="html"/>
 
                                     <xsl:text>&lt;/div&gt;</xsl:text>
 
@@ -1791,7 +1931,7 @@
 
                     </xsl:variable>
 
-                    <xsl:attribute name="displayForm" select="normalize-space($layout)" />
+                    <xsl:attribute name="displayForm" select="normalize-space($layout)"/>
 
                     <!-- <xsl:value-of select="normalize-space($layout)" /> -->
                     <xsl:value-of select="normalize-space(replace($layout, '&lt;[^&gt;]+&gt;', ''))"/>
@@ -1802,15 +1942,16 @@
 
         </xsl:if>
 
-        <xsl:if test="//*:sourceDesc/*:msDesc/*:physDesc/*:handDesc or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:handDesc)">
+        <xsl:if
+            test="//*:sourceDesc/*:msDesc/*:physDesc/*:handDesc or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:handDesc)">
 
             <scripts>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <script>
 
-                    <xsl:attribute name="display" select="'true'" />
+                    <xsl:attribute name="display" select="'true'"/>
 
                     <xsl:variable name="script">
                         <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:physDesc/*:handDesc" mode="html"/>
@@ -1829,7 +1970,7 @@
 
                                         <!-- <xsl:text>&lt;p&gt;</xsl:text> -->
                                         <xsl:text>&lt;b&gt;</xsl:text>
-                                        <xsl:apply-templates mode="html" />
+                                        <xsl:apply-templates mode="html"/>
                                         <xsl:text>:</xsl:text>
                                         <xsl:text>&lt;/b&gt;</xsl:text>
                                         <!-- <xsl:text>&lt;/p&gt;</xsl:text> -->
@@ -1837,7 +1978,7 @@
 
                                     </xsl:for-each>
 
-                                    <xsl:apply-templates select="*:physDesc/*:handDesc" mode="html" />
+                                    <xsl:apply-templates select="*:physDesc/*:handDesc" mode="html"/>
 
                                     <xsl:text>&lt;/div&gt;</xsl:text>
 
@@ -1851,7 +1992,7 @@
 
                     </xsl:variable>
 
-                    <xsl:attribute name="displayForm" select="normalize-space($script)" />
+                    <xsl:attribute name="displayForm" select="normalize-space($script)"/>
 
                     <!-- <xsl:value-of select="normalize-space($script)" /> -->
                     <xsl:value-of select="normalize-space(replace($script, '&lt;[^&gt;]+&gt;', ''))"/>
@@ -1867,20 +2008,22 @@
 
             <musicNotations>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <musicNotation>
 
-                    <xsl:attribute name="display" select="'true'" />
+                    <xsl:attribute name="display" select="'true'"/>
 
                     <xsl:variable name="musicNotation">
-                        <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:physDesc/*:musicNotation" mode="html"/>
+                        <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:physDesc/*:musicNotation"
+                                             mode="html"/>
                     </xsl:variable>
 
-                    <xsl:attribute name="displayForm" select="normalize-space($musicNotation)" />
+                    <xsl:attribute name="displayForm" select="normalize-space($musicNotation)"/>
 
                     <!-- <xsl:value-of select="normalize-space($binding)" /> -->
-                    <xsl:value-of select="normalize-space(replace($musicNotation, '&lt;[^&gt;]+&gt;', ''))"/>
+                    <xsl:value-of
+                        select="normalize-space(replace($musicNotation, '&lt;[^&gt;]+&gt;', ''))"/>
 
                 </musicNotation>
 
@@ -1889,18 +2032,20 @@
         </xsl:if>
 
 
-        <xsl:if test="//*:sourceDesc/*:msDesc/*:physDesc/*:decoDesc or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:decoDesc)">
+        <xsl:if
+            test="//*:sourceDesc/*:msDesc/*:physDesc/*:decoDesc or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:decoDesc)">
 
             <decorations>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <decoration>
 
-                    <xsl:attribute name="display" select="'true'" />
+                    <xsl:attribute name="display" select="'true'"/>
 
                     <xsl:variable name="decoration">
-                        <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:physDesc/*:decoDesc" mode="html"/>
+                        <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:physDesc/*:decoDesc"
+                                             mode="html"/>
 
                         <xsl:if test="exists(//*:sourceDesc/*:msDesc/*:msPart)">
 
@@ -1916,7 +2061,7 @@
 
                                         <!-- <xsl:text>&lt;p&gt;</xsl:text> -->
                                         <xsl:text>&lt;b&gt;</xsl:text>
-                                        <xsl:apply-templates mode="html" />
+                                        <xsl:apply-templates mode="html"/>
                                         <xsl:text>:</xsl:text>
                                         <xsl:text>&lt;/b&gt;</xsl:text>
                                         <!-- <xsl:text>&lt;/p&gt;</xsl:text> -->
@@ -1924,7 +2069,7 @@
 
                                     </xsl:for-each>
 
-                                    <xsl:apply-templates select="*:physDesc/*:decoDesc" mode="html" />
+                                    <xsl:apply-templates select="*:physDesc/*:decoDesc" mode="html"/>
 
                                     <xsl:text>&lt;/div&gt;</xsl:text>
 
@@ -1938,7 +2083,7 @@
 
                     </xsl:variable>
 
-                    <xsl:attribute name="displayForm" select="normalize-space($decoration)" />
+                    <xsl:attribute name="displayForm" select="normalize-space($decoration)"/>
 
                     <!-- <xsl:value-of select="normalize-space($decoration)" /> -->
                     <xsl:value-of select="normalize-space(replace($decoration, '&lt;[^&gt;]+&gt;', ''))"/>
@@ -1949,18 +2094,20 @@
 
         </xsl:if>
 
-        <xsl:if test="//*:sourceDesc/*:msDesc/*:physDesc/*:additions or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:additions)">
+        <xsl:if
+            test="//*:sourceDesc/*:msDesc/*:physDesc/*:additions or exists(//*:sourceDesc/*:msDesc/*:msPart/*:physDesc/*:additions)">
 
             <additions>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <addition>
 
-                    <xsl:attribute name="display" select="'true'" />
+                    <xsl:attribute name="display" select="'true'"/>
 
                     <xsl:variable name="addition">
-                        <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:physDesc/*:additions" mode="html"/>
+                        <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:physDesc/*:additions"
+                                             mode="html"/>
 
                         <xsl:if test="exists(//*:sourceDesc/*:msDesc/*:msPart)">
 
@@ -1976,7 +2123,7 @@
 
                                         <!-- <xsl:text>&lt;p&gt;</xsl:text> -->
                                         <xsl:text>&lt;b&gt;</xsl:text>
-                                        <xsl:apply-templates mode="html" />
+                                        <xsl:apply-templates mode="html"/>
                                         <xsl:text>:</xsl:text>
                                         <xsl:text>&lt;/b&gt;</xsl:text>
                                         <!-- <xsl:text>&lt;/p&gt;</xsl:text> -->
@@ -1984,7 +2131,7 @@
 
                                     </xsl:for-each>
 
-                                    <xsl:apply-templates select="*:physDesc/*:additions" mode="html" />
+                                    <xsl:apply-templates select="*:physDesc/*:additions" mode="html"/>
 
                                     <xsl:text>&lt;/div&gt;</xsl:text>
 
@@ -1998,7 +2145,7 @@
 
                     </xsl:variable>
 
-                    <xsl:attribute name="displayForm" select="normalize-space($addition)" />
+                    <xsl:attribute name="displayForm" select="normalize-space($addition)"/>
 
                     <!-- <xsl:value-of select="normalize-space($addition)" /> -->
                     <xsl:value-of select="normalize-space(replace($addition, '&lt;[^&gt;]+&gt;', ''))"/>
@@ -2013,17 +2160,18 @@
 
             <bindings>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <binding>
 
-                    <xsl:attribute name="display" select="'true'" />
+                    <xsl:attribute name="display" select="'true'"/>
 
                     <xsl:variable name="binding">
-                        <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:physDesc/*:bindingDesc" mode="html"/>
+                        <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:physDesc/*:bindingDesc"
+                                             mode="html"/>
                     </xsl:variable>
 
-                    <xsl:attribute name="displayForm" select="normalize-space($binding)" />
+                    <xsl:attribute name="displayForm" select="normalize-space($binding)"/>
 
                     <!-- <xsl:value-of select="normalize-space($binding)" /> -->
                     <xsl:value-of select="normalize-space(replace($binding, '&lt;[^&gt;]+&gt;', ''))"/>
@@ -2034,13 +2182,41 @@
 
         </xsl:if>
 
+        <xsl:if test="//*:sourceDesc/*:msDesc/*:physDesc/*:accMat">
+
+            <accMats>
+
+                <xsl:attribute name="display" select="'true'"/>
+
+                <accMat>
+
+                    <xsl:attribute name="display" select="'true'"/>
+
+                    <xsl:variable name="accMat">
+                        <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:physDesc/*:accMat"
+                                             mode="html"/>
+                    </xsl:variable>
+
+                    <xsl:attribute name="displayForm" select="normalize-space($accMat)"/>
+
+                    <!-- <xsl:value-of select="normalize-space($binding)" /> -->
+                    <xsl:value-of select="normalize-space(replace($accMat, '&lt;[^&gt;]+&gt;', ''))"/>
+
+                </accMat>
+
+            </accMats>
+
+        </xsl:if>
+
+
+
     </xsl:template>
 
     <!--physical description processing templates-->
     <xsl:template match="*:objectDesc/@form" mode="html">
 
 
-        <xsl:value-of select="concat(upper-case(substring(., 1, 1)), substring(., 2))"></xsl:value-of>
+        <xsl:value-of select="concat(upper-case(substring(., 1, 1)), substring(., 2))"/>
         <!--<xsl:value-of select="normalize-space(.)" />-->
         <!--<xsl:text>.</xsl:text>-->
 
@@ -2048,13 +2224,13 @@
 
     <xsl:template match="*:supportDesc/*:support" mode="html">
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
     </xsl:template>
 
     <xsl:template match="*:supportDesc/*:extent" mode="html">
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
     </xsl:template>
 
@@ -2063,16 +2239,16 @@
         <xsl:text>&lt;p&gt;</xsl:text>
 
         <xsl:if test="@n">
-            <xsl:value-of select="@n" />
+            <xsl:value-of select="@n"/>
             <xsl:text>. </xsl:text>
         </xsl:if>
 
         <xsl:if test="@type">
-            <xsl:value-of select="cudl:first-upper-case(@type)" />
+            <xsl:value-of select="cudl:first-upper-case(@type)"/>
             <xsl:text>: </xsl:text>
         </xsl:if>
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
         <xsl:text>&lt;/p&gt;</xsl:text>
 
@@ -2080,7 +2256,7 @@
 
     <xsl:template match="*:supportDesc/*:condition" mode="html">
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
     </xsl:template>
 
@@ -2090,33 +2266,33 @@
 
         <xsl:if test="@subtype">
             <xsl:text>&lt;b&gt;</xsl:text>
-            <xsl:value-of select="cudl:first-upper-case(translate(@subtype, '_', ' '))" />
+            <xsl:value-of select="cudl:first-upper-case(translate(@subtype, '_', ' '))"/>
             <xsl:text>:</xsl:text>
             <xsl:text>&lt;/b&gt;</xsl:text>
             <xsl:text> </xsl:text>
         </xsl:if>
 
         <xsl:text> </xsl:text>
-        <xsl:value-of select="cudl:first-upper-case(@type)" />
+        <xsl:value-of select="cudl:first-upper-case(@type)"/>
         <xsl:text> </xsl:text>
         <xsl:for-each select="*">
 
             <xsl:choose>
                 <xsl:when test="local-name(.) = 'dim'">
-                    <xsl:value-of select="@type" />
+                    <xsl:value-of select="@type"/>
                 </xsl:when>
                 <xsl:otherwise>
-                    <xsl:value-of select="local-name(.)" />
+                    <xsl:value-of select="local-name(.)"/>
                 </xsl:otherwise>
             </xsl:choose>
             <xsl:text>: </xsl:text>
 
             <xsl:choose>
                 <xsl:when test="normalize-space(.)">
-                    <xsl:value-of select="." />
+                    <xsl:value-of select="."/>
                 </xsl:when>
                 <xsl:when test="normalize-space(@quantity)">
-                    <xsl:value-of select="@quantity" />
+                    <xsl:value-of select="@quantity"/>
                 </xsl:when>
                 <xsl:otherwise>
                     <!-- shouldn't happen? -->
@@ -2125,7 +2301,7 @@
 
             <xsl:if test="../@unit">
                 <xsl:text> </xsl:text>
-                <xsl:value-of select="../@unit" />
+                <xsl:value-of select="../@unit"/>
             </xsl:if>
 
             <xsl:if test="not(position()=last())">
@@ -2141,13 +2317,13 @@
 
     <xsl:template match="*:layoutDesc" mode="html">
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
     </xsl:template>
 
     <xsl:template match="*:layout" mode="html">
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
     </xsl:template>
 
@@ -2157,7 +2333,7 @@
         <xsl:text>&lt;b&gt;Commentary form:&lt;/b&gt; </xsl:text>
         <xsl:value-of select="@type"/>
         <xsl:text>. </xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/div&gt;</xsl:text>
 
     </xsl:template>
@@ -2165,7 +2341,7 @@
     <xsl:template match="*:stringHole" mode="html">
 
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
     </xsl:template>
 
@@ -2182,20 +2358,20 @@
 
 
         <xsl:text>&lt;div style=&apos;display: list-item; margin-left: 20px;&apos;&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/div&gt;</xsl:text>
 
     </xsl:template>
 
     <xsl:template match="*:decoDesc" mode="html">
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
     </xsl:template>
 
     <xsl:template match="*:decoNote" mode="html">
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
         <xsl:if test="exists(following-sibling::*)">
             <xsl:text>&lt;br /&gt;</xsl:text>
@@ -2205,13 +2381,19 @@
 
     <xsl:template match="*:additions" mode="html">
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
     </xsl:template>
 
     <xsl:template match="*:bindingDesc" mode="html">
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
+
+    </xsl:template>
+
+    <xsl:template match="*:accMat" mode="html">
+
+        <xsl:apply-templates mode="html"/>
 
     </xsl:template>
 
@@ -2223,16 +2405,17 @@
 
             <provenances>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <provenance>
-                    <xsl:attribute name="display" select="'true'" />
+                    <xsl:attribute name="display" select="'true'"/>
 
                     <xsl:variable name="provenance">
-                        <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:history/*:provenance" mode="html"/>
+                        <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:history/*:provenance"
+                                             mode="html"/>
                     </xsl:variable>
 
-                    <xsl:attribute name="displayForm" select="normalize-space($provenance)" />
+                    <xsl:attribute name="displayForm" select="normalize-space($provenance)"/>
 
                     <xsl:value-of select="normalize-space(replace($provenance, '&lt;[^&gt;]+&gt;', ''))"/>
 
@@ -2242,13 +2425,91 @@
 
         </xsl:if>
 
+        <xsl:if
+            test="//*:sourceDesc/*:msDesc/*:history/*:origin/text()|//*:sourceDesc/*:msDesc/*:history/*:origin/*:p">
+
+            <origins>
+
+                <xsl:attribute name="display" select="'true'"/>
+
+                <origin>
+                    <xsl:attribute name="display" select="'true'"/>
+
+                    <xsl:variable name="origin">
+                        <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:history/*:origin"
+                                             mode="html"/>
+                    </xsl:variable>
+
+                    <xsl:attribute name="displayForm" select="normalize-space($origin)"/>
+
+                    <xsl:value-of select="normalize-space(replace($origin, '&lt;[^&gt;]+&gt;', ''))"/>
+
+                </origin>
+
+            </origins>
+
+        </xsl:if>
+
+        <xsl:if
+            test="//*:sourceDesc/*:msDesc/*:history/*:acquisition/text()|//*:sourceDesc/*:msDesc/*:history/*:acquisition/*:p">
+
+            <acquisitionTexts>
+
+                <xsl:attribute name="display" select="'true'"/>
+
+                <acquisitionText>
+                    <xsl:attribute name="display" select="'true'"/>
+
+                    <xsl:variable name="acquisition">
+                        <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:history/*:acquisition"
+                                             mode="html"/>
+                    </xsl:variable>
+
+                    <xsl:attribute name="displayForm" select="normalize-space($acquisition)"/>
+
+                    <xsl:value-of select="normalize-space(replace($acquisition, '&lt;[^&gt;]+&gt;', ''))"/>
+
+                </acquisitionText>
+
+            </acquisitionTexts>
+
+        </xsl:if>
+
+
+
     </xsl:template>
+
+
+
+
 
     <xsl:template match="*:history/*:provenance" mode="html">
 
         <xsl:if test="normalize-space(.)">
 
-            <xsl:apply-templates mode="html" />
+            <xsl:apply-templates mode="html"/>
+
+        </xsl:if>
+
+    </xsl:template>
+
+
+    <xsl:template match="*:history/*:origin" mode="html">
+
+        <xsl:if test="normalize-space(.)">
+
+            <xsl:apply-templates mode="html"/>
+
+        </xsl:if>
+
+    </xsl:template>
+
+
+    <xsl:template match="*:history/*:acquisition" mode="html">
+
+        <xsl:if test="normalize-space(.)">
+
+            <xsl:apply-templates mode="html"/>
 
         </xsl:if>
 
@@ -2258,16 +2519,19 @@
     <xsl:template name="get-item-excerpts">
 
 
-        <xsl:if test="*:head|*:div/*:head|*:p|*:div/*:p|*:div/*:note|*:colophon|*:div/*:colophon|*:decoNote|*:div/*:decoNote|*:explicit|*:div/*:explicit|*:finalRubric|*:div/*:finalRubric|*:incipit|*:div/*:incipit|*:rubric|*:div/*:rubric">
+        <xsl:if
+            test="*:head|*:div/*:head|*:p|*:div/*:p|*:div/*:note|*:colophon|*:div/*:colophon|*:decoNote|*:div/*:decoNote|*:explicit|*:div/*:explicit|*:finalRubric|*:div/*:finalRubric|*:incipit|*:div/*:incipit|*:rubric|*:div/*:rubric">
             <excerpts>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <xsl:variable name="excerpts">
-                    <xsl:apply-templates select="*:head|*:div/*:head|*:p|*:div/*:p|*:div/*:note|*:colophon|*:div/*:colophon|*:decoNote|*:div/*:decoNote|*:explicit|*:div/*:explicit|*:finalRubric|*:div/*:finalRubric|*:incipit|*:div/*:incipit|*:rubric|*:div/*:rubric" mode="html" />
+                    <xsl:apply-templates
+                        select="*:head|*:div/*:head|*:p|*:div/*:p|*:div/*:note|*:colophon|*:div/*:colophon|*:decoNote|*:div/*:decoNote|*:explicit|*:div/*:explicit|*:finalRubric|*:div/*:finalRubric|*:incipit|*:div/*:incipit|*:rubric|*:div/*:rubric"
+                        mode="html"/>
                 </xsl:variable>
 
-                <xsl:attribute name="displayForm" select="normalize-space($excerpts)" />
+                <xsl:attribute name="displayForm" select="normalize-space($excerpts)"/>
                 <!-- <xsl:value-of select="normalize-space($excerpts)" /> -->
                 <xsl:value-of select="normalize-space(replace($excerpts, '&lt;[^&gt;]+&gt;', ''))"/>
             </excerpts>
@@ -2282,7 +2546,7 @@
         <xsl:if test="//*:history/*:origin/*:note">
             <notes>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <xsl:for-each select="//*:history/*:origin/*:note">
 
@@ -2291,7 +2555,7 @@
                     </xsl:variable>
 
                     <note>
-                        <xsl:attribute name="display" select="'true'" />
+                        <xsl:attribute name="display" select="'true'"/>
                         <xsl:attribute name="displayForm" select="normalize-space($note)"/>
                         <xsl:value-of select="normalize-space($note)"/>
                     </note>
@@ -2310,7 +2574,7 @@
         <xsl:if test="*:note">
             <notes>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <xsl:for-each select="*:note">
 
@@ -2319,7 +2583,7 @@
                     </xsl:variable>
 
                     <note>
-                        <xsl:attribute name="display" select="'true'" />
+                        <xsl:attribute name="display" select="'true'"/>
                         <xsl:attribute name="displayForm" select="normalize-space($note)"/>
                         <xsl:value-of select="normalize-space($note)"/>
                     </note>
@@ -2338,11 +2602,11 @@
         <xsl:text>&lt;b&gt;Colophon</xsl:text>
 
         <xsl:if test="normalize-space(@type)">
-            <xsl:value-of select="concat(', ', normalize-space(@type))" />
+            <xsl:value-of select="concat(', ', normalize-space(@type))"/>
         </xsl:if>
 
         <xsl:text>:&lt;/b&gt; </xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/div&gt;</xsl:text>
 
     </xsl:template>
@@ -2354,11 +2618,11 @@
         <xsl:text>&lt;b&gt;Explicit</xsl:text>
 
         <xsl:if test="normalize-space(@type)">
-            <xsl:value-of select="concat(', ', normalize-space(@type))" />
+            <xsl:value-of select="concat(', ', normalize-space(@type))"/>
         </xsl:if>
 
         <xsl:text>:&lt;/b&gt; </xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/div&gt;</xsl:text>
 
     </xsl:template>
@@ -2371,11 +2635,11 @@
         <xsl:text>&lt;b&gt;Incipit</xsl:text>
 
         <xsl:if test="normalize-space(@type)">
-            <xsl:value-of select="concat(', ', normalize-space(@type))" />
+            <xsl:value-of select="concat(', ', normalize-space(@type))"/>
         </xsl:if>
 
         <xsl:text>:&lt;/b&gt; </xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/div&gt;</xsl:text>
 
     </xsl:template>
@@ -2383,14 +2647,14 @@
     <!--INCIPIT as title-->
     <xsl:template match="*:incipit" mode="title">
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
     </xsl:template>
 
     <!--RUBRIC as title-->
     <xsl:template match="*:rubric" mode="title">
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
     </xsl:template>
 
@@ -2401,11 +2665,11 @@
         <xsl:text>&lt;b&gt;Rubric</xsl:text>
 
         <xsl:if test="normalize-space(@type)">
-            <xsl:value-of select="concat(', ', normalize-space(@type))" />
+            <xsl:value-of select="concat(', ', normalize-space(@type))"/>
         </xsl:if>
 
         <xsl:text>:&lt;/b&gt; </xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/div&gt;</xsl:text>
 
     </xsl:template>
@@ -2416,11 +2680,11 @@
         <xsl:text>&lt;b&gt;Final Rubric</xsl:text>
 
         <xsl:if test="normalize-space(@type)">
-            <xsl:value-of select="concat(', ', normalize-space(@type))" />
+            <xsl:value-of select="concat(', ', normalize-space(@type))"/>
         </xsl:if>
 
         <xsl:text>:&lt;/b&gt; </xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/div&gt;</xsl:text>
 
     </xsl:template>
@@ -2429,7 +2693,7 @@
     <xsl:template match="*:note" mode="html">
 
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
     </xsl:template>
 
@@ -2443,14 +2707,14 @@
                 <xsl:text>&lt;b&gt;Decoration:&lt;/b&gt; </xsl:text>
                 <xsl:text>&lt;/p&gt;</xsl:text>
 
-                <xsl:apply-templates mode="html" />
+                <xsl:apply-templates mode="html"/>
 
             </xsl:when>
             <xsl:otherwise>
 
                 <xsl:text>&lt;p&gt;</xsl:text>
                 <xsl:text>&lt;b&gt;Decoration:&lt;/b&gt; </xsl:text>
-                <xsl:apply-templates mode="html" />
+                <xsl:apply-templates mode="html"/>
                 <xsl:text>&lt;/p&gt;</xsl:text>
 
             </xsl:otherwise>
@@ -2464,15 +2728,15 @@
         <xsl:if test="*:filiation">
             <filiations>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <xsl:variable name="filiation">
                     <xsl:text>&lt;div&gt;</xsl:text>
-                    <xsl:apply-templates select="*:filiation" mode="html" />
+                    <xsl:apply-templates select="*:filiation" mode="html"/>
                     <xsl:text>&lt;/div&gt;</xsl:text>
                 </xsl:variable>
 
-                <xsl:attribute name="displayForm" select="normalize-space($filiation)" />
+                <xsl:attribute name="displayForm" select="normalize-space($filiation)"/>
                 <!-- <xsl:value-of select="normalize-space($filiation)" /> -->
                 <xsl:value-of select="normalize-space(replace($filiation, '&lt;[^&gt;]+&gt;', ''))"/>
             </filiations>
@@ -2483,7 +2747,7 @@
     <xsl:template match="*:filiation" mode="html">
 
         <xsl:text>&lt;div&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/div&gt;</xsl:text>
 
     </xsl:template>
@@ -2495,19 +2759,21 @@
 
             <bibliographies>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <bibliography>
 
-                    <xsl:attribute name="display" select="'true'" />
+                    <xsl:attribute name="display" select="'true'"/>
 
                     <xsl:variable name="bibliography">
-                        <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:additional//*:listBibl" mode="html" />
+                        <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:additional//*:listBibl"
+                                             mode="html"/>
                     </xsl:variable>
 
-                    <xsl:attribute name="displayForm" select="normalize-space($bibliography)" />
+                    <xsl:attribute name="displayForm" select="normalize-space($bibliography)"/>
                     <!-- <xsl:value-of select="normalize-space($bibliography)" /> -->
-                    <xsl:value-of select="normalize-space(replace($bibliography, '&lt;[^&gt;]+&gt;', ''))"/>
+                    <xsl:value-of
+                        select="normalize-space(replace($bibliography, '&lt;[^&gt;]+&gt;', ''))"/>
 
                 </bibliography>
 
@@ -2520,23 +2786,27 @@
 
     <xsl:template name="get-doc-and-item-biblio">
 
-        <xsl:if test="//*:sourceDesc/*:msDesc/*:additional//*:listBibl|//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]/*:listBibl">
+        <xsl:if
+            test="//*:sourceDesc/*:msDesc/*:additional//*:listBibl|//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]/*:listBibl">
 
             <bibliographies>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <bibliography>
 
-                    <xsl:attribute name="display" select="'true'" />
+                    <xsl:attribute name="display" select="'true'"/>
 
                     <xsl:variable name="bibliography">
-                        <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:additional//*:listBibl|//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]/*:listBibl" mode="html" />
+                        <xsl:apply-templates
+                            select="//*:sourceDesc/*:msDesc/*:additional//*:listBibl|//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]/*:listBibl"
+                            mode="html"/>
                     </xsl:variable>
 
-                    <xsl:attribute name="displayForm" select="normalize-space($bibliography)" />
+                    <xsl:attribute name="displayForm" select="normalize-space($bibliography)"/>
                     <!-- <xsl:value-of select="normalize-space($bibliography)" /> -->
-                    <xsl:value-of select="normalize-space(replace($bibliography, '&lt;[^&gt;]+&gt;', ''))"/>
+                    <xsl:value-of
+                        select="normalize-space(replace($bibliography, '&lt;[^&gt;]+&gt;', ''))"/>
 
                 </bibliography>
 
@@ -2554,18 +2824,19 @@
             <!--         <bibliographies> -->
             <bibliographies>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <bibliography>
 
-                    <xsl:attribute name="display" select="'true'" />
+                    <xsl:attribute name="display" select="'true'"/>
                     <xsl:variable name="bibliography">
-                        <xsl:apply-templates select="*:listBibl" mode="html" />
+                        <xsl:apply-templates select="*:listBibl" mode="html"/>
                     </xsl:variable>
 
-                    <xsl:attribute name="displayForm" select="normalize-space($bibliography)" />
+                    <xsl:attribute name="displayForm" select="normalize-space($bibliography)"/>
                     <!-- <xsl:value-of select="normalize-space($bibliography)" /> -->
-                    <xsl:value-of select="normalize-space(replace($bibliography, '&lt;[^&gt;]+&gt;', ''))"/>
+                    <xsl:value-of
+                        select="normalize-space(replace($bibliography, '&lt;[^&gt;]+&gt;', ''))"/>
 
                 </bibliography>
 
@@ -2580,7 +2851,7 @@
         <!-- <xsl:text>&lt;br /&gt;</xsl:text> -->
 
         <xsl:text>&lt;p&gt;&lt;b&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/b&gt;&lt;/p&gt;</xsl:text>
 
     </xsl:template>
@@ -2588,10 +2859,10 @@
     <xsl:template match="*:listBibl" mode="html">
 
 
-        <xsl:apply-templates select="*:head" mode="html" />
+        <xsl:apply-templates select="*:head" mode="html"/>
 
         <xsl:text>&lt;div style=&apos;list-style-type: disc;&apos;&gt;</xsl:text>
-        <xsl:apply-templates select=".//*:bibl|.//*:biblStruct" mode="html" />
+        <xsl:apply-templates select=".//*:bibl|.//*:biblStruct" mode="html"/>
         <xsl:text>&lt;/div&gt;</xsl:text>
 
         <xsl:text>&lt;br /&gt;</xsl:text>
@@ -2602,7 +2873,7 @@
     <xsl:template match="*:listBibl//*:bibl" mode="html">
 
         <xsl:text>&lt;div style=&apos;display: list-item; margin-left: 20px;&apos;&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/div&gt;</xsl:text>
 
     </xsl:template>
@@ -2613,7 +2884,7 @@
         <!-- Template to catch biblStruct w no child elements and treat like bibl - shouldn't really happen but frequently does, so prob easiest to handle it -->
 
         <xsl:text>&lt;div style=&apos;display: list-item; margin-left: 20px;&apos;&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/div&gt;</xsl:text>
 
     </xsl:template>
@@ -2626,12 +2897,12 @@
         <xsl:choose>
             <xsl:when test="@xml:id">
                 <xsl:text> id=&quot;</xsl:text>
-                <xsl:value-of select="normalize-space(@xml:id)" />
+                <xsl:value-of select="normalize-space(@xml:id)"/>
                 <xsl:text>&quot;</xsl:text>
             </xsl:when>
             <xsl:when test="*:idno[@type='callNumber']">
                 <xsl:text> id=&quot;</xsl:text>
-                <xsl:value-of select="normalize-space(*:idno)" />
+                <xsl:value-of select="normalize-space(*:idno)"/>
                 <xsl:text>&quot;</xsl:text>
             </xsl:when>
         </xsl:choose>
@@ -2639,13 +2910,14 @@
         <xsl:text>&gt;</xsl:text>
 
         <xsl:choose>
-            <xsl:when test="@type='bookSection' or @type='encyclopaediaArticle' or @type='encyclopediaArticle'">
+            <xsl:when
+                test="@type='bookSection' or @type='encyclopaediaArticle' or @type='encyclopediaArticle'">
 
                 <xsl:for-each select="*:analytic">
 
                     <xsl:for-each select="*:author|*:editor">
 
-                        <xsl:call-template name="get-names-first-surname-first" />
+                        <xsl:call-template name="get-names-first-surname-first"/>
 
                     </xsl:for-each>
 
@@ -2654,7 +2926,7 @@
                     <xsl:for-each select="*:title">
 
                         <xsl:text>&quot;</xsl:text>
-                        <xsl:value-of select="normalize-space(.)" />
+                        <xsl:value-of select="normalize-space(.)"/>
                         <xsl:text>&quot;</xsl:text>
 
                     </xsl:for-each>
@@ -2670,7 +2942,7 @@
 
                             <xsl:for-each select="*:author">
 
-                                <xsl:call-template name="get-names-all-forename-first" />
+                                <xsl:call-template name="get-names-all-forename-first"/>
 
                             </xsl:for-each>
 
@@ -2679,7 +2951,7 @@
                             <xsl:for-each select="*:title[not (@type='short')]">
 
                                 <xsl:text>&lt;i&gt;</xsl:text>
-                                <xsl:value-of select="normalize-space(.)" />
+                                <xsl:value-of select="normalize-space(.)"/>
                                 <xsl:text>&lt;/i&gt;</xsl:text>
 
                             </xsl:for-each>
@@ -2690,7 +2962,7 @@
 
                                 <xsl:for-each select="*:editor">
 
-                                    <xsl:call-template name="get-names-all-forename-first" />
+                                    <xsl:call-template name="get-names-all-forename-first"/>
 
                                 </xsl:for-each>
 
@@ -2702,7 +2974,7 @@
 
                             <xsl:for-each select="*:editor">
 
-                                <xsl:call-template name="get-names-all-forename-first" />
+                                <xsl:call-template name="get-names-all-forename-first"/>
 
                             </xsl:for-each>
 
@@ -2721,7 +2993,7 @@
                             <xsl:for-each select="*:title[not(@type='short')]">
 
                                 <xsl:text>&lt;i&gt;</xsl:text>
-                                <xsl:value-of select="normalize-space(.)" />
+                                <xsl:value-of select="normalize-space(.)"/>
                                 <xsl:text>&lt;/i&gt;</xsl:text>
 
                             </xsl:for-each>
@@ -2733,7 +3005,7 @@
                             <xsl:for-each select="*:title[not(@type='short')]">
 
                                 <xsl:text>&lt;i&gt;</xsl:text>
-                                <xsl:value-of select="normalize-space(.)" />
+                                <xsl:value-of select="normalize-space(.)"/>
                                 <xsl:text>&lt;/i&gt;</xsl:text>
 
                             </xsl:for-each>
@@ -2744,7 +3016,7 @@
 
                     <xsl:if test="*:edition">
                         <xsl:text> </xsl:text>
-                        <xsl:value-of select="*:edition" />
+                        <xsl:value-of select="*:edition"/>
                     </xsl:if>
 
                     <xsl:if test="*:respStmt">
@@ -2753,7 +3025,7 @@
 
                             <xsl:text> </xsl:text>
 
-                            <xsl:call-template name="get-respStmt" />
+                            <xsl:call-template name="get-respStmt"/>
 
                         </xsl:for-each>
 
@@ -2770,7 +3042,7 @@
                             <xsl:for-each select="*:title">
 
                                 <!-- <xsl:text>&lt;i&gt;</xsl:text> -->
-                                <xsl:value-of select="normalize-space(.)" />
+                                <xsl:value-of select="normalize-space(.)"/>
                                 <!-- <xsl:text>&lt;/i&gt;</xsl:text> -->
 
                             </xsl:for-each>
@@ -2782,11 +3054,11 @@
                                     <xsl:text> </xsl:text>
 
                                     <xsl:if test="@type">
-                                        <xsl:value-of select="normalize-space(@type)" />
+                                        <xsl:value-of select="normalize-space(@type)"/>
                                         <xsl:text>. </xsl:text>
                                     </xsl:if>
 
-                                    <xsl:value-of select="normalize-space(.)" />
+                                    <xsl:value-of select="normalize-space(.)"/>
 
                                 </xsl:for-each>
 
@@ -2802,7 +3074,7 @@
 
                         <xsl:for-each select="*:imprint">
 
-                            <xsl:call-template name="get-imprint" />
+                            <xsl:call-template name="get-imprint"/>
 
                         </xsl:for-each>
 
@@ -2816,11 +3088,11 @@
                             <xsl:text> </xsl:text>
 
                             <xsl:if test="@type">
-                                <xsl:value-of select="normalize-space(@type)" />
+                                <xsl:value-of select="normalize-space(@type)"/>
                                 <xsl:text>. </xsl:text>
                             </xsl:if>
 
-                            <xsl:value-of select="normalize-space(.)" />
+                            <xsl:value-of select="normalize-space(.)"/>
 
                         </xsl:for-each>
 
@@ -2838,7 +3110,7 @@
 
                     <xsl:for-each select="*:author|*:editor">
 
-                        <xsl:call-template name="get-names-first-surname-first" />
+                        <xsl:call-template name="get-names-first-surname-first"/>
 
                     </xsl:for-each>
 
@@ -2847,7 +3119,7 @@
                     <xsl:for-each select="*:title">
 
                         <xsl:text>&quot;</xsl:text>
-                        <xsl:value-of select="normalize-space(.)" />
+                        <xsl:value-of select="normalize-space(.)"/>
                         <xsl:text>&quot;</xsl:text>
 
                     </xsl:for-each>
@@ -2861,7 +3133,7 @@
                     <xsl:for-each select="*:title[not(@type='short')]">
 
                         <xsl:text>&lt;i&gt;</xsl:text>
-                        <xsl:value-of select="normalize-space(.)" />
+                        <xsl:value-of select="normalize-space(.)"/>
                         <xsl:text>&lt;/i&gt;</xsl:text>
 
                     </xsl:for-each>
@@ -2873,11 +3145,11 @@
                             <xsl:text> </xsl:text>
 
                             <xsl:if test="@type">
-                                <xsl:value-of select="normalize-space(@type)" />
+                                <xsl:value-of select="normalize-space(@type)"/>
                                 <xsl:text>. </xsl:text>
                             </xsl:if>
 
-                            <xsl:value-of select="normalize-space(.)" />
+                            <xsl:value-of select="normalize-space(.)"/>
 
                         </xsl:for-each>
 
@@ -2892,7 +3164,7 @@
                             <xsl:for-each select="*:title">
 
                                 <!-- <xsl:text>&lt;i&gt;</xsl:text> -->
-                                <xsl:value-of select="normalize-space(.)" />
+                                <xsl:value-of select="normalize-space(.)"/>
                                 <!-- <xsl:text>&lt;/i&gt;</xsl:text> -->
 
                             </xsl:for-each>
@@ -2904,11 +3176,11 @@
                                     <xsl:text>. </xsl:text>
 
                                     <xsl:if test="@type">
-                                        <xsl:value-of select="normalize-space(@type)" />
+                                        <xsl:value-of select="normalize-space(@type)"/>
                                         <xsl:text> </xsl:text>
                                     </xsl:if>
 
-                                    <xsl:value-of select="normalize-space(.)" />
+                                    <xsl:value-of select="normalize-space(.)"/>
 
                                 </xsl:for-each>
 
@@ -2924,7 +3196,7 @@
 
                         <xsl:for-each select="*:imprint">
 
-                            <xsl:call-template name="get-imprint" />
+                            <xsl:call-template name="get-imprint"/>
 
                         </xsl:for-each>
 
@@ -2936,9 +3208,7 @@
 
             </xsl:when>
 
-            <xsl:otherwise>
-
-            </xsl:otherwise>
+            <xsl:otherwise> </xsl:otherwise>
 
         </xsl:choose>
 
@@ -2955,12 +3225,12 @@
         <xsl:choose>
             <xsl:when test="@xml:id">
                 <xsl:text> id=&quot;</xsl:text>
-                <xsl:value-of select="normalize-space(@xml:id)" />
+                <xsl:value-of select="normalize-space(@xml:id)"/>
                 <xsl:text>&quot;</xsl:text>
             </xsl:when>
             <xsl:when test="*:idno[@type='callNumber']">
                 <xsl:text> id=&quot;</xsl:text>
-                <xsl:value-of select="normalize-space(*:idno)" />
+                <xsl:value-of select="normalize-space(*:idno)"/>
                 <xsl:text>&quot;</xsl:text>
             </xsl:when>
         </xsl:choose>
@@ -2968,7 +3238,8 @@
         <xsl:text>&gt;</xsl:text>
 
         <xsl:choose>
-            <xsl:when test="@type='book' or @type='document' or @type='thesis' or @type='manuscript' or @type='webpage'">
+            <xsl:when
+                test="@type='book' or @type='document' or @type='thesis' or @type='manuscript' or @type='webpage'">
 
                 <xsl:for-each select="*:monogr">
 
@@ -2977,7 +3248,7 @@
 
                             <xsl:for-each select="*:author">
 
-                                <xsl:call-template name="get-names-first-surname-first" />
+                                <xsl:call-template name="get-names-first-surname-first"/>
 
                             </xsl:for-each>
 
@@ -2986,7 +3257,7 @@
                             <xsl:for-each select="*:title[not(@type='short')]">
 
                                 <xsl:text>&lt;i&gt;</xsl:text>
-                                <xsl:value-of select="normalize-space(.)" />
+                                <xsl:value-of select="normalize-space(.)"/>
                                 <xsl:text>&lt;/i&gt;</xsl:text>
 
                             </xsl:for-each>
@@ -2997,7 +3268,7 @@
 
                                 <xsl:for-each select="*:editor">
 
-                                    <xsl:call-template name="get-names-all-forename-first" />
+                                    <xsl:call-template name="get-names-all-forename-first"/>
 
                                 </xsl:for-each>
 
@@ -3009,7 +3280,7 @@
 
                             <xsl:for-each select="*:editor">
 
-                                <xsl:call-template name="get-names-first-surname-first" />
+                                <xsl:call-template name="get-names-first-surname-first"/>
 
                             </xsl:for-each>
 
@@ -3028,7 +3299,7 @@
                             <xsl:for-each select="*:title[not(@type='short')]">
 
                                 <xsl:text>&lt;i&gt;</xsl:text>
-                                <xsl:value-of select="normalize-space(.)" />
+                                <xsl:value-of select="normalize-space(.)"/>
                                 <xsl:text>&lt;/i&gt;</xsl:text>
 
                             </xsl:for-each>
@@ -3040,7 +3311,7 @@
                             <xsl:for-each select="*:title[not(@type='short')]">
 
                                 <xsl:text>&lt;i&gt;</xsl:text>
-                                <xsl:value-of select="normalize-space(.)" />
+                                <xsl:value-of select="normalize-space(.)"/>
                                 <xsl:text>&lt;/i&gt;</xsl:text>
 
                             </xsl:for-each>
@@ -3051,7 +3322,7 @@
 
                     <xsl:if test="*:edition">
                         <xsl:text> </xsl:text>
-                        <xsl:value-of select="*:edition" />
+                        <xsl:value-of select="*:edition"/>
                     </xsl:if>
 
                     <xsl:if test="*:respStmt">
@@ -3060,7 +3331,7 @@
 
                             <xsl:text> </xsl:text>
 
-                            <xsl:call-template name="get-respStmt" />
+                            <xsl:call-template name="get-respStmt"/>
 
                         </xsl:for-each>
 
@@ -3077,7 +3348,7 @@
                             <xsl:for-each select="*:title">
 
                                 <!-- <xsl:text>&lt;i&gt;</xsl:text> -->
-                                <xsl:value-of select="normalize-space(.)" />
+                                <xsl:value-of select="normalize-space(.)"/>
                                 <!-- <xsl:text>&lt;/i&gt;</xsl:text> -->
 
                             </xsl:for-each>
@@ -3090,11 +3361,11 @@
                                     <xsl:text> </xsl:text>
 
                                     <xsl:if test="@type">
-                                        <xsl:value-of select="normalize-space(@type)" />
+                                        <xsl:value-of select="normalize-space(@type)"/>
                                         <xsl:text>. </xsl:text>
                                     </xsl:if>
 
-                                    <xsl:value-of select="normalize-space(.)" />
+                                    <xsl:value-of select="normalize-space(.)"/>
 
                                 </xsl:for-each>
 
@@ -3110,7 +3381,7 @@
 
                             <xsl:text>, </xsl:text>
 
-                            <xsl:value-of select="normalize-space(.)"></xsl:value-of>
+                            <xsl:value-of select="normalize-space(.)"/>
 
                         </xsl:for-each>
 
@@ -3123,7 +3394,7 @@
 
                             <xsl:text> </xsl:text>
 
-                            <xsl:call-template name="get-imprint" />
+                            <xsl:call-template name="get-imprint"/>
 
                         </xsl:for-each>
 
@@ -3137,11 +3408,11 @@
                             <xsl:text> </xsl:text>
 
                             <xsl:if test="@type">
-                                <xsl:value-of select="normalize-space(@type)" />
+                                <xsl:value-of select="normalize-space(@type)"/>
                                 <xsl:text>. </xsl:text>
                             </xsl:if>
 
-                            <xsl:value-of select="normalize-space(.)" />
+                            <xsl:value-of select="normalize-space(.)"/>
 
                         </xsl:for-each>
 
@@ -3156,7 +3427,7 @@
                     <xsl:for-each select="*:idno[@type='ISBN']">
 
                         <xsl:text> ISBN: </xsl:text>
-                        <xsl:value-of select="normalize-space(.)" />
+                        <xsl:value-of select="normalize-space(.)"/>
 
                     </xsl:for-each>
 
@@ -3168,9 +3439,7 @@
 
             </xsl:when>
 
-            <xsl:otherwise>
-
-            </xsl:otherwise>
+            <xsl:otherwise> </xsl:otherwise>
         </xsl:choose>
 
 
@@ -3191,7 +3460,7 @@
                         <!-- surname explicitly present -->
 
                         <xsl:for-each select=".//*:surname">
-                            <xsl:value-of select="normalize-space(.)" />
+                            <xsl:value-of select="normalize-space(.)"/>
                             <xsl:if test="not(position()=last())">
                                 <xsl:text> </xsl:text>
                             </xsl:if>
@@ -3201,7 +3470,7 @@
                             <xsl:text>, </xsl:text>
 
                             <xsl:for-each select=".//*:forename">
-                                <xsl:value-of select="normalize-space(.)" />
+                                <xsl:value-of select="normalize-space(.)"/>
                                 <xsl:if test="not(position()=last())">
                                     <xsl:text> </xsl:text>
                                 </xsl:if>
@@ -3214,7 +3483,7 @@
                         <!-- just a name, not surname/forename -->
 
                         <xsl:for-each select=".//*:name[not(*)]">
-                            <xsl:value-of select="normalize-space(.)" />
+                            <xsl:value-of select="normalize-space(.)"/>
                             <xsl:if test="not(position()=last())">
                                 <xsl:text> </xsl:text>
                             </xsl:if>
@@ -3226,7 +3495,7 @@
                         <!-- forenames only? not sure what else to do but render them -->
 
                         <xsl:for-each select=".//*:forename">
-                            <xsl:value-of select="normalize-space(.)" />
+                            <xsl:value-of select="normalize-space(.)"/>
                             <xsl:if test="not(position()=last())">
                                 <xsl:text> </xsl:text>
                             </xsl:if>
@@ -3255,7 +3524,7 @@
                         <xsl:if test=".//*:forename">
 
                             <xsl:for-each select=".//*:forename">
-                                <xsl:value-of select="normalize-space(.)" />
+                                <xsl:value-of select="normalize-space(.)"/>
                                 <xsl:if test="not(position()=last())">
                                     <xsl:text> </xsl:text>
                                 </xsl:if>
@@ -3266,7 +3535,7 @@
                         </xsl:if>
 
                         <xsl:for-each select=".//*:surname">
-                            <xsl:value-of select="normalize-space(.)" />
+                            <xsl:value-of select="normalize-space(.)"/>
                             <xsl:if test="not(position()=last())">
                                 <xsl:text> </xsl:text>
                             </xsl:if>
@@ -3277,7 +3546,7 @@
                         <!-- just a name, not forename/surname -->
 
                         <xsl:for-each select=".//*:name[not(*)]">
-                            <xsl:value-of select="normalize-space(.)" />
+                            <xsl:value-of select="normalize-space(.)"/>
                             <xsl:if test="not(position()=last())">
                                 <xsl:text> </xsl:text>
                             </xsl:if>
@@ -3288,7 +3557,7 @@
                         <!-- forenames only? not sure what else to do but render them -->
 
                         <xsl:for-each select=".//*:forename">
-                            <xsl:value-of select="normalize-space(.)" />
+                            <xsl:value-of select="normalize-space(.)"/>
                             <xsl:if test="not(position()=last())">
                                 <xsl:text> </xsl:text>
                             </xsl:if>
@@ -3306,7 +3575,7 @@
     <xsl:template name="get-names-all-forename-first">
 
         <xsl:choose>
-            <xsl:when test="position() = 1" />
+            <xsl:when test="position() = 1"/>
             <xsl:when test="position()=last()">
                 <xsl:text> and </xsl:text>
             </xsl:when>
@@ -3316,14 +3585,14 @@
         </xsl:choose>
 
         <xsl:for-each select=".//*:name[not(*)]">
-            <xsl:value-of select="normalize-space(.)" />
+            <xsl:value-of select="normalize-space(.)"/>
             <xsl:if test="not(position()=last())">
                 <xsl:text> </xsl:text>
             </xsl:if>
         </xsl:for-each>
 
         <xsl:for-each select=".//*:forename">
-            <xsl:value-of select="normalize-space(.)" />
+            <xsl:value-of select="normalize-space(.)"/>
             <xsl:if test="not(position()=last())">
                 <xsl:text> </xsl:text>
             </xsl:if>
@@ -3332,7 +3601,7 @@
         <xsl:text> </xsl:text>
 
         <xsl:for-each select=".//*:surname">
-            <xsl:value-of select="normalize-space(.)" />
+            <xsl:value-of select="normalize-space(.)"/>
             <xsl:if test="not(position()=last())">
                 <xsl:text> </xsl:text>
             </xsl:if>
@@ -3347,7 +3616,7 @@
 
             <xsl:if test="*:note[@type='thesisType']">
                 <xsl:for-each select="*:note[@type='thesisType']">
-                    <xsl:value-of select="normalize-space(.)" />
+                    <xsl:value-of select="normalize-space(.)"/>
                     <xsl:text> thesis</xsl:text>
                 </xsl:for-each>
                 <xsl:text> </xsl:text>
@@ -3355,14 +3624,14 @@
 
             <xsl:if test="*:pubPlace">
                 <xsl:for-each select="*:pubPlace">
-                    <xsl:value-of select="normalize-space(.)" />
+                    <xsl:value-of select="normalize-space(.)"/>
                 </xsl:for-each>
                 <xsl:text>: </xsl:text>
             </xsl:if>
 
             <xsl:if test="*:publisher">
                 <xsl:for-each select="*:publisher">
-                    <xsl:value-of select="normalize-space(.)" />
+                    <xsl:value-of select="normalize-space(.)"/>
                 </xsl:for-each>
                 <xsl:if test="*:date">
                     <xsl:text>, </xsl:text>
@@ -3371,7 +3640,7 @@
 
             <xsl:if test="*:date">
                 <xsl:for-each select="*:date">
-                    <xsl:value-of select="normalize-space(.)" />
+                    <xsl:value-of select="normalize-space(.)"/>
                 </xsl:for-each>
             </xsl:if>
 
@@ -3393,16 +3662,16 @@
 
         <xsl:if test="*:note[@type='url']">
             <xsl:text> &lt;a target=&apos;_blank&apos; class=&apos;externalLink&apos; href=&apos;</xsl:text>
-            <xsl:value-of select="*:note[@type='url']" />
+            <xsl:value-of select="*:note[@type='url']"/>
             <xsl:text>&apos;&gt;</xsl:text>
-            <xsl:value-of select="*:note[@type='url']" />
+            <xsl:value-of select="*:note[@type='url']"/>
             <xsl:text>&lt;/a&gt;</xsl:text>
         </xsl:if>
 
         <xsl:if test="*:note[@type='accessed']">
             <xsl:text> Accessed: </xsl:text>
             <xsl:for-each select="*:note[@type='accessed']">
-                <xsl:value-of select="normalize-space(.)" />
+                <xsl:value-of select="normalize-space(.)"/>
             </xsl:for-each>
         </xsl:if>
 
@@ -3413,28 +3682,28 @@
         <xsl:choose>
             <xsl:when test="*">
                 <xsl:for-each select="*:resp">
-                    <xsl:value-of select="." />
+                    <xsl:value-of select="."/>
                     <xsl:text>: </xsl:text>
                 </xsl:for-each>
                 <xsl:for-each select=".//*:forename">
-                    <xsl:value-of select="." />
+                    <xsl:value-of select="."/>
                     <xsl:text> </xsl:text>
                 </xsl:for-each>
                 <xsl:for-each select=".//*:surname">
-                    <xsl:value-of select="." />
+                    <xsl:value-of select="."/>
                     <xsl:if test="not(position()=last())">
                         <xsl:text> </xsl:text>
                     </xsl:if>
                 </xsl:for-each>
                 <xsl:for-each select=".//*:name[not(*)]">
-                    <xsl:value-of select="." />
+                    <xsl:value-of select="."/>
                     <xsl:if test="not(position()=last())">
                         <xsl:text> </xsl:text>
                     </xsl:if>
                 </xsl:for-each>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:value-of select="." />
+                <xsl:value-of select="."/>
             </xsl:otherwise>
         </xsl:choose>
 
@@ -3445,41 +3714,45 @@
 
     <!-- Table of role relator codes and role element names -->
     <xsl:variable name="rolemap">
-        <role code="aut" name="authors" />
-        <role code="dnr" name="donors" />
-        <role code="fmo" name="formerOwners" />
+        <role code="aut" name="authors"/>
+        <role code="dnr" name="donors"/>
+        <role code="fmo" name="formerOwners"/>
         <!-- Treat pbl as "associated"
          <role code="pbl" name="publishers" />
       -->
-        <role code="rcp" name="recipients" />
-        <role code="scr" name="scribes" />
+        <role code="rcp" name="recipients"/>
+        <role code="scr" name="scribes"/>
     </xsl:variable>
 
     <xsl:template name="get-doc-names">
 
         <!--for doc names looks only in summary, physdesc and history-->
 
-        <xsl:if test="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))]|//*:sourceDesc/*:msDesc/*:physDesc//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))]|//*:sourceDesc/*:msDesc/*:history//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))]">
+        <xsl:if
+            test="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))]|//*:sourceDesc/*:msDesc/*:physDesc//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))]|//*:sourceDesc/*:msDesc/*:history//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))]">
 
-            <xsl:for-each-group select="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][@role=$rolemap/role/@code]|//*:sourceDesc/*:msDesc/*:physDesc//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][@role=$rolemap/role/@code]|//*:sourceDesc/*:msDesc/*:history//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][@role=$rolemap/role/@code]" group-by="@role">
+            <xsl:for-each-group
+                select="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][@role=$rolemap/role/@code]|//*:sourceDesc/*:msDesc/*:physDesc//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][@role=$rolemap/role/@code]|//*:sourceDesc/*:msDesc/*:history//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][@role=$rolemap/role/@code]"
+                group-by="@role">
 
-                <xsl:variable name="rolecode" select="@role" />
+                <xsl:variable name="rolecode" select="@role"/>
 
-                <xsl:variable name="elementName" select="$rolemap/role[@code=$rolecode]/@name" />
+                <xsl:variable name="elementName" select="$rolemap/role[@code=$rolecode]/@name"/>
                 <!--
             <xsl:variable name="label" select="$rolemap/role[@code=$rolecode]/@label" />
             -->
 
 
                 <xsl:element name="{$elementName}">
-                    <xsl:attribute name="display" select="'true'" />
+                    <xsl:attribute name="display" select="'true'"/>
 
 
 
                     <!-- to de-dup names, group by name and process just first one in group -->
                     <xsl:for-each-group select="current-group()" group-by="*:persName[@type='standard']">
 
-                        <!-- <xsl:sort select="*:persName[@type='standard']" /> --> <!-- CHECK WHETHER ORDER SIGNIFICANT -->
+                        <!-- <xsl:sort select="*:persName[@type='standard']" /> -->
+                        <!-- CHECK WHETHER ORDER SIGNIFICANT -->
 
                         <xsl:choose>
                             <xsl:when test="normalize-space(*:persName[@type='standard'])">
@@ -3499,16 +3772,19 @@
 
             </xsl:for-each-group>
 
-            <xsl:if test="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]|//*:sourceDesc/*:msDesc/*:physDesc//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]|//*:sourceDesc/*:msDesc/*:history//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]">
+            <xsl:if
+                test="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]|//*:sourceDesc/*:msDesc/*:physDesc//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]|//*:sourceDesc/*:msDesc/*:history//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]">
 
                 <associated>
 
-                    <xsl:attribute name="display" select="'true'" />
+                    <xsl:attribute name="display" select="'true'"/>
 
 
-                    <xsl:for-each-group select="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]|//*:sourceDesc/*:msDesc/*:physDesc//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]|//*:sourceDesc/*:msDesc/*:history//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]" group-by="*:persName[@type='standard']">
+                    <xsl:for-each-group
+                        select="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]|//*:sourceDesc/*:msDesc/*:physDesc//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]|//*:sourceDesc/*:msDesc/*:history//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]"
+                        group-by="*:persName[@type='standard']">
 
-                        <xsl:sort select="*:persName[@type='standard']" />
+                        <xsl:sort select="*:persName[@type='standard']"/>
 
                         <xsl:choose>
                             <xsl:when test="normalize-space(*:persName[@type='standard'])">
@@ -3538,9 +3814,10 @@
 
             <associated>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
-                <xsl:apply-templates select="//*:sourceDesc/*:listPerson/*:person/*:persName" mode="listperson"/>
+                <xsl:apply-templates select="//*:sourceDesc/*:listPerson/*:person/*:persName"
+                                     mode="listperson"/>
 
             </associated>
 
@@ -3554,27 +3831,31 @@
         <!--for doc and item, looks in summary, physdesc, history, first msItem author and respstmt fields-->
         <!--simplify to just pick up all names in first msItem?-->
 
-        <xsl:if test="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))]|//*:sourceDesc/*:msDesc/*:physDesc//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))]|//*:sourceDesc/*:msDesc/*:history//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))]|//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]/*:author/*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][@role=$rolemap/role/@code]
+        <xsl:if
+            test="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))]|//*:sourceDesc/*:msDesc/*:physDesc//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))]|//*:sourceDesc/*:msDesc/*:history//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))]|//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]/*:author/*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][@role=$rolemap/role/@code]
          |//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]/*:respStmt/*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][@role=$rolemap/role/@code]">
 
-            <xsl:for-each-group select="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][@role=$rolemap/role/@code]|//*:sourceDesc/*:msDesc/*:physDesc//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][@role=$rolemap/role/@code]|//*:sourceDesc/*:msDesc/*:history//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][@role=$rolemap/role/@code]|//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]/*:author/*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][@role=$rolemap/role/@code]
-|//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]/*:respStmt/*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][@role=$rolemap/role/@code]" group-by="@role">
+            <xsl:for-each-group
+                select="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][@role=$rolemap/role/@code]|//*:sourceDesc/*:msDesc/*:physDesc//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][@role=$rolemap/role/@code]|//*:sourceDesc/*:msDesc/*:history//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][@role=$rolemap/role/@code]|//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]/*:author/*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][@role=$rolemap/role/@code]
+|//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]/*:respStmt/*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][@role=$rolemap/role/@code]"
+                group-by="@role">
 
-                <xsl:variable name="rolecode" select="@role" />
+                <xsl:variable name="rolecode" select="@role"/>
 
-                <xsl:variable name="elementName" select="$rolemap/role[@code=$rolecode]/@name" />
+                <xsl:variable name="elementName" select="$rolemap/role[@code=$rolecode]/@name"/>
                 <!--
             <xsl:variable name="label" select="$rolemap/role[@code=$rolecode]/@label" />
             -->
 
                 <xsl:element name="{$elementName}">
-                    <xsl:attribute name="display" select="'true'" />
+                    <xsl:attribute name="display" select="'true'"/>
 
 
                     <!-- to de-dup names, group by name and process just first one in group -->
                     <xsl:for-each-group select="current-group()" group-by="*:persName[@type='standard']">
 
-                        <!-- <xsl:sort select="*:persName[@type='standard']" /> --> <!-- CHECK WHETHER ORDER SIGNIFICANT -->
+                        <!-- <xsl:sort select="*:persName[@type='standard']" /> -->
+                        <!-- CHECK WHETHER ORDER SIGNIFICANT -->
                         <xsl:choose>
                             <xsl:when test="normalize-space(*:persName[@type='standard'])">
                                 <xsl:apply-templates select="current-group()[1]"/>
@@ -3594,19 +3875,22 @@
             </xsl:for-each-group>
         </xsl:if>
 
-        <xsl:if test="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]|//*:sourceDesc/*:msDesc/*:physDesc//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]|//*:sourceDesc/*:msDesc/*:history//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]
-         |//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]/*:respStmt/*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)][not(@role='pbl')]">
+        <xsl:if
+            test="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]|//*:sourceDesc/*:msDesc/*:physDesc//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]|//*:sourceDesc/*:msDesc/*:history//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]
+            |//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]/*:respStmt/*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)][not(@role='pbl')]">
 
             <associated>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
                 <!--
                <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:name[*:persName][not(@role=$rolemap/role/@code)]|//*:sourceDesc/*:msDesc/*:physDesc//*:name[*:persName][not(@role=$rolemap/role/@code)]|//*:sourceDesc/*:msDesc/*:history//*:name[*:persName][not(@role=$rolemap/role/@code)]"/>
                -->
-                <xsl:for-each-group select="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]|//*:sourceDesc/*:msDesc/*:physDesc//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]|//*:sourceDesc/*:msDesc/*:history//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]
-                  |//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]/*:respStmt/*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)][not(@role='pbl')]" group-by="*:persName[@type='standard']">
+                <xsl:for-each-group
+                    select="//*:sourceDesc/*:msDesc/*:msContents/*:summary//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]|//*:sourceDesc/*:msDesc/*:physDesc//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]|//*:sourceDesc/*:msDesc/*:history//*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)]
+                  |//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]/*:respStmt/*:name[*:persName][not(contains(lower-case(*:persName[@type='standard']), 'unknown'))][not(@role=$rolemap/role/@code)][not(@role='pbl')]"
+                    group-by="*:persName[@type='standard']">
 
-                    <xsl:sort select="*:persName[@type='standard']" />
+                    <xsl:sort select="*:persName[@type='standard']"/>
 
                     <xsl:choose>
                         <xsl:when test="normalize-space(*:persName[@type='standard'])">
@@ -3632,9 +3916,10 @@
 
             <associated>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
-                <xsl:apply-templates select="//*:sourceDesc/*:listPerson/*:person/*:persName" mode="listperson"/>
+                <xsl:apply-templates select="//*:sourceDesc/*:listPerson/*:person/*:persName"
+                                     mode="listperson"/>
 
             </associated>
 
@@ -3647,13 +3932,15 @@
         <!--for items, just look in author field-->
         <!--look for all names in msItem?-->
 
-        <xsl:if test="*:author/*:name[not(contains(lower-case(*:persName[@type='standard']), 'unknown'))]">
+        <xsl:if
+            test="*:author/*:name[not(contains(lower-case(*:persName[@type='standard']), 'unknown'))]">
 
             <authors>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
-                <xsl:apply-templates select="*:author/*:name[not(contains(lower-case(*:persName[@type='standard']), 'unknown'))]" />
+                <xsl:apply-templates
+                    select="*:author/*:name[not(contains(lower-case(*:persName[@type='standard']), 'unknown'))]"/>
 
             </authors>
 
@@ -3665,12 +3952,12 @@
 
         <name>
 
-            <xsl:attribute name="display" select="'true'" />
+            <xsl:attribute name="display" select="'true'"/>
 
             <xsl:choose>
                 <xsl:when test="*:persName[@type='standard']">
                     <xsl:for-each select="*:persName[@type='standard']">
-                        <xsl:attribute name="displayForm" select="normalize-space(.)" />
+                        <xsl:attribute name="displayForm" select="normalize-space(.)"/>
                         <fullForm>
                             <xsl:value-of select="normalize-space(.)"/>
                         </fullForm>
@@ -3699,7 +3986,7 @@
                 </xsl:when>
                 <xsl:when test="*:persName[@type='display']">
                     <xsl:for-each select="*:persName[@type='display']">
-                        <xsl:attribute name="displayForm" select="normalize-space(.)" />
+                        <xsl:attribute name="displayForm" select="normalize-space(.)"/>
                         <shortForm>
                             <xsl:value-of select="normalize-space(.)"/>
                         </shortForm>
@@ -3709,7 +3996,7 @@
                 <xsl:otherwise>
                     <!-- No standard form, no display form, take whatever we've got? -->
                     <xsl:for-each select="*:persName">
-                        <xsl:attribute name="displayForm" select="normalize-space(.)" />
+                        <xsl:attribute name="displayForm" select="normalize-space(.)"/>
                         <shortForm>
                             <xsl:value-of select="normalize-space(.)"/>
                         </shortForm>
@@ -3721,13 +4008,13 @@
 
             <xsl:for-each select="@type">
                 <type>
-                    <xsl:value-of select="normalize-space(.)" />
+                    <xsl:value-of select="normalize-space(.)"/>
                 </type>
             </xsl:for-each>
 
             <xsl:for-each select="@role">
                 <role>
-                    <xsl:value-of select="normalize-space(.)" />
+                    <xsl:value-of select="normalize-space(.)"/>
                 </role>
             </xsl:for-each>
 
@@ -3741,7 +4028,8 @@
 
                     <!-- <xsl:if test="starts-with(., 'VIAF_')"> -->
                     <valueURI>
-                        <xsl:value-of select="concat('http://viaf.org/viaf/', substring-after(.,'VIAF_'))" />
+                        <xsl:value-of select="concat('http://viaf.org/viaf/', substring-after(.,'VIAF_'))"
+                        />
                     </valueURI>
                     <!-- </xsl:if> -->
                 </xsl:for-each>
@@ -3757,17 +4045,21 @@
 
         <name>
 
-            <xsl:attribute name="display" select="'true'" />
+            <xsl:attribute name="display" select="'true'"/>
 
-            <xsl:attribute name="displayForm" select="normalize-space(.)" />
+            <xsl:attribute name="displayForm" select="normalize-space(.)"/>
 
             <fullForm>
                 <xsl:value-of select="normalize-space(.)"/>
             </fullForm>
 
-            <type><xsl:text>person</xsl:text></type>
+            <type>
+                <xsl:text>person</xsl:text>
+            </type>
 
-            <role><xsl:text>oth</xsl:text></role>
+            <role>
+                <xsl:text>oth</xsl:text>
+            </role>
 
         </name>
 
@@ -3796,7 +4088,7 @@
                 <xsl:for-each select="//*:sourceDesc/*:msDesc/*:msContents/*:textLang/@mainLang">
 
                     <languageCode>
-                        <xsl:value-of select="normalize-space(.)" />
+                        <xsl:value-of select="normalize-space(.)"/>
                     </languageCode>
 
                 </xsl:for-each>
@@ -3809,15 +4101,15 @@
 
             <languageStrings>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <xsl:for-each select="//*:sourceDesc/*:msDesc/*:msContents/*:textLang">
 
                     <languageString>
 
-                        <xsl:attribute name="display" select="'true'" />
-                        <xsl:attribute name="displayForm" select="normalize-space(.)" />
-                        <xsl:value-of select="normalize-space(.)" />
+                        <xsl:attribute name="display" select="'true'"/>
+                        <xsl:attribute name="displayForm" select="normalize-space(.)"/>
+                        <xsl:value-of select="normalize-space(.)"/>
                     </languageString>
 
                 </xsl:for-each>
@@ -3839,7 +4131,7 @@
                 <xsl:for-each select="*:textLang/@mainLang">
 
                     <languageCode>
-                        <xsl:value-of select="normalize-space(.)" />
+                        <xsl:value-of select="normalize-space(.)"/>
                     </languageCode>
 
                 </xsl:for-each>
@@ -3852,15 +4144,15 @@
 
             <languageStrings>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <xsl:for-each select="*:textLang">
 
                     <languageString>
 
-                        <xsl:attribute name="display" select="'true'" />
-                        <xsl:attribute name="displayForm" select="normalize-space(.)" />
-                        <xsl:value-of select="normalize-space(.)" />
+                        <xsl:attribute name="display" select="'true'"/>
+                        <xsl:attribute name="displayForm" select="normalize-space(.)"/>
+                        <xsl:value-of select="normalize-space(.)"/>
                     </languageString>
 
                 </xsl:for-each>
@@ -3875,20 +4167,23 @@
     <!--******************************DATA SOURCES AND REVISIONS-->
     <xsl:template name="get-doc-metadata">
 
-        <xsl:if test="normalize-space(//*:sourceDesc/*:msDesc/*:additional/*:adminInfo/*:recordHist/*:source)">
+        <xsl:if
+            test="normalize-space(//*:sourceDesc/*:msDesc/*:additional/*:adminInfo/*:recordHist/*:source)">
 
             <dataSources>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <dataSource>
 
                     <xsl:variable name="dataSource">
-                        <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:additional/*:adminInfo/*:recordHist/*:source" mode="html" />
+                        <xsl:apply-templates
+                            select="//*:sourceDesc/*:msDesc/*:additional/*:adminInfo/*:recordHist/*:source"
+                            mode="html"/>
                     </xsl:variable>
 
-                    <xsl:attribute name="display" select="'true'" />
-                    <xsl:attribute name="displayForm" select="normalize-space($dataSource)" />
+                    <xsl:attribute name="display" select="'true'"/>
+                    <xsl:attribute name="displayForm" select="normalize-space($dataSource)"/>
                     <!-- <xsl:value-of select="normalize-space($dataSource)" /> -->
                     <xsl:value-of select="normalize-space(replace($dataSource, '&lt;[^&gt;]+&gt;', ''))"/>
 
@@ -3902,16 +4197,17 @@
 
             <dataRevisions>
 
-                <xsl:attribute name="display" select="'true'" />
+                <xsl:attribute name="display" select="'true'"/>
 
                 <xsl:variable name="dataRevisions">
                     <!--<xsl:apply-templates select="//*:revisionDesc/*:change[1]/*:persName" mode="html" />-->
 
-                    <xsl:value-of select="distinct-values(//*:revisionDesc/*:change/*:persName)"  separator=", "/>
+                    <xsl:value-of select="distinct-values(//*:revisionDesc/*:change/*:persName)"
+                                  separator=", "/>
 
                 </xsl:variable>
 
-                <xsl:attribute name="displayForm" select="normalize-space($dataRevisions)" />
+                <xsl:attribute name="displayForm" select="normalize-space($dataRevisions)"/>
                 <!-- <xsl:value-of select="normalize-space($dataRevisions)" /> -->
                 <xsl:value-of select="normalize-space(replace($dataRevisions, '&lt;[^&gt;]+&gt;', ''))"/>
 
@@ -3923,19 +4219,19 @@
 
     <xsl:template match="*:recordHist/*:source" mode="html">
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
     </xsl:template>
 
     <xsl:template match="*:revisionDesc" mode="html">
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
     </xsl:template>
 
     <xsl:template match="*:revisionDesc/*:change" mode="html">
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
         <xsl:if test="not(position()=last())">
             <xsl:text>&lt;br /&gt;</xsl:text>
@@ -3968,7 +4264,6 @@
     <!--*********************************** number of pages -->
     <xsl:template name="get-numberOfPages">
         <numberOfPages>
-
             <xsl:choose>
                 <xsl:when test="//*:facsimile/*:surface">
 
@@ -3980,7 +4275,6 @@
                     <xsl:text>1</xsl:text>
                 </xsl:otherwise>
             </xsl:choose>
-
         </numberOfPages>
     </xsl:template>
 
@@ -3988,8 +4282,10 @@
     <!-- ********************************* embeddable -->
     <xsl:template name="get-embeddable">
 
-        <xsl:variable name="downloadImageRights" select="normalize-space(//*:publicationStmt/*:availability[@xml:id='downloadImageRights'])"/>
-        <xsl:variable name="images" select="normalize-space(//*:facsimile/*:surface[1]/*:graphic[1]/@url)"/>
+        <xsl:variable name="downloadImageRights"
+                      select="normalize-space(//*:publicationStmt/*:availability[@xml:id='downloadImageRights'])"/>
+        <xsl:variable name="images"
+                      select="normalize-space(//*:facsimile/*:surface[1]/*:graphic[1]/@url)"/>
 
 
 
@@ -4015,11 +4311,68 @@
 
     </xsl:template>
 
+
+    <!-- ********************************* text direction -->
+    <xsl:template name="get-text-direction">
+
+
+        <xsl:variable name="languageCode">
+
+            <xsl:choose>
+                <xsl:when test="//*:sourceDesc/*:msDesc/*:msContents/*:textLang/@mainLang">
+
+                    <xsl:value-of select="//*:sourceDesc/*:msDesc/*:msContents/*:textLang/@mainLang"/>
+
+                </xsl:when>
+
+
+                <xsl:when
+                    test="count(//*:sourceDesc/*:msDesc/*:msContents/*:msItem) = 1 and //*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]/*:textLang/@mainLang">
+
+                    <xsl:value-of
+                        select="//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]/*:textLang/@mainLang"/>
+
+                </xsl:when>
+
+                <xsl:otherwise>
+
+                    <xsl:text>none</xsl:text>
+
+                </xsl:otherwise>
+
+
+            </xsl:choose>
+
+
+        </xsl:variable>
+
+
+        <xsl:variable name="textDirection">
+            <xsl:value-of select="cudl:get-language-direction($languageCode)"/>
+        </xsl:variable>
+
+        <!--<xsl:message>
+         <xsl:text>For language </xsl:text>
+         <xsl:value-of select="$languageCode"/>
+         <xsl:text> text direction is </xsl:text>
+         <xsl:value-of select="$textDirection"/>
+      </xsl:message>-->
+
+        <textDirection>
+            <xsl:value-of select="$textDirection"/>
+        </textDirection>
+
+
+    </xsl:template>
+
+
     <!-- ****************************sourceData -->
     <!--path to source data for download - mainly hard coded-->
     <xsl:template name="get-sourceData">
 
-        <sourceData><xsl:value-of select="concat('/v1/metadata/tei/',$fileID,'/')"></xsl:value-of></sourceData>
+        <sourceData>
+            <xsl:value-of select="concat('/v1/metadata/tei/',$fileID,'/')"/>
+        </sourceData>
 
     </xsl:template>
 
@@ -4097,41 +4450,29 @@
                                 <xsl:value-of select="position()"/>
                             </sequence>
 
-                            <xsl:variable name="imageUrl" select="normalize-space(*:graphic[contains(@decls, '#download')]/@url)"/>
-                            <xsl:variable name="imageUrlShort" select="replace($imageUrl, 'http://cudl.lib.cam.ac.uk/(newton|content)','/content')"/>
+                            <xsl:variable name="imageUrl"
+                                          select="normalize-space(*:graphic[contains(@decls, '#download')]/@url)"/>
 
-                            <xsl:variable name="thumbnailUrl" select="normalize-space(*:graphic[@decls='#thumbnail']/@url)"/>
-                            <xsl:variable name="thumbnailUrlShort" select="replace($thumbnailUrl, 'http://cudl.lib.cam.ac.uk/(newton|content)','/content')"/>
-                            <xsl:variable name="thumbnailOrientation" select="normalize-space(*:graphic[@decls='#thumbnail']/@rend)"/>
+                            <xsl:variable name="thumbnailOrientation"
+                                          select="normalize-space(*:graphic[contains(@decls, '#download')]/@rend)"/>
 
-                            <xsl:variable name="imageWidth1" select="normalize-space(*:graphic[contains(@decls, '#download')]/@width)"/>
+                            <xsl:variable name="imageWidth1"
+                                          select="normalize-space(*:graphic[contains(@decls, '#download')]/@width)"/>
 
                             <xsl:variable name="imageWidth" select="replace($imageWidth1, 'px', '')"/>
 
-                            <xsl:variable name="imageHeight1" select="normalize-space(*:graphic[contains(@decls, '#download')]/@height)"/>
+                            <xsl:variable name="imageHeight1"
+                                          select="normalize-space(*:graphic[contains(@decls, '#download')]/@height)"/>
 
                             <xsl:variable name="imageHeight" select="replace($imageHeight1, 'px', '')"/>
 
-                            <displayImageURL>
-                                <xsl:value-of select="replace($imageUrlShort, '.jpg','.dzi')"/>
-                            </displayImageURL>
-                            <downloadImageURL>
-                                <xsl:value-of select="$imageUrlShort"/>
-                            </downloadImageURL>
 
                             <IIIFImageURL>
-                                <xsl:variable name="IIIFImageUrl1" select="$imageUrl"/>
-                                <xsl:variable name="IIIFImageUrl2" select="replace($IIIFImageUrl1, 'http://cudl.lib.cam.ac.uk/(newton|content)/images/', '')"/>
-                                <xsl:variable name="IIIFImageUrl3" select="replace($IIIFImageUrl2, '.jpg', '.jp2')"/>
 
-                                <xsl:value-of select="$IIIFImageUrl3"/>
+                                <xsl:value-of select="$imageUrl"/>
 
                             </IIIFImageURL>
 
-
-                            <thumbnailImageURL>
-                                <xsl:value-of select="$thumbnailUrlShort"/>
-                            </thumbnailImageURL>
                             <thumbnailImageOrientation>
                                 <xsl:value-of select="$thumbnailOrientation"/>
                             </thumbnailImageOrientation>
@@ -4140,7 +4481,7 @@
                             <imageWidth>
                                 <xsl:choose>
                                     <xsl:when test="normalize-space($imageWidth)">
-                                        <xsl:value-of select="$imageWidth"></xsl:value-of>
+                                        <xsl:value-of select="$imageWidth"/>
                                     </xsl:when>
                                     <xsl:otherwise>0</xsl:otherwise>
                                 </xsl:choose>
@@ -4151,38 +4492,43 @@
 
 
                                     <xsl:when test="normalize-space($imageHeight)">
-                                        <xsl:value-of select="$imageHeight"></xsl:value-of>
+                                        <xsl:value-of select="$imageHeight"/>
                                     </xsl:when>
                                     <xsl:otherwise>0</xsl:otherwise>
                                 </xsl:choose>
                             </imageHeight>
 
 
-                            <xsl:if test="normalize-space(*:media[@mimeType='transcription_diplomatic']/@url)">
+                            <xsl:if
+                                test="normalize-space(*:media[@mimeType='transcription_diplomatic']/@url)">
 
-                                <xsl:variable name="transDiplUrl" select="*:media[@mimeType='transcription_diplomatic']/@url"/>
-                                <xsl:variable name="transDiplUrlShort" select="replace($transDiplUrl, 'http://services.cudl.lib.cam.ac.uk','')"/>
+                                <xsl:variable name="transDiplUrl"
+                                              select="*:media[@mimeType='transcription_diplomatic']/@url"/>
+                                <xsl:variable name="transDiplUrlShort"
+                                              select="replace($transDiplUrl, 'http://services.cudl.lib.cam.ac.uk','')"/>
 
                                 <transcriptionDiplomaticURL>
-                                    <xsl:value-of
-                                        select="normalize-space($transDiplUrlShort)"/>
+                                    <xsl:value-of select="normalize-space($transDiplUrlShort)"/>
 
                                 </transcriptionDiplomaticURL>
 
                             </xsl:if>
 
-                            <xsl:if test="normalize-space(*:media[@mimeType='transcription_normalised']/@url)">
+                            <xsl:if
+                                test="normalize-space(*:media[@mimeType='transcription_normalised']/@url)">
 
-                                <xsl:variable name="transNormUrl" select="*:media[@mimeType='transcription_normalised']/@url"/>
-                                <xsl:variable name="transNormUrlShort" select="replace($transNormUrl, 'http://services.cudl.lib.cam.ac.uk','')"/>
+                                <xsl:variable name="transNormUrl"
+                                              select="*:media[@mimeType='transcription_normalised']/@url"/>
+                                <xsl:variable name="transNormUrlShort"
+                                              select="replace($transNormUrl, 'http://services.cudl.lib.cam.ac.uk','')"/>
 
                                 <transcriptionNormalisedURL>
-                                    <xsl:value-of
-                                        select="normalize-space($transNormUrlShort)"/>
+                                    <xsl:value-of select="normalize-space($transNormUrlShort)"/>
 
                                 </transcriptionNormalisedURL>
 
                             </xsl:if>
+
 
                             <xsl:variable name="isLast">
                                 <xsl:choose>
@@ -4409,6 +4755,9 @@
                         <!-- Just one top-level item -->
 
                         <xsl:apply-templates select="//*:sourceDesc/*:msDesc/*:msContents/*:msItem[1]" mode="logicalstructure" />
+
+                        <xsl:apply-templates select="//*:msDesc/*:msPart/*:msContents/*:msItem"
+                                             mode="logicalstructure"/>
 
                     </xsl:when>
                     <xsl:otherwise>
@@ -4681,7 +5030,7 @@
 
         <xsl:text>&lt;p&gt;</xsl:text>
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
         <xsl:text>&lt;/p&gt;</xsl:text>
 
@@ -4693,7 +5042,7 @@
 
         <xsl:text>&lt;p style=&apos;text-align: justify;&apos;&gt;</xsl:text>
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/p&gt;</xsl:text>
 
 
@@ -4705,7 +5054,7 @@
 
         <xsl:text>&lt;table border='1'&gt;</xsl:text>
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
         <xsl:text>&lt;/table&gt;</xsl:text>
 
@@ -4716,7 +5065,7 @@
 
         <xsl:text>&lt;caption&gt;</xsl:text>
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
         <xsl:text>&lt;/caption&gt;</xsl:text>
 
@@ -4728,7 +5077,7 @@
 
         <xsl:text>&lt;tr&gt;</xsl:text>
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
         <xsl:text>&lt;/tr&gt;</xsl:text>
 
@@ -4738,7 +5087,7 @@
 
         <xsl:text>&lt;th&gt;</xsl:text>
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
         <xsl:text>&lt;/th&gt;</xsl:text>
 
@@ -4748,7 +5097,7 @@
 
         <xsl:text>&lt;td&gt;</xsl:text>
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
         <xsl:text>&lt;/td&gt;</xsl:text>
 
@@ -4761,7 +5110,7 @@
     <xsl:template match="*[not(local-name()='additions')]/*:list" mode="html">
 
         <xsl:text>&lt;div&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/div&gt;</xsl:text>
         <xsl:text>&lt;br /&gt;</xsl:text>
 
@@ -4770,7 +5119,7 @@
     <xsl:template match="*[not(local-name()='additions')]/*:list/*:item" mode="html">
 
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
         <xsl:text>&lt;br /&gt;</xsl:text>
 
@@ -4778,10 +5127,10 @@
 
     <xsl:template match="*:additions/*:list" mode="html">
 
-        <xsl:apply-templates select="*:head" mode="html" />
+        <xsl:apply-templates select="*:head" mode="html"/>
 
         <xsl:text>&lt;div style=&apos;list-style-type: disc;&apos;&gt;</xsl:text>
-        <xsl:apply-templates select="*[not(local-name()='head')]" mode="html" />
+        <xsl:apply-templates select="*[not(local-name()='head')]" mode="html"/>
         <xsl:text>&lt;/div&gt;</xsl:text>
 
     </xsl:template>
@@ -4789,7 +5138,7 @@
     <xsl:template match="*:additions/*:list/*:item" mode="html">
 
         <xsl:text>&lt;div style=&apos;display: list-item; margin-left: 20px;&apos;&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/div&gt;</xsl:text>
 
     </xsl:template>
@@ -4803,7 +5152,7 @@
     <xsl:template match="*:title" mode="html">
 
         <xsl:text>&lt;i&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/i&gt;</xsl:text>
 
     </xsl:template>
@@ -4811,7 +5160,7 @@
     <xsl:template match="*:term" mode="html">
 
         <xsl:text>&lt;i&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/i&gt;</xsl:text>
 
     </xsl:template>
@@ -4819,7 +5168,7 @@
     <xsl:template match="*:q|*:quote" mode="html">
 
         <xsl:text>"</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>"</xsl:text>
 
     </xsl:template>
@@ -4827,7 +5176,7 @@
     <xsl:template match="*[@rend='italic']" mode="html">
 
         <xsl:text>&lt;i&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/i&gt;</xsl:text>
 
     </xsl:template>
@@ -4835,7 +5184,7 @@
     <xsl:template match="*[@rend='superscript']" mode="html">
 
         <xsl:text>&lt;sup&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/sup&gt;</xsl:text>
 
     </xsl:template>
@@ -4843,7 +5192,7 @@
     <xsl:template match="*[@rend='subscript']" mode="html">
 
         <xsl:text>&lt;sub&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/sub&gt;</xsl:text>
 
     </xsl:template>
@@ -4852,7 +5201,7 @@
     <xsl:template match="*[@rend='bold']" mode="html">
 
         <xsl:text>&lt;b&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/b&gt;</xsl:text>
 
     </xsl:template>
@@ -4880,7 +5229,7 @@
             </xsl:when>
             <xsl:otherwise>
                 <xsl:text>&lt;i&gt;</xsl:text>
-                <xsl:apply-templates mode="html" />
+                <xsl:apply-templates mode="html"/>
                 <xsl:text>&lt;/i&gt;</xsl:text>
             </xsl:otherwise>
         </xsl:choose>
@@ -4892,7 +5241,7 @@
         <xsl:if test="not(local-name(preceding-sibling::*[1]) = 'l')">
             <xsl:text>&lt;br /&gt;</xsl:text>
         </xsl:if>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;br /&gt;</xsl:text>
 
     </xsl:template>
@@ -4901,17 +5250,17 @@
 
         <xsl:choose>
             <xsl:when test="*[@type='display']">
-                <xsl:value-of select="*[@type='display']" />
+                <xsl:value-of select="*[@type='display']"/>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:apply-templates mode="html" />
+                <xsl:apply-templates mode="html"/>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
 
     <xsl:template match="*:ref[@type='biblio']" mode="html">
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
     </xsl:template>
 
@@ -4923,13 +5272,13 @@
         <xsl:choose>
             <xsl:when test="normalize-space(@target)">
                 <xsl:text>&lt;a target=&apos;_blank&apos; class=&apos;externalLink&apos; href=&apos;</xsl:text>
-                <xsl:value-of select="normalize-space(@target)" />
+                <xsl:value-of select="normalize-space(@target)"/>
                 <xsl:text>&apos;&gt;</xsl:text>
-                <xsl:apply-templates mode="html" />
+                <xsl:apply-templates mode="html"/>
                 <xsl:text>&lt;/a&gt;</xsl:text>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:apply-templates mode="html" />
+                <xsl:apply-templates mode="html"/>
             </xsl:otherwise>
         </xsl:choose>
 
@@ -4940,13 +5289,13 @@
         <xsl:choose>
             <xsl:when test="normalize-space(@target)">
                 <xsl:text>&lt;a href=&apos;</xsl:text>
-                <xsl:value-of select="normalize-space(@target)" />
+                <xsl:value-of select="normalize-space(@target)"/>
                 <xsl:text>&apos;&gt;</xsl:text>
-                <xsl:apply-templates mode="html" />
+                <xsl:apply-templates mode="html"/>
                 <xsl:text>&lt;/a&gt;</xsl:text>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:apply-templates mode="html" />
+                <xsl:apply-templates mode="html"/>
             </xsl:otherwise>
         </xsl:choose>
 
@@ -4956,17 +5305,17 @@
 
         <xsl:choose>
             <xsl:when test="normalize-space(@target)">
-                <xsl:apply-templates mode="html" />
+                <xsl:apply-templates mode="html"/>
                 <xsl:text> [</xsl:text>
                 <xsl:text>&lt;a target=&apos;_blank&apos; class=&apos;externalLink&apos; href=&apos;</xsl:text>
-                <xsl:value-of select="normalize-space(@target)" />
+                <xsl:value-of select="normalize-space(@target)"/>
                 <xsl:text>&apos;&gt;</xsl:text>
                 <xsl:text>&lt;img title="Link to RMG" alt=&apos;RMG icon&apos; class=&apos;nmm_icon&apos; src=&apos;/images/general/nmm_small.png&apos;/&gt;</xsl:text>
                 <xsl:text>&lt;/a&gt;</xsl:text>
                 <xsl:text>]</xsl:text>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:apply-templates mode="html" />
+                <xsl:apply-templates mode="html"/>
             </xsl:otherwise>
         </xsl:choose>
 
@@ -4981,12 +5330,14 @@
 
                     <xsl:when test="@rend='left' or @rend='right'">
 
-                        <xsl:text>&lt;span style=&quot;float:</xsl:text><xsl:value-of select="@rend"/><xsl:text>; text-align:center; padding-bottom:10px&quot;&gt;</xsl:text>
+                        <xsl:text>&lt;span style=&quot;float:</xsl:text>
+                        <xsl:value-of select="@rend"/>
+                        <xsl:text>; text-align:center; padding-bottom:10px&quot;&gt;</xsl:text>
 
                         <xsl:text>&lt;a target=&apos;_blank&apos; class=&apos;externalLink&apos; href=&apos;</xsl:text>
-                        <xsl:value-of select="normalize-space(@target)" />
+                        <xsl:value-of select="normalize-space(@target)"/>
                         <xsl:text>&apos;&gt;</xsl:text>
-                        <xsl:apply-templates mode="html" />
+                        <xsl:apply-templates mode="html"/>
                         <xsl:text>&lt;/a&gt;</xsl:text>
 
                         <xsl:text>&lt;/span&gt;</xsl:text>
@@ -4996,9 +5347,9 @@
                     <xsl:otherwise>
 
                         <xsl:text>&lt;a target=&apos;_blank&apos; class=&apos;externalLink&apos; href=&apos;</xsl:text>
-                        <xsl:value-of select="normalize-space(@target)" />
+                        <xsl:value-of select="normalize-space(@target)"/>
                         <xsl:text>&apos;&gt;</xsl:text>
-                        <xsl:apply-templates mode="html" />
+                        <xsl:apply-templates mode="html"/>
                         <xsl:text>&lt;/a&gt;</xsl:text>
 
 
@@ -5009,7 +5360,7 @@
 
             </xsl:when>
             <xsl:otherwise>
-                <xsl:apply-templates mode="html" />
+                <xsl:apply-templates mode="html"/>
             </xsl:otherwise>
         </xsl:choose>
 
@@ -5025,12 +5376,14 @@
 
                     <xsl:when test="@rend='left' or @rend='right'">
 
-                        <xsl:text>&lt;span style=&quot;float:</xsl:text><xsl:value-of select="@rend"/><xsl:text>; text-align:center; padding-bottom:10px&quot;&gt;</xsl:text>
+                        <xsl:text>&lt;span style=&quot;float:</xsl:text>
+                        <xsl:value-of select="@rend"/>
+                        <xsl:text>; text-align:center; padding-bottom:10px&quot;&gt;</xsl:text>
 
                         <xsl:text>&lt;a class=&apos;popup&apos; href=&apos;</xsl:text>
-                        <xsl:value-of select="normalize-space(@target)" />
+                        <xsl:value-of select="normalize-space(@target)"/>
                         <xsl:text>&apos;&gt;</xsl:text>
-                        <xsl:apply-templates mode="html" />
+                        <xsl:apply-templates mode="html"/>
                         <xsl:text>&lt;/a&gt;</xsl:text>
 
                         <xsl:text>&lt;/span&gt;</xsl:text>
@@ -5040,9 +5393,9 @@
                     <xsl:otherwise>
 
                         <xsl:text>&lt;a class=&apos;popup&apos; href=&apos;</xsl:text>
-                        <xsl:value-of select="normalize-space(@target)" />
+                        <xsl:value-of select="normalize-space(@target)"/>
                         <xsl:text>&apos;&gt;</xsl:text>
-                        <xsl:apply-templates mode="html" />
+                        <xsl:apply-templates mode="html"/>
                         <xsl:text>&lt;/a&gt;</xsl:text>
 
 
@@ -5053,7 +5406,7 @@
 
             </xsl:when>
             <xsl:otherwise>
-                <xsl:apply-templates mode="html" />
+                <xsl:apply-templates mode="html"/>
             </xsl:otherwise>
         </xsl:choose>
 
@@ -5095,7 +5448,7 @@
     <xsl:template match="*:graphic[not(@url)]" mode="html">
 
         <xsl:text>&lt;i class=&apos;graphic&apos; style=&apos;font-style:italic;&apos;&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/i&gt;</xsl:text>
 
     </xsl:template>
@@ -5114,13 +5467,15 @@
                     <xsl:text>float:left</xsl:text>
 
                 </xsl:when>
-                <xsl:otherwise>
-
-                </xsl:otherwise>
+                <xsl:otherwise> </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
 
-        <xsl:text>&lt;img style=&quot;padding:10px;</xsl:text><xsl:value-of select="$float"></xsl:value-of><xsl:text>&quot; src=&quot;</xsl:text><xsl:value-of select="@url"/><xsl:text>&quot; /&gt;</xsl:text>
+        <xsl:text>&lt;img style=&quot;padding:10px;</xsl:text>
+        <xsl:value-of select="$float"/>
+        <xsl:text>&quot; src=&quot;</xsl:text>
+        <xsl:value-of select="@url"/>
+        <xsl:text>&quot; /&gt;</xsl:text>
 
     </xsl:template>
 
@@ -5134,7 +5489,7 @@
         <xsl:text>&lt;i class=&apos;damage&apos;</xsl:text>
         <xsl:text> style=&apos;font-style:normal;&apos;</xsl:text>
         <xsl:text> title=&apos;This text damaged in source&apos;&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/i&gt;</xsl:text>
         <xsl:text>&lt;i class=&apos;delim&apos;</xsl:text>
         <xsl:text> style=&apos;font-style:normal; color:red&apos;&gt;</xsl:text>
@@ -5148,7 +5503,7 @@
         <xsl:text>&lt;i class=&apos;error&apos;</xsl:text>
         <xsl:text> style=&apos;font-style:normal;&apos;</xsl:text>
         <xsl:text> title=&apos;This text in error in source&apos;&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/i&gt;</xsl:text>
         <xsl:text>&lt;i class=&apos;delim&apos;</xsl:text>
         <xsl:text> style=&apos;font-style:normal; color:red&apos;&gt;</xsl:text>
@@ -5161,7 +5516,7 @@
 
         <xsl:text>&lt;i class=&apos;error&apos;</xsl:text>
         <xsl:text> title=&apos;This text in error in source&apos;&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/i&gt;</xsl:text>
         <xsl:text>&lt;i class=&apos;delim&apos;</xsl:text>
         <xsl:text> style=&apos;color:red&apos;&gt;</xsl:text>
@@ -5179,7 +5534,7 @@
         <xsl:text>&lt;i class=&apos;unclear&apos;</xsl:text>
         <xsl:text> style=&apos;font-style:normal;&apos;</xsl:text>
         <xsl:text> title=&apos;This text imperfectly legible in source&apos;&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/i&gt;</xsl:text>
         <xsl:text>&lt;i class=&apos;delim&apos;</xsl:text>
         <xsl:text> style=&apos;font-style:normal; color:red&apos;&gt;</xsl:text>
@@ -5193,7 +5548,7 @@
         <xsl:text>&lt;i class=&apos;supplied&apos;</xsl:text>
         <xsl:text> style=&apos;font-style:normal;&apos;</xsl:text>
         <xsl:text> title=&apos;This text supplied by transcriber&apos;&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/i&gt;</xsl:text>
 
     </xsl:template>
@@ -5207,7 +5562,7 @@
         <xsl:text>&lt;i class=&apos;add&apos;</xsl:text>
         <xsl:text> style=&apos;font-style:normal;&apos;</xsl:text>
         <xsl:text> title=&apos;This text added&apos;&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/i&gt;</xsl:text>
         <xsl:text>&lt;i class=&apos;delim&apos;</xsl:text>
         <xsl:text> style=&apos;font-style:normal; color:red&apos;&gt;</xsl:text>
@@ -5225,7 +5580,7 @@
         <xsl:text>&lt;i class=&apos;del&apos;</xsl:text>
         <xsl:text> style=&apos;font-style:normal;&apos;</xsl:text>
         <xsl:text> title=&apos;This text deleted and illegible&apos;&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/i&gt;</xsl:text>
         <xsl:text>&lt;i class=&apos;delim&apos;</xsl:text>
         <xsl:text> style=&apos;font-style:normal; color:red&apos;&gt;</xsl:text>
@@ -5243,7 +5598,7 @@
         <xsl:text>&lt;i class=&apos;del&apos;</xsl:text>
         <xsl:text> style=&apos;font-style:normal; text-decoration:line-through;&apos;</xsl:text>
         <xsl:text> title=&apos;This text deleted&apos;&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/i&gt;</xsl:text>
         <xsl:text>&lt;i class=&apos;delim&apos;</xsl:text>
         <xsl:text> style=&apos;font-style:normal; color:red&apos;&gt;</xsl:text>
@@ -5254,7 +5609,7 @@
 
     <xsl:template match="*:subst" mode="html">
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
     </xsl:template>
 
@@ -5266,7 +5621,7 @@
         <xsl:text>&lt;/i&gt;</xsl:text>
         <xsl:text>&lt;i class=&apos;gap&apos;</xsl:text>
         <xsl:text> style=&apos;font-style:normal; color:red&apos;&gt;</xsl:text>
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
         <xsl:text>&lt;/i&gt;</xsl:text>
         <xsl:text>&lt;i class=&apos;delim&apos;</xsl:text>
         <xsl:text> style=&apos;font-style:normal; color:red&apos;&gt;</xsl:text>
@@ -5277,7 +5632,7 @@
 
     <xsl:template match="*:desc" mode="html">
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
     </xsl:template>
 
@@ -5288,7 +5643,7 @@
         <xsl:text> title=&apos;String hyphenated for display. Original: </xsl:text>
         <xsl:value-of select="normalize-space(*:orig)"/>
         <xsl:text>&apos;&gt;</xsl:text>
-        <xsl:apply-templates select="*:reg[@type='hyphenated']" mode="html" />
+        <xsl:apply-templates select="*:reg[@type='hyphenated']" mode="html"/>
         <xsl:text>&lt;/i&gt;</xsl:text>
 
     </xsl:template>
@@ -5298,7 +5653,7 @@
 
     <xsl:template match="*:reg" mode="html">
 
-        <xsl:apply-templates mode="html" />
+        <xsl:apply-templates mode="html"/>
 
     </xsl:template>
 
@@ -5312,9 +5667,10 @@
 
     <xsl:template match="text()" mode="html">
 
-        <xsl:variable name="translated" select="translate(., '^&#x00A7;', '&#x00A0;&#x30FB;')" />
+        <xsl:variable name="translated" select="translate(., '^&#x00A7;', '&#x00A0;&#x30FB;')"/>
         <!--      <xsl:variable name="replaced" select="replace($translated, '&#x005F;&#x005F;&#x005F;', '&#x2014;&#x2014;&#x2014;')" /> -->
-        <xsl:variable name="replaced" select="replace($translated, '_ _ _', '&#x2014;&#x2014;&#x2014;')" />
+        <xsl:variable name="replaced"
+                      select="replace($translated, '_ _ _', '&#x2014;&#x2014;&#x2014;')"/>
         <xsl:value-of select="$replaced"/>
 
     </xsl:template>
