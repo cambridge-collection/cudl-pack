@@ -1,3 +1,4 @@
+import * as path from 'path';
 import webpack from 'webpack';
 import compiler from './compiler';
 
@@ -41,4 +42,12 @@ test('xslt-loader stylesheets can generate JSON', async () => {
     const module = stats.toJson().modules[0];
     expect(module.source).toEqual('{"message":"Hello World!"}');
     expect(JSON.parse(module.source)).toEqual({message: 'Hello World!'});
+});
+
+test('XSLT knows document location', async () => {
+    const inputPath = path.resolve(__dirname, 'data/xslt/data.xml');
+    const stats = await runXsltLoader({inputPath, stylesheetPath: './data/xslt/document-location.xsl'});
+    const module = stats.toJson().modules[0];
+    expect(JSON.parse(module.source)).toEqual(`\
+<?xml version="1.0" encoding="UTF-8"?><location>file://${inputPath}</location>`);
 });

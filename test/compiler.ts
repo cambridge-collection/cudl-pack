@@ -8,7 +8,7 @@ function run(options: string | webpack.Configuration, rules?: webpack.RuleSetRul
     let configuration: webpack.Configuration;
     if(typeof options === 'string') {
         configuration = {
-            entry: `./${options}`,
+            entry: `${options}`,
             module: {rules: rules || []},
         };
     }
