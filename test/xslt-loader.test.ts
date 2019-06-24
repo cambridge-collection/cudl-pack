@@ -53,3 +53,10 @@ test('XSLT knows document location', async () => {
     expect(JSON.parse(module.source)).toEqualXML(`\
 <?xml version="1.0" encoding="UTF-8"?><location>file://${inputPath}</location>`);
 });
+
+test('XSLT scripts can import other scripts', async () => {
+    const stats = await runXsltLoader({stylesheetPath: './data/xslt/reuser.xsl'});
+    const module = stats.toJson().modules[0];
+    expect(JSON.parse(module.source)).toEqual(`\
+<?xml version="1.0" encoding="UTF-8"?><foo>20</foo>`);
+});
