@@ -46,6 +46,12 @@ test('xslt-loader stylesheets can generate JSON', async () => {
     expect(JSON.parse(module.source)).toEqual({message: 'Hello World!'});
 });
 
+test('xslt-loader stylesheets can generate JSON using XPath map and array data types', async () => {
+    const stats = await runXsltLoader({stylesheetPath: './data/xslt/json-output-xpath-types.xsl', postLoaders: []});
+    const module = stats.toJson().modules[0];
+    expect(JSON.parse(module.source)).toEqual({message: ['Hello World!', 'foo']});
+});
+
 test('XSLT knows document location', async () => {
     const inputPath = path.resolve(__dirname, './data/xslt/data.xml');
     const stats = await runXsltLoader({inputPath, stylesheetPath: './data/xslt/document-location.xsl'});
