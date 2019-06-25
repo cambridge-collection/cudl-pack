@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<item>
+   <descriptions>
+      <description xml:id="main">
+         <coverage/>
+         <attributes>
+            <attribute label="Abstract" name="abstract">
+               <value>
+                  <attribute-value name="abstract">This manuscript contains the third part of the Hebrew Bible known
+                            as Writings (Ketuvim) with numerous marginal glosses in Hebrew and
+                            Judeo-Persian. It was copied by Jacob ben Obadiah ben Joseph ben Ezra in
+                            the school of Rabbi Mordechai in Kashan in Iran at the request of Rav
+                            Samuel ha-Levi. He completed his copy on Tuesday 2 July 1495. The order
+                            in which the Bible books appear is as follows: Psalms (folios <a href="cudl:///page?n=1b">1b-72b</a>), Proverbs (folios <a href="cudl:///page?n=73a">73a-101b</a>), Ruth (folios <a href="cudl:///page?n=102b">102b-105b</a>), Song of Songs (folios
+                                <a href="cudl:///page?n=105b">105b-109b</a>), Ecclesiastes
+                            (folios <a href="cudl:///page?n=109b">109b-117a</a>), Lamentations
+                            (folios <a href="cudl:///page?n=117b">117b-121b</a>), Esther (folios
+                                <a href="cudl:///page?n=122b">122b-131a</a>), Daniel (folios
+                                <a href="cudl:///page?n=131b">131b-150a</a>), Ezra (folios <a href="cudl:///page?n=150b">150b-161b</a>), Nehemiah (folios <a href="cudl:///page?n=161a">161b-179a</a>), Job (folios <a href="cudl:///page?n=179a">179a-209b</a>), 1 and 2 Chronicles (folios
+                                <a href="cudl:///page?n=109b">209b-290b</a>). The biblical text
+                            is vocalised and accompanied by masorah. According to Moses Gaster, this
+                            is a unique manuscript showing the vocalisation and accentuation
+                            tradition of Ben Naphtali.</attribute-value>
+               </value>
+            </attribute>
+            <attribute sort="a" label="title" name="title">
+               <value>
+                  <attribute-value name="title">Catalogue of Codices, Scrolls, and Other Texts in Hebrew Script in the
+                    University of Manchester (John Rylands) Library</attribute-value>
+               </value>
+            </attribute>
+            <attribute sort="b" label="Alternative Title(s)" name="alt-title">
+               <value>
+                  <attribute-value name="alt-title">Ketuvim</attribute-value>
+               </value>
+               <value>
+                  <attribute-value name="alt-title">כתובים</attribute-value>
+               </value>
+               <value>
+                  <attribute-value name="alt-title">Writings (Hebrew Bible)</attribute-value>
+               </value>
+            </attribute>
+         </attributes>
+      </description>
+   </descriptions>
+   <pages>
+      <page xml:id="pb-Frontboard" label="Front board">
+         <resource type="cdl-page:image">
+            <imageType>iiif</imageType>
+            <image>MS-HEBREW-GASTER-00086-000-00268.jp2</image>
+         </resource>
+      </page>
+      <page xml:id="pb-Frontpaste-down" label="Front paste-down">
+         <resource type="cdl-page:image">
+            <imageType>iiif</imageType>
+            <image>MS-HEBREW-GASTER-00086-000-00269.jp2</image>
+         </resource>
+      </page>
+      <page xml:id="pb-edge" label="edge">
+         <resource type="cdl-page:image">
+            <imageType>iiif</imageType>
+            <image>MS-HEBREW-GASTER-00086-000-00868.jp2</image>
+         </resource>
+      </page>
+      <page xml:id="pb-bottom" label="bottom">
+         <resource type="cdl-page:image">
+            <imageType>iiif</imageType>
+            <image>MS-HEBREW-GASTER-00086-000-00869.jp2</image>
+         </resource>
+      </page>
+   </pages>
+</item>
