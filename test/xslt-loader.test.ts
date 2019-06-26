@@ -1,4 +1,3 @@
-import fs from 'fs';
 import * as path from 'path';
 import webpack from 'webpack';
 import compiler from './compiler';
@@ -51,44 +50,4 @@ test('XSLT knows document location', async () => {
     const module = stats.toJson().modules[0];
     expect(JSON.parse(module.source)).toEqual(`\
 <?xml version="1.0" encoding="UTF-8"?><location>file://${inputPath}</location>`);
-});
-
-test('Apply TEI Prefilter XSLT', async () => {
-
-    jest.setTimeout(30000);
-
-    const stats = await runXsltLoader({
-        stylesheetPath: '../src/xslt/tei-to-internal-json/msTeiPreFilter.xsl',
-        inputPath: './data/tei/tei-full-item.xml',
-    });
-
-    const module = stats.toJson().modules[0];
-    fs.readFile(path.resolve(__dirname, './data/tei/tei-prefiltered-item.xml'), (err, data) => {
-        if (err) {
-            throw err;
-        }
-
-        expect(JSON.parse(module.source).trim()).toEqual(data.toString().trim());
-    });
-
-});
-
-test('Apply TEI DocFormatter XSLT', async () => {
-
-    jest.setTimeout(30000);
-
-    const stats = await runXsltLoader({
-        stylesheetPath: '../src/xslt/tei-to-internal-json/jsonDocFormatter.xsl',
-        inputPath: './data/tei/tei-prefiltered-item.xml',
-    });
-
-    const module = stats.toJson().modules[0];
-    fs.readFile(path.resolve(__dirname, './data/tei/tei-json-output.json'), (err, data) => {
-        if (err) {
-            throw err;
-        }
-
-        expect(JSON.parse(module.source).trim()).toEqual(data.toString().trim());
-    });
-
 });
