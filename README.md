@@ -13,7 +13,7 @@ It can help to place a `debugger;` statement into your code, otherwise it seems
 source maps aren't loaded at the initial breakpoint, so you can't actually set
 a break point from the start.
 
-#### Setting up tests in IntelliJ Idea
+### Setting up tests in IntelliJ Idea
 
 You can run the tests in IntelliJ by selecting 'Edit Configurations' to open 
 the 'Run/Debug Configuration' screen.  You can then select the + symbol to run 
@@ -21,12 +21,12 @@ using a new configuration and select 'Jest' as the type.  Then if you give the
 test configuration a name e.g. 'all tests' and then save you can then run normally 
 (shift-f10 or using the green arrow). 
 
-#### Gotchas
+### Gotchas
 
 Unhandled async errors crash Jest.  This can be problematic to debug. 
 
-#### Requirements
+## Requirements
 
-requires python 2.7.14 (or later python 2)
-requires jdk 11 ?
-requires npm 6.9.0 ?
+- The gyp build tool requires python 2.7.14 (or later python 2)
+- Requires jdk 11 (or at least newer than java 8)
+- Requires node 10 (due to java not working on node 12 yet). 

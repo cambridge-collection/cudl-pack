@@ -46,7 +46,7 @@ test('xslt-loader stylesheets can generate JSON', async () => {
 });
 
 test('XSLT knows document location', async () => {
-    const inputPath = path.resolve(__dirname, 'data/xslt/data.xml');
+    const inputPath = path.resolve(__dirname, './data/xslt/data.xml');
     const stats = await runXsltLoader({inputPath, stylesheetPath: './data/xslt/document-location.xsl'});
     const module = stats.toJson().modules[0];
     expect(JSON.parse(module.source)).toEqual(`\
@@ -58,7 +58,7 @@ test('Apply TEI Prefilter XSLT', async () => {
     jest.setTimeout(30000);
 
     const stats = await runXsltLoader({
-        stylesheetPath: '../src/xslt/msTeiPreFilter.xsl',
+        stylesheetPath: '../src/xslt/tei-to-internal-json/msTeiPreFilter.xsl',
         inputPath: './data/tei/tei-full-item.xml',
     });
 
@@ -77,8 +77,10 @@ test('Apply TEI DocFormatter XSLT', async () => {
 
     jest.setTimeout(30000);
 
-    const stats = await runXsltLoader({stylesheetPath: '../src/xslt/jsonDocFormatter.xsl',
-        inputPath: './data/tei/tei-prefiltered-item.xml'});
+    const stats = await runXsltLoader({
+        stylesheetPath: '../src/xslt/tei-to-internal-json/jsonDocFormatter.xsl',
+        inputPath: './data/tei/tei-prefiltered-item.xml',
+    });
 
     const module = stats.toJson().modules[0];
     fs.readFile(path.resolve(__dirname, './data/tei/tei-json-output.json'), (err, data) => {
