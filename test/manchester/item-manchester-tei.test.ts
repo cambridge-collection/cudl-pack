@@ -1,4 +1,5 @@
 import {execute as executeXslt} from '@lib.cam/xslt-nailgun';
+import 'jest-xml-matcher';
 import * as path from 'path';
 import webpack from 'webpack';
 import compiler from '../compiler';
@@ -34,7 +35,7 @@ test('item-manchester-tei.xsl converts TEI to package item XML representation', 
     });
     const module = stats.toJson().modules[0];
     expect(JSON.parse(module.source))
-        .toEqual(await readPathAsString('manchester/data/MS-HEBREW-GASTER-00086.item.xml'));
+        .toEqualXML(await readPathAsString('manchester/data/MS-HEBREW-GASTER-00086.item.xml'));
 });
 
 test('item-xml-to-json.xsl populates @namespace with custom CURIEs', async () => {
