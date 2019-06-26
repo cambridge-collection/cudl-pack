@@ -45,7 +45,7 @@ test('xslt-loader stylesheets can generate JSON', async () => {
 });
 
 test('XSLT knows document location', async () => {
-    const inputPath = path.resolve(__dirname, 'data/xslt/data.xml');
+    const inputPath = path.resolve(__dirname, './data/xslt/data.xml');
     const stats = await runXsltLoader({inputPath, stylesheetPath: './data/xslt/document-location.xsl'});
     const module = stats.toJson().modules[0];
     expect(JSON.parse(module.source)).toEqual(`\
