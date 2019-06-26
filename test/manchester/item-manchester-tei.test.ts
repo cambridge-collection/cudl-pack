@@ -1,6 +1,5 @@
-import {DocumentFile, XsltTransformer} from 'cudl-node-xslt-java-bridge';
+import {execute as executeXslt} from '@lib.cam/xslt-nailgun';
 import * as path from 'path';
-import {promisify} from 'util';
 import webpack from 'webpack';
 import compiler from '../compiler';
 import {readPathAsString} from '../util';
@@ -38,18 +37,6 @@ test('item-manchester-tei.xsl converts TEI to package item XML representation', 
         .toEqual(await readPathAsString('manchester/data/MS-HEBREW-GASTER-00086.item.xml'));
 });
 
-async function applyStylesheet(stylesheetPath: string, xml: string): Promise<string> {
-    const transformer = new XsltTransformer(stylesheetPath);
-    const transform = promisify(transformer.transform.bind(transformer));
-    const results: DocumentFile[] = await transform({base: '/tmp', path: 'input.xml', contents: xml});
-
-    if(results.length !== 1) {
-        throw new Error(`Expected 1 result from XSLT transform but got ${results.length}`);
-    }
-    const [{contents}] = results;
-    return contents;
-}
-
 test('item-xml-to-json.xsl populates @namespace with custom CURIEs', async () => {
     const xml = `\
 <item xmlns:foo="http://example.com/foo"
@@ -62,7 +49,7 @@ test('item-xml-to-json.xsl populates @namespace with custom CURIEs', async () =>
 </item>
 `;
 
-    const result = JSON.parse(await applyStylesheet(itemXmlToJsonStylesheet, xml));
+    const result = JSON.parse((await executeXslt('', xml, itemXmlToJsonStylesheet)).toString());
     expect(result['@namespace']).toEqual({
         foo: 'http://example.com/foo',
         bar: 'http://example.com/bar',
@@ -80,7 +67,7 @@ test('item-xml-to-json.xsl fails to create @namespace when CURIE prefix has mult
 </item>
 `;
 
-    await expect(applyStylesheet(itemXmlToJsonStylesheet, xml)).rejects.toThrowError(new RegExp(`\
+    await expect(executeXslt('', xml, itemXmlToJsonStylesheet)).rejects.toThrowError(new RegExp(`\
 Error: Cannot create @namespace: CURIE prefix foo is bound to multiple URIs: \
 http://example.com/a http://example.com/b`));
 });
