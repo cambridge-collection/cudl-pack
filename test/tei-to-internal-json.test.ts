@@ -2,6 +2,7 @@ import fs from 'fs';
 import * as path from 'path';
 import webpack from 'webpack';
 import compiler from './compiler';
+import {readPathAsString} from './util';
 
 interface Options {
     stylesheetPath: string;
@@ -24,7 +25,7 @@ function runXsltLoader({stylesheetPath, inputPath, postLoaders}: Options) {
     }]);
 }
 
-test('Test XSLT for loading TEI to Internal JSON', async () => {
+test('test that msTeiPreFilter converts item TEI to required XML format', async () => {
 
     jest.setTimeout(30000);
 
@@ -34,17 +35,17 @@ test('Test XSLT for loading TEI to Internal JSON', async () => {
     });
 
     const module = stats.toJson().modules[0];
-    fs.readFile(path.resolve(__dirname, './data/tei/tei-prefiltered-item.xml'), (err, data) => {
-        if (err) {
+    const data: string = await readPathAsString(path.resolve(__dirname, './data/tei/tei-prefiltered-item.xml'))
+        .catch((err) => {
             return Promise.reject(err);
-        }
+        });
 
-        expect(JSON.parse(module.source).trim()).toEqual(data.toString().trim());
-    });
+    // Comparing strings as this is XML.
+    expect(JSON.parse(module.source).trim()).toEqual(data.trim());
 
 });
 
-test('Apply TEI DocFormatter XSLT', async () => {
+test('test that jsonDocFomatter converts item XML to internal JSON format', async () => {
 
     jest.setTimeout(30000);
 
@@ -54,12 +55,11 @@ test('Apply TEI DocFormatter XSLT', async () => {
     });
 
     const module = stats.toJson().modules[0];
-    fs.readFile(path.resolve(__dirname, './data/tei/tei-json-output.json'), (err, data) => {
-        if (err) {
+    const data: string = await readPathAsString(path.resolve(__dirname, './data/tei/tei-json-output.json'))
+        .catch((err) => {
             return Promise.reject(err);
-        }
+        });
 
-        expect(JSON.parse(module.source).trim()).toEqual(data.toString().trim());
-    });
+    expect(JSON.parse(JSON.parse(module.source))).toEqual(JSON.parse(data));
 
 });
