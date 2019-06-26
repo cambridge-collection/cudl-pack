@@ -1,6 +1,6 @@
 {
   "name": "cudl-pack",
-  "version": "0.0.0-alpha.2",
+  "version": "0.0.0-alpha.3",
   "description": "Data package compiler for Cambridge Digital Library instances",
   "engines": {
     "node": "<0.11"
@@ -69,6 +69,8 @@
     "xml2js": "^0.4.19"
   },
   "jest": {
-    "modulePathIgnorePatterns": ["<rootDir>/build/"]
+    "modulePathIgnorePatterns": [
+      "<rootDir>/build/"
+    ]
   }
 }
