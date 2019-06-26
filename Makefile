@@ -12,7 +12,7 @@ packageFile = $(packageName)-$(packageVersion).tgz
 default: package
 
 package: export npm_config_color = always
-package: clean build compile-typescript build/dist-root/package.json build/dist-root/README.md
+package: clean build compile-typescript build/dist-root/package.json build/dist-root/README.md copy-xslt
 # Refuse to build a package with local modifications, as the package may end up
 # containing the modifications rather than the committed state.
 	@DIRTY_FILES="$$(git status --porcelain)" ; \
@@ -21,6 +21,10 @@ package: clean build compile-typescript build/dist-root/package.json build/dist-
 		echo "$$DIRTY_FILES" ; \
 	fi
 	cd build && npm pack ./dist-root
+
+
+copy-xslt: build
+	cd src && find . -name '*.xsl' -exec install -TD {} ../build/dist-root/{} \;
 
 publish: package _require-clean-checkout
 # Refuse to publish unless we get a 404 when looking up the publish path no S3.
@@ -49,7 +53,7 @@ bump-version-prerelease: _require-clean-checkout
 	npm version prerelease
 
 build:
-	mkdir -p build
+	mkdir -p build/dist-root
 
 compile-typescript:
 	npm run build
