@@ -1,0 +1,11 @@
+{
+  "$id": "cudl-pack/loaders/xslt-loader-options.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "indent": {"type": ["string", "number"]},
+    "finalNewline": {"type": "boolean"}
+  },
+  "required": [],
+  "additionalProperties": false
+}
