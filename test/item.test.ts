@@ -1,8 +1,10 @@
 import json5 from 'json5';
 import lodash from 'lodash';
-import {generateItemJson, parseItemJson} from '../src/item';
+import webpack from 'webpack';
+import {generateItemJson, NamespaceLoader, parseItemJson} from '../src/item';
 import {Item} from '../src/item-types';
-import {TypeUri} from '../src/uris';
+import {Namespace, TypeUri} from '../src/uris';
+import compiler from './compiler';
 import {getSchemaData, NegativeSchemaTestCase, readPathAsString} from './util';
 
 test.each(lodash.flatten([
@@ -40,4 +42,46 @@ const minimalItem: Item = {
 test('minimal data satisfying Item type is valid item instance', () => {
     const item: Item = parseItemJson(generateItemJson(minimalItem));
     expect(item).toEqual(minimalItem);
+});
+
+function createNamespaceLoader() {
+    return new NamespaceLoader(async url => {
+        expect(url).toBe('./namespace.json');
+        return {foo: 'http://example.com/'};
+    });
+}
+
+test('NamespaceLoader loads undefined as empty namespace', async () => {
+    expect(await createNamespaceLoader().loadNamespace(undefined))
+        .toEqual(Namespace.fromNamespaceMap({}));
+    expect.assertions(1);
+});
+
+test('NamespaceLoader loads inline namespace', async () => {
+    expect(await createNamespaceLoader().loadNamespace({foo: 'http://example.com/'}))
+        .toEqual(Namespace.fromNamespaceMap({foo: 'http://example.com/'}));
+    expect.assertions(1);
+});
+
+test('NamespaceLoader loads referenced namespace', async () => {
+    expect(await createNamespaceLoader().loadNamespace('./namespace.json'))
+        .toEqual(Namespace.fromNamespaceMap({foo: 'http://example.com/'}));
+    expect.assertions(2);
+});
+
+test('NamespaceLoader loads namespace from NamespaceBearer', async () => {
+    expect(await createNamespaceLoader().loadNamespace({'@namespace': './namespace.json'}))
+        .toEqual(Namespace.fromNamespaceMap({foo: 'http://example.com/'}));
+    expect.assertions(2);
+});
+
+test('NamespaceLoader.forWebpackLoader loads namespace via webpack machinery', async () => {
+    const rules: webpack.RuleSetRule[] = [{
+        type: 'json',
+        test: /\/mock\.json$/,
+        use: require.resolve('./namespace-reference-loader'),
+    }];
+
+    await compiler('./data/item/namespace-references/mock.json', rules);
+    expect.assertions(2);  // Assertions in loader
 });

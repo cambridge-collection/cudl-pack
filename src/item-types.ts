@@ -20,8 +20,17 @@ export interface NamespaceMap {
     [key: string]: string;
 }
 
+export function isNamespaceMap(obj: any): obj is NamespaceMap {
+    return typeof obj === 'object' && Object.values(obj).every(v => typeof v === 'string');
+}
+
 export interface NamespaceBearer {
     '@namespace'?: string | NamespaceMap;
+}
+
+export function isNamespaceBearer(obj: any): obj is NamespaceBearer {
+    return typeof obj === 'object' && obj.hasOwnProperty('@namespace') && (
+        obj['@namespace'] === undefined || typeof obj['@namespace'] === 'string' || isNamespaceMap(obj['@namespace']));
 }
 
 export interface ItemData extends TypeBearer, RoleBearer { }
