@@ -32,6 +32,20 @@
         },
         {"typeof": "function"}
       ]
+    },
+    "plugins": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {"typeof": "function"},
+          {
+            "type": "object",
+            "properties": {
+              "apply": {"typeof": "function"}
+            }
+          }
+        ]
+      }
     }
   }
 }
