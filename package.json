@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
-    "docs": "typedoc --out docs src",
+    "docs": "typedoc --ignoreCompilerErrors --out docs src",
     "test": "jest",
     "lint": "tslint --project tsconfig.json"
   },
