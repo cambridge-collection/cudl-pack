@@ -1,3 +1,4 @@
+import 'jest-xml-matcher';
 import * as path from 'path';
 import webpack from 'webpack';
 import compiler from './compiler';
@@ -26,14 +27,14 @@ function runXsltLoader({stylesheetPath, inputPath, postLoaders}: Options) {
 test('xslt-loader supports XSLT 1.1', async () => {
     const stats = await runXsltLoader({stylesheetPath: './data/xslt/one.xsl'});
     const module = stats.toJson().modules[0];
-    expect(JSON.parse(module.source)).toEqual(`\
+    expect(JSON.parse(module.source)).toEqualXML(`\
 <?xml version="1.0" encoding="UTF-8"?><foobar><message>Hello World!</message></foobar>`);
 });
 
 test('xslt-loader supports XSLT 3.0', async () => {
     const stats = await runXsltLoader({stylesheetPath: './data/xslt/three.xsl'});
     const module = stats.toJson().modules[0];
-    expect(JSON.parse(module.source)).toEqual(`\
+    expect(JSON.parse(module.source)).toEqualXML(`\
 <?xml version="1.0" encoding="UTF-8"?><handledError/>`);
 });
 
@@ -48,6 +49,6 @@ test('XSLT knows document location', async () => {
     const inputPath = path.resolve(__dirname, './data/xslt/data.xml');
     const stats = await runXsltLoader({inputPath, stylesheetPath: './data/xslt/document-location.xsl'});
     const module = stats.toJson().modules[0];
-    expect(JSON.parse(module.source)).toEqual(`\
+    expect(JSON.parse(module.source)).toEqualXML(`\
 <?xml version="1.0" encoding="UTF-8"?><location>file://${inputPath}</location>`);
 });

@@ -1,4 +1,4 @@
-import fs from 'fs';
+import 'jest-xml-matcher';
 import * as path from 'path';
 import webpack from 'webpack';
 import compiler from './compiler';
@@ -40,9 +40,7 @@ test('test that msTeiPreFilter converts item TEI to required XML format', async 
             return Promise.reject(err);
         });
 
-    // Comparing strings as this is XML.
-    expect(JSON.parse(module.source).trim()).toEqual(data.trim());
-
+    expect(JSON.parse(module.source)).toEqualXML(data);
 });
 
 test('test that jsonDocFomatter converts item XML to internal JSON format', async () => {
