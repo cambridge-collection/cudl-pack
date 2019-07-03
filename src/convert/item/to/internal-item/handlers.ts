@@ -1,6 +1,6 @@
 import {Page as InternalPage} from '../../../../internal-item-types';
 import {DescriptionSection, isImageItemResource, Item} from '../../../../item-types';
-import {CDLType, Namespace} from '../../../../uris';
+import {Namespace, PackageItemPage} from '../../../../uris';
 import {ItemToInternalItemConversionHooks, ItemToInternalItemConverter, PageResourceContext} from './index';
 
 abstract class BasePlugin {
@@ -67,7 +67,7 @@ export class IIIFPageResourcePlugin extends ContextFreeBasePlugin {
     }
 
     protected applyHooks(hooks: ItemToInternalItemConversionHooks): void {
-        hooks.pageResource.tapPromise(CDLType.Image, this.pluginName, this.handleIIIFImagePageResource);
+        hooks.pageResource.tapPromise(PackageItemPage.image, this.pluginName, this.handleIIIFImagePageResource);
     }
 }
 

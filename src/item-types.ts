@@ -1,4 +1,4 @@
-import {CDLType, Namespace, TypeUri} from './uris';
+import {Namespace, PackageItemData, PackageItemPage, TypeUri} from './uris';
 
 export type ItemPropertyScalar = string | boolean | number;
 export type ItemProperty = ItemPropertyScalar | ItemPropertyScalar[];
@@ -36,7 +36,11 @@ export function isNamespaceBearer(obj: any): obj is NamespaceBearer {
 export interface ItemData extends TypeBearer, RoleBearer { }
 
 export interface LinkItemData extends ItemData {
-    href: string;
+    href: UriReference;
+}
+
+export function isLinkItemData(data: ItemData, ns: Namespace): data is LinkItemData {
+    return ns.getExpandedUri(data['@type']) === PackageItemData.link;
 }
 
 export type PropertiesItemData = ItemData | ItemProperties;
@@ -53,7 +57,7 @@ export interface ImageItemResource extends TypeBearer {
 }
 
 export function isImageItemResource(resource: ItemResource, ns: Namespace): resource is ImageItemResource {
-    return ns.getExpandedUri(resource['@type']) === CDLType.Image;
+    return ns.getExpandedUri(resource['@type']) === PackageItemPage.image;
 }
 
 export interface TranscriptionItemResource extends TypeBearer {

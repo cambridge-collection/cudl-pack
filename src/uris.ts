@@ -1,24 +1,73 @@
 import clone from 'clone';
 import lodash from 'lodash';
+import * as util from 'util';
 import {NamespaceBearer, NamespaceMap} from './item-types';
+
+interface CurieDefinitionData {
+    /** The part of the CURIE before the first colon. */
+    readonly curiePrefix: string;
+
+    /** The base URI that a CURIE suffix is appended to when expanding. */
+    readonly uriPrefix: string;
+}
+
+class CurieDefinition implements CurieDefinitionData {
+    public readonly curiePrefix: string;
+    public readonly uriPrefix: string;
+
+    constructor(curiePrefix: string, uriPrefix: string) {
+        this.curiePrefix = curiePrefix;
+        this.uriPrefix = uriPrefix;
+    }
+
+    public uri(suffix: string): string {
+        return this.uriPrefix + suffix;
+    }
+
+    public curie(suffix: string): string {
+        return this.curiePrefix + ':' + suffix;
+    }
+
+    public compact(uri: string): string {
+        if(!uri.startsWith(this.uriPrefix))
+            throw new Error(`\
+uri is not prefixed by this curie's prefix: ${util.inspect(this.uriPrefix)}, uri: ${util.inspect(uri)}`);
+        return this.curie(uri.substring(this.uriPrefix.length));
+    }
+}
 
 export const enum TypeUri {
     PackageItem = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json',
     InternalItem = 'https://schemas.cudl.lib.cam.ac.uk/__internal__/v1/item.json',
 }
 
-export const enum CDLType {
-    Image = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/pageResources/image',
-    Translation = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/pageResources/translation',
-    Transcription = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/pageResources/transcription',
+export class PackageItemPage {
+    public static readonly curie = new CurieDefinition(
+        'cdl-page',
+        'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/pageResources/');
+
+    public static readonly image = PackageItemPage.curie.uri('image');
+    public static readonly translation = PackageItemPage.curie.uri('translation');
+    public static readonly transcription = PackageItemPage.curie.uri('transcription');
+
+    private constructor() {}
 }
 
-interface CurieDefinition {
-    /** The part of the CURIE before the first colon. */
-    curiePrefix: string;
+export class CDLRole {
+    public static readonly curie = new CurieDefinition(
+        'cdl-role', 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#data-role-');
 
-    /** The base URI that a CURIE suffix is appended to when expanding. */
-    uriPrefix: string;
+    private constructor() {}
+}
+
+export class PackageItemData {
+    public static readonly curie = new CurieDefinition(
+        'cdl-data', 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/data/');
+
+    public static readonly properties = PackageItemData.curie.uri('properties');
+    public static readonly link = PackageItemData.curie.uri('link');
+
+    private constructor() {}
 }
 
 /**
@@ -53,12 +102,12 @@ export class Namespace {
             orderedEntries.map(([curiePrefix, uriPrefix]) => ({curiePrefix, uriPrefix}))));
     }
 
-    private readonly curies: CurieDefinition[];
+    private readonly curies: CurieDefinitionData[];
 
     /**
      * @param curies The CURIEs to include in the namespace.
      */
-    constructor(curies: CurieDefinition[]) {
+    constructor(curies: CurieDefinitionData[]) {
         this.curies = clone(curies);
     }
 
@@ -96,13 +145,6 @@ export class Namespace {
     }
 }
 
-export function defaultCuries(): CurieDefinition[] {
-    return [
-        {curiePrefix: 'cdl-data',
-         uriPrefix: 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/data/'},
-        {curiePrefix: 'cdl-role',
-         uriPrefix: 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#data-role-'},
-        {curiePrefix: 'cdl-page',
-         uriPrefix: 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/pageResources/'},
-    ];
+export function defaultCuries(): CurieDefinitionData[] {
+    return [PackageItemData.curie, CDLRole.curie, PackageItemPage.curie];
 }
