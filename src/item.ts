@@ -2,7 +2,7 @@ import parseJson from 'json-parse-better-errors';
 import * as util from 'util';
 import {promisify} from 'util';
 import webpack from 'webpack';
-import {isNamespaceBearer, isNamespaceMap, Item, NamespaceBearer, NamespaceMap} from './item-types';
+import {isNamespaceBearer, isNamespaceMap, Item, ItemData, NamespaceBearer, NamespaceMap} from './item-types';
 import {validateItem, ValidationOptions} from './schemas';
 import {Namespace} from './uris';
 
@@ -18,6 +18,43 @@ export function generateItemJson(item: Item): string {
 
 type NamespaceValue = string | NamespaceMap | undefined;
 type NamespaceResolver = (url: string) => Promise<NamespaceMap>;
+
+interface RoleOptions {
+    roles?: string | Iterable<string>;
+}
+interface DataTypePredicate<T extends ItemData> {
+    type(data: ItemData, ns: Namespace): data is T;
+}
+interface DataTypeUri {
+    type?: string;
+}
+
+export function getData<T extends ItemData>(item: Item, ns: Namespace, options: RoleOptions & DataTypePredicate<T>):
+    T[];
+export function getData(item: Item, ns: Namespace, options: RoleOptions & DataTypeUri): ItemData[];
+export function getData<T extends ItemData>(
+    item: Item, ns: Namespace, options: RoleOptions & (DataTypeUri | DataTypePredicate<T>),
+): T[] {
+    const {type, roles} = options;
+    const _roles = new Set(typeof roles === 'string' ? [roles] : roles || []);
+
+    let dataPredicate: (data: ItemData) => data is T;
+    if(typeof type === 'function') {
+        dataPredicate = (d): d is T => type(d, ns);
+    }
+    else {
+        dataPredicate = (d): d is T => type !== undefined && ns.getExpandedUri(d['@type']) === type;
+    }
+
+    return (item.data || []).filter(dataPredicate).filter(data => {
+        const dataRoles = getExpandedRoles(data, ns);
+        return [..._roles].every(role => dataRoles.has(role));
+    });
+}
+
+export function getExpandedRoles(data: ItemData, ns: Namespace): Set<string> {
+    return new Set((data['@role'] || []).map(role => ns.getExpandedUri(role)));
+}
 
 export class NamespaceLoader {
     /**

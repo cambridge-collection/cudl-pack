@@ -1,9 +1,10 @@
 import json5 from 'json5';
 import lodash from 'lodash';
 import webpack from 'webpack';
-import {generateItemJson, NamespaceLoader, parseItemJson} from '../src/item';
-import {Item} from '../src/item-types';
-import {Namespace, TypeUri} from '../src/uris';
+import {generateItemJson, getData, NamespaceLoader, parseItemJson} from '../src/item';
+import {isLinkItemData, Item, ItemData, LinkItemData} from '../src/item-types';
+import {validateItem} from '../src/schemas';
+import {Namespace, PackageItemData, TypeUri} from '../src/uris';
 import compiler from './compiler';
 import {getSchemaData, NegativeSchemaTestCase, readPathAsString} from './util';
 
@@ -84,4 +85,34 @@ test('NamespaceLoader.forWebpackLoader loads namespace via webpack machinery', a
 
     await compiler('./data/item/namespace-references/mock.json', rules);
     expect.assertions(2);  // Assertions in loader
+});
+
+test('getData() returns typed data items with type predicate', async () => {
+    const item = validateItem({...minimalItem, data: [
+        {'@type': PackageItemData.link, href: {'@id': 'foo'}, '@role': ['a']},
+        {'@type': PackageItemData.link, href: {'@id': 'bar'}, '@role': ['a']},
+        {'@type': PackageItemData.link, href: {'@id': 'baz'}, '@role': ['b']},
+        {'@type': 'bar'},
+    ]});
+    const ns = Namespace.fromNamespaceMap({});
+
+    const links: LinkItemData[] = getData(item, ns, {type: isLinkItemData, roles: 'a'});
+    expect(links.length).toBe(2);
+    const [a, b] = links;
+    expect(a.href['@id']).toBe('foo');
+    expect(b.href['@id']).toBe('bar');
+});
+
+test('getData() returns untyped data items with type URI', async () => {
+    const item = validateItem({...minimalItem, data: [
+            {'@type': 'bar', data: 42},
+            {'@type': 'baz', data: 27},
+            {'@type': 'baz', '@role': ['a'], data: 83},
+        ]});
+    const ns = Namespace.fromNamespaceMap({});
+
+    const data: ItemData[] = getData(item, ns, {type: 'baz', roles: 'a'});
+    expect(data.length).toBe(1);
+    const [a] = data;
+    expect((a as any).data).toBe(83);
 });
