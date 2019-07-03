@@ -1,0 +1,24 @@
+{
+  "@type": "https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json",
+
+  "data": [
+    {
+      "@type": "cdl-data:link",
+      "@role": ["cdl-role:foo", "cdl-role:bar", "cdl-role:baz"],
+      "href": {"@id": "data.json"}
+    },
+    {
+      "@type": "cdl-data:link",
+      "@role": ["cdl-role:bar"],
+      "href": {"@id": "not-used"}
+    }
+  ],
+
+  "descriptions": {
+    "main": {
+      "coverage": {"firstPage": true, "lastPage": true}
+    }
+  },
+
+  "pages": {}
+}
