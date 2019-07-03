@@ -1,63 +1,25 @@
 import 'jest-xml-matcher';
-import * as path from 'path';
-import webpack from 'webpack';
-import compiler from './compiler';
 import {readPathAsString} from './util';
+import {runXsltLoader} from './xslt-loader.test';
 
-interface Options {
-    stylesheetPath: string;
-    inputPath?: string;
-    postLoaders?: webpack.RuleSetUseItem[];
-}
-function runXsltLoader({stylesheetPath, inputPath, postLoaders}: Options) {
-    inputPath = inputPath || './data/xslt/data.xml';
-    postLoaders = postLoaders || ['../src/loaders/json-raw-loader.ts'];
-
-    return compiler(inputPath, [{
-        type: 'json',
-        test: /\.xml$/,
-        use: postLoaders.concat([
-            {
-                loader: '../src/loaders/xslt-loader.ts',
-                options: {stylesheet: stylesheetPath},
-            },
-        ]),
-    }]);
-}
-
-test('test that msTeiPreFilter converts item TEI to required XML format', async () => {
-
-    jest.setTimeout(30000);
-
+test('msTeiPreFilter converts item TEI to required XML format', async () => {
     const stats = await runXsltLoader({
         stylesheetPath: '../src/xslt/tei-to-internal-json/msTeiPreFilter.xsl',
         inputPath: './data/tei/tei-full-item.xml',
     });
 
     const module = stats.toJson().modules[0];
-    const data: string = await readPathAsString(path.resolve(__dirname, './data/tei/tei-prefiltered-item.xml'))
-        .catch((err) => {
-            return Promise.reject(err);
-        });
-
+    const data: string = await readPathAsString('./data/tei/tei-prefiltered-item.xml');
     expect(JSON.parse(module.source)).toEqualXML(data);
 });
 
-test('test that jsonDocFomatter converts item XML to internal JSON format', async () => {
-
-    jest.setTimeout(30000);
-
+test('jsonDocFomatter converts item XML to internal JSON format', async () => {
     const stats = await runXsltLoader({
         stylesheetPath: '../src/xslt/tei-to-internal-json/jsonDocFormatter.xsl',
         inputPath: './data/tei/tei-prefiltered-item.xml',
     });
 
     const module = stats.toJson().modules[0];
-    const data: string = await readPathAsString(path.resolve(__dirname, './data/tei/tei-json-output.json'))
-        .catch((err) => {
-            return Promise.reject(err);
-        });
-
+    const data: string = await readPathAsString('./data/tei/tei-json-output.json');
     expect(JSON.parse(JSON.parse(module.source))).toEqual(JSON.parse(data));
-
 });

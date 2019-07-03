@@ -8,7 +8,7 @@ interface Options {
     inputPath?: string;
     postLoaders?: webpack.RuleSetUseItem[];
 }
-function runXsltLoader({stylesheetPath, inputPath, postLoaders}: Options) {
+export function runXsltLoader({stylesheetPath, inputPath, postLoaders}: Options) {
     inputPath = inputPath || './data/xslt/data.xml';
     postLoaders = postLoaders || ['../src/loaders/json-raw-loader.ts'];
 
