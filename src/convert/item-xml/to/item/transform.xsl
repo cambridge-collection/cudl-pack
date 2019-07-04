@@ -3,12 +3,16 @@
 Translates an XML representation of a Package Item into Package Item JSON.
 -->
 <xsl:stylesheet xmlns:cdl="http://namespace.cudl.lib.cam.ac.uk/cdl"
+                xmlns:item="https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json"
+                xmlns:item-data="https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/data/"
                 xmlns:xs="http://www.w3.org/2001/XMLSchema"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:fn="http://www.w3.org/2005/xpath-functions"
                 xmlns:map="http://www.w3.org/2005/xpath-functions/map"
                 version="3.1">
     <xsl:output method="json" indent="yes"/>
+
+    <xsl:variable name="item-error" as="xs:QName" select="QName('https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json', 'item:error')"/>
 
     <!-- Top-level entry point - generate the entire item. -->
     <xsl:template match="/">
@@ -61,12 +65,21 @@ Translates an XML representation of a Package Item into Package Item JSON.
             map:get($cdl:default-curie-prefixes, fn:prefix-from-QName($qname)) = fn:namespace-uri-from-QName($qname)"/>
     </xsl:function>
 
+    <xsl:function name="cdl:expand-curie-or-uri" as="xs:anyURI">
+        <xsl:param name="qname-or-uri" as="xs:string"/>
+        <xsl:param name="context" as="element()"/>
+
+        <xsl:value-of select="(for $qname in (cdl:curie-as-qname($qname-or-uri, $context))
+                                 return namespace-uri-from-QName($qname) || local-name-from-QName($qname),
+                               $qname-or-uri)[1]"/>
+    </xsl:function>
+
     <!-- Generate an @namespace map containing CURIE definitions from QNames
          used in the input XML. This requires that non-default (cdl-role, etc)
          have namespaces defined in the XML. -->
     <xsl:template mode="namespace" match="/">
         <xsl:variable name="qnames" as="xs:QName*">
-            <xsl:apply-templates select="/item/pages/page/resource|/item/data/data" mode="resolve-qnames"/>
+            <xsl:apply-templates select="/item/pages/page/resource|/item/data" mode="resolve-qnames"/>
         </xsl:variable>
 
         <xsl:if test="count($qnames) > 0">
@@ -107,9 +120,60 @@ Translates an XML representation of a Package Item into Package Item JSON.
         <xsl:next-match/>
     </xsl:template>
 
-    <xsl:template match="/">
+    <xsl:template mode="data" match="/">
+        <xsl:variable name="data" as="map(*)*">
+            <xsl:apply-templates select="/item/data" mode="data-item"/>
+        </xsl:variable>
+
+        <xsl:if test="count($data) > 0">
+            <xsl:map-entry key="'data'" select="array{$data}"/>
+        </xsl:if>
+    </xsl:template>
+
+    <xsl:template mode="data-item" match="data">
         <xsl:map>
-            <xsl:apply-templates mode="namespace" select="/"/>
+            <xsl:map-entry key="'@type'" select="if (@type) then string(@type) else error($item-error, '&lt;data&gt; item has no type attribute')"/>
+            <xsl:if test="@role">
+                <xsl:map-entry key="'@role'" select="string(@role)"/>
+            </xsl:if>
+            <xsl:apply-templates mode="data-item-properties" select="."/>
         </xsl:map>
     </xsl:template>
+
+    <xsl:template mode="data-item-properties" priority="-1" match="data">
+        <xsl:copy-of select="error($item-error, 'No template handled item data with type: ' || @type)"/>
+    </xsl:template>
+
+    <xsl:template mode="data-item-properties"
+                  match="data[cdl:expand-curie-or-uri(@type, .) = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/data/link' and @href]">
+        <xsl:map-entry key="'href'">
+            <xsl:map-entry key="'@id'" select="string(@href)"/>
+        </xsl:map-entry>
+    </xsl:template>
+
+    <xsl:template mode="data-item-properties"
+                  match="data[cdl:expand-curie-or-uri(@type, .) = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/data/properties']">
+        <xsl:apply-templates select="element()" mode="item-data:properties"/>
+    </xsl:template>
+
+    <xsl:template mode="item-data:properties" match="node()">
+        <xsl:copy-of select="error($item-error, 'Unexpected content in cdl-data:properties &lt;data&gt;: ' || .)"/>
+    </xsl:template>
+
+    <xsl:template mode="item-data:properties" match="/item/data/(array|string|number|true|false)[@key]">
+        <xsl:map-entry key="string(@key)">
+            <xsl:next-match/>
+        </xsl:map-entry>
+    </xsl:template>
+
+    <xsl:template mode="item-data:properties" match="array">
+        <xsl:variable name="content" as="item()*">
+            <xsl:apply-templates mode="#current" select="*"/>
+        </xsl:variable>
+        <xsl:copy-of select="array{$content}"/>
+    </xsl:template>
+    <xsl:template mode="item-data:properties" match="string"><xsl:copy-of select="string(.)"/></xsl:template>
+    <xsl:template mode="item-data:properties" match="number"><xsl:copy-of select="number(.)"/></xsl:template>
+    <xsl:template mode="item-data:properties" match="true"><xsl:copy-of select="true()"/></xsl:template>
+    <xsl:template mode="item-data:properties" match="false"><xsl:copy-of select="false()"/></xsl:template>
 </xsl:stylesheet>
