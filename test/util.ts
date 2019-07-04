@@ -3,14 +3,13 @@ import _fileUrl from 'file-url';
 import fs from 'fs';
 import parseJSONBetterErrors from 'json-parse-better-errors';
 import json5 from 'json5';
-import * as path from 'path';
 import {join, resolve} from 'path';
 import url from 'url';
 import util from 'util';
 import {promisify} from 'util';
 import {isNotUndefined} from '../src/utils';
 
-export const root = path.resolve(__dirname, '..');
+export const root = resolve(__dirname, '..');
 
 /**
  * Return the contents of a file as bytes.
