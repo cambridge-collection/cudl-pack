@@ -126,3 +126,71 @@ test('item-xml-to-json.xsl can handle custom data by extending stylesheet', asyn
         {'@type': 'example-data:custom', foo: 'abc'},
     ]);
 });
+
+test('item-xml-to-json.xsl translates item descriptions', async () => {
+    const xml = `\
+<item>
+    <descriptions>
+        <description name="main">
+            <attributes>
+                <attribute name="title" order="a" label="Title" value="Book of Foo"/>
+                <attribute name="abstract" order="b" label="Abstract">This is a direct value.</attribute>
+                <attribute name="author" order="c" label="Authors">
+                    <value>Jim</value>
+                    <value>Bob</value>
+                </attribute>
+                <attribute name="tags" order="z" label="Tags">
+                    <value>book</value>
+                </attribute>
+            </attributes>
+        </description>
+    </descriptions>
+</item>`;
+
+    const result = JSON.parse(await applyXslt(itemXmlToJsonStylesheet, xml));
+    expect(result.descriptions).toEqual({
+        main: {
+            coverage: {firstPage: true, lastPage: true},
+            attributes: {
+                title: {label: 'Title', order: 'a', value: 'Book of Foo'},
+                abstract: {label: 'Abstract', order: 'b', value: 'This is a direct value.'},
+                author: {label: 'Authors', order: 'c', value: ['Jim', 'Bob']},
+                tags: {label: 'Tags', order: 'z', value: ['book']},
+            },
+        },
+    });
+});
+
+test('description attribute @value value is plain text, not HTML', async () => {
+    const xml = `\
+<item>
+    <descriptions>
+        <description name="main">
+            <attributes>
+                <attribute name="example" label="Example" value="The HTML element &lt;b&gt; marks bold text."/>
+            </attributes>
+        </description>
+    </descriptions>
+</item>`;
+
+    const result = JSON.parse(await applyXslt(itemXmlToJsonStylesheet, xml));
+    expect(result.descriptions.main.attributes.example)
+        .toEqual({label: 'Example', value: 'The HTML element &lt;b&gt; marks bold text.'});
+});
+
+test('description attribute values not in attributes are HTML', async () => {
+    const xml = `\
+<item>
+    <descriptions>
+        <description name="main">
+            <attributes>
+                <attribute name="example" label="Example">Bold text: <b>BOO!</b></attribute>
+            </attributes>
+        </description>
+    </descriptions>
+</item>`;
+
+    const result = JSON.parse(await applyXslt(itemXmlToJsonStylesheet, xml));
+    expect(result.descriptions.main.attributes.example)
+        .toEqual({label: 'Example', value: 'Bold text: <b>BOO!</b>'});
+});

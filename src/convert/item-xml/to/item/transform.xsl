@@ -20,6 +20,7 @@ Translates an XML representation of a Package Item into Package Item JSON.
             <xsl:map-entry key="'@type'">https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json</xsl:map-entry>
             <xsl:apply-templates mode="namespace" select="/"/>
             <xsl:apply-templates mode="data" select="/"/>
+            <xsl:apply-templates mode="descriptions" select="/"/>
         </xsl:map>
     </xsl:template>
 
@@ -72,6 +73,32 @@ Translates an XML representation of a Package Item into Package Item JSON.
         <xsl:value-of select="(for $qname in (cdl:curie-as-qname($qname-or-uri, $context))
                                  return namespace-uri-from-QName($qname) || local-name-from-QName($qname),
                                $qname-or-uri)[1]"/>
+    </xsl:function>
+
+    <xsl:function name="cdl:error-missing-attribute">
+        <xsl:param name="el" as="element()"/>
+        <xsl:param name="attr-name" as="xs:string"/>
+        <xsl:param name="attr-ns" as="xs:string"/>
+
+        <xsl:copy-of select="error($item-error, '&lt;' || name($el) || '&gt; has no {' || $attr-ns || '}' || $attr-name || ' attribute at ' || path($el))"/>
+    </xsl:function>
+
+    <xsl:function name="cdl:require-attribute">
+        <xsl:param name="el" as="element()"/>
+        <xsl:param name="attr-name" as="xs:string"/>
+
+        <xsl:copy-of select="cdl:require-attribute($el, $attr-name, '')"/>
+    </xsl:function>
+
+    <xsl:function name="cdl:require-attribute">
+        <xsl:param name="el" as="element()"/>
+        <xsl:param name="attr-name" as="xs:string"/>
+        <xsl:param name="attr-ns" as="xs:string" default="''"/>
+
+        <xsl:variable name="attr" as="attribute()?" select="$el/@*[local-name() = $attr-name and namespace-uri() = $attr-ns][1]"/>
+        <xsl:copy-of select="if ($attr)
+                               then string($attr)
+                               else cdl:error-missing-attribute($el, $attr-name, $attr-ns)"/>
     </xsl:function>
 
     <!-- Generate an @namespace map containing CURIE definitions from QNames
@@ -176,4 +203,63 @@ Translates an XML representation of a Package Item into Package Item JSON.
     <xsl:template mode="item-data:properties" match="number"><xsl:copy-of select="number(.)"/></xsl:template>
     <xsl:template mode="item-data:properties" match="true"><xsl:copy-of select="true()"/></xsl:template>
     <xsl:template mode="item-data:properties" match="false"><xsl:copy-of select="false()"/></xsl:template>
+
+    <xsl:template mode="descriptions" match="/">
+        <xsl:map-entry key="'descriptions'">
+            <xsl:map>
+                <xsl:apply-templates mode="#current" select="/item/descriptions/description"/>
+            </xsl:map>
+        </xsl:map-entry>
+    </xsl:template>
+
+    <xsl:template mode="descriptions" match="/item/descriptions/description">
+        <xsl:map-entry key="if (@name) then string(@name) else error($item-error, 'description element has no name attribute: ' || path())">
+            <xsl:map>
+                <xsl:map-entry key="'coverage'"
+                               select="map{'firstPage': if (coverage/@firstPage) then string(coverage/@firstPage[1]) else true(),
+                                           'lastPage': if (coverage/@lastPage) then string(coverage/@lastPage[1]) else true()}"/>
+                <xsl:map-entry key="'attributes'">
+                    <xsl:apply-templates mode="#current" select="attributes"/>
+                </xsl:map-entry>
+            </xsl:map>
+        </xsl:map-entry>
+    </xsl:template>
+
+    <xsl:template mode="descriptions" match="/item/descriptions/description/attributes[1]">
+        <xsl:map>
+            <xsl:apply-templates mode="#current" select="element()"/>
+        </xsl:map>
+    </xsl:template>
+
+    <xsl:template mode="descriptions" match="/item/descriptions/description/attributes[1]/attribute">
+        <xsl:map-entry key="cdl:require-attribute(., 'name')">
+            <xsl:map>
+                <xsl:map-entry key="'label'" select="cdl:require-attribute(., 'label')"/>
+                <xsl:if test="@order">
+                    <xsl:map-entry key="'order'" select="string(@order)"/>
+                </xsl:if>
+                <xsl:apply-templates mode="descriptions-attribute-value" select="."/>
+            </xsl:map>
+        </xsl:map-entry>
+    </xsl:template>
+
+    <xsl:template mode="descriptions-attribute-value" match="attribute">
+        <xsl:copy-of select="error($item-error, 'invalid &lt;attribute&gt; value(s) at ' || path())"/>
+    </xsl:template>
+
+    <xsl:template mode="descriptions-attribute-value" match="attribute[@value and not(element() | text())]">
+        <xsl:map-entry key="'value'" select="serialize(string(@value), map{'method': 'html'})"/>
+    </xsl:template>
+
+    <xsl:template mode="descriptions-attribute-value" match="attribute[(text() | element()) and not(@value | value)]">
+        <xsl:map-entry key="'value'" select="serialize(text() | element(), map{'method': 'html'})"/>
+    </xsl:template>
+
+    <xsl:template mode="descriptions-attribute-value" match="attribute[value and not(count(value) lt count(element()))]">
+        <xsl:map-entry key="'value'" select="array{for $val in value return serialize($val/(text() | element()), map{'method': 'html'})}"/>
+    </xsl:template>
+
+    <xsl:template mode="#all" match="node()">
+        <xsl:copy-of select="error($item-error, 'Unexpected content encountered at ' || path() || ' :: ' || .)"/>
+    </xsl:template>
 </xsl:stylesheet>
