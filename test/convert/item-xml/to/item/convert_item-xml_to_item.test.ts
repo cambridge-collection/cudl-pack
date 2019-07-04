@@ -1,11 +1,12 @@
 import {execute as executeXslt} from '@lib.cam/xslt-nailgun';
 import * as path from 'path';
-import {root} from '../../../../util';
+import {identify} from '../../../../../src/util/identified';
+import {parseJSON, root} from '../../../../util';
 
 const itemXmlToJsonStylesheet = path.resolve(root, 'src/convert/item-xml/to/item/transform.xsl');
 
 test('generated item JSON contains the item @type URI', async () => {
-    const result = JSON.parse((await executeXslt('', '<item/>', itemXmlToJsonStylesheet)).toString());
+    const result = parseJSON(await executeXslt('', '<item/>', itemXmlToJsonStylesheet));
     expect(result['@type']).toBe('https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json');
 });
 
@@ -15,12 +16,10 @@ test('item-xml-to-json.xsl populates @namespace with custom CURIEs', async () =>
       xmlns:bar="http://example.com/bar"
       xmlns:baz="http://example.com/baz"
       xmlns:unused="http://example.com/unused">
-    <data>
-        <data type="foo:a" role="bar:b baz:c boz:d cdl-role:foo"/>
-    </data>
+    <data type="cdl-data:link" role="foo:a bar:b baz:c boz:d cdl-role:foo" href=""/>
 </item>`;
 
-    const result = JSON.parse((await executeXslt('', xml, itemXmlToJsonStylesheet)).toString());
+    const result = parseJSON(await executeXslt('', xml, itemXmlToJsonStylesheet));
     // The cdl-role:foo URI uses the default prefix cdl-role, so it doesn't get
     // a namespace entry.
     expect(result['@namespace']).toEqual({
@@ -33,12 +32,10 @@ test('item-xml-to-json.xsl populates @namespace with custom CURIEs', async () =>
 test('@namespace will override default prefixes if they don\'t conflict', async () => {
     const xml = `\
 <item xmlns:cdl-role="http://example.com/foo">
-    <data>
-        <data type="foo:a" role="cdl-role:foo"/>
-    </data>
+    <data type="cdl-data:link" role="cdl-role:foo" href=""/>
 </item>`;
 
-    const result = JSON.parse((await executeXslt('', xml, itemXmlToJsonStylesheet)).toString());
+    const result = parseJSON(await executeXslt('', xml, itemXmlToJsonStylesheet));
     expect(result['@namespace']).toEqual({
         'cdl-role': 'http://example.com/foo',
     });
@@ -47,10 +44,8 @@ test('@namespace will override default prefixes if they don\'t conflict', async 
 test('item-xml-to-json.xsl fails to create @namespace when CURIE prefix has multiple bindings', async () => {
     const xml = `\
 <item>
-    <data>
-        <data xmlns:foo="http://example.com/a" type="foo:x"/>
-        <data xmlns:foo="http://example.com/b" type="foo:y"/>
-    </data>
+    <data xmlns:foo="http://example.com/a" type="foo:x"/>
+    <data xmlns:foo="http://example.com/b" type="foo:y"/>
 </item>`;
 
     await expect(executeXslt('', xml, itemXmlToJsonStylesheet)).rejects.toThrowError(new RegExp(`\
@@ -65,7 +60,7 @@ test('item-xml-to-json.xsl generates data for cdl-data:link', async () => {
     <data type="cdl-data:link" href="./bar"/>
 </item>`;
 
-    const result = JSON.parse(await applyXslt(itemXmlToJsonStylesheet, xml));
+    const result = parseJSON(await executeXslt('', xml, itemXmlToJsonStylesheet));
     expect(result.data).toEqual([
         {'@type': 'cdl-data:link', '@role': 'cdl-role:foo cdl-role:bar', href: {'@id': './foo'}},
         {'@type': 'cdl-data:link', href: {'@id': './bar'}},
@@ -76,11 +71,11 @@ test('item-xml-to-json.xsl generates data for cdl-data:properties', async () => 
     const xml = `\
 <item>
     <data type="cdl-data:properties" role="cdl-role:foo cdl-role:bar">
-        <string key="a">foobar</string>
-        <number key="b">4.3</number>
-        <true key="c"/>
-        <false key="d"/>
-        <array key="e">
+        <string name="a">foobar</string>
+        <number name="b">4.3</number>
+        <true name="c"/>
+        <false name="d"/>
+        <array name="e">
             <string>123</string>
             <number>32</number>
             <true/>
@@ -93,7 +88,7 @@ test('item-xml-to-json.xsl generates data for cdl-data:properties', async () => 
     </data>
 </item>`;
 
-    const result = JSON.parse(await applyXslt(itemXmlToJsonStylesheet, xml));
+    const result = parseJSON(await executeXslt('', xml, itemXmlToJsonStylesheet));
     expect(result.data).toEqual([
         {'@type': 'cdl-data:properties', '@role': 'cdl-role:foo cdl-role:bar',
             a: 'foobar',
@@ -111,7 +106,7 @@ test('item-xml-to-json.xsl fails if unhandled <data> exists', async () => {
     <data type="unknown"/>
 </item>`;
 
-    await expect(applyXslt(itemXmlToJsonStylesheet, xml)).rejects
+    await expect(executeXslt('', xml, itemXmlToJsonStylesheet)).rejects
         .toThrowError('item:error: No template handled item data with type: unknown');
 });
 
@@ -121,7 +116,7 @@ test('item-xml-to-json.xsl can handle custom data by extending stylesheet', asyn
     <data type="example-data:custom" foo="abc"/>
 </item>`;
 
-    const result = JSON.parse(await applyXslt(path.resolve(__dirname, 'custom-data.xsl'), xml));
+    const result = JSON.parse((await executeXslt('', xml, path.resolve(__dirname, 'custom-data.xsl'))).toString());
     expect(result.data).toEqual([
         {'@type': 'example-data:custom', foo: 'abc'},
     ]);
@@ -147,7 +142,7 @@ test('item-xml-to-json.xsl translates item descriptions', async () => {
     </descriptions>
 </item>`;
 
-    const result = JSON.parse(await applyXslt(itemXmlToJsonStylesheet, xml));
+    const result = parseJSON(await executeXslt('', xml, itemXmlToJsonStylesheet));
     expect(result.descriptions).toEqual({
         main: {
             coverage: {firstPage: true, lastPage: true},
@@ -173,7 +168,7 @@ test('description attribute @value value is plain text, not HTML', async () => {
     </descriptions>
 </item>`;
 
-    const result = JSON.parse(await applyXslt(itemXmlToJsonStylesheet, xml));
+    const result = parseJSON(await executeXslt('', xml, itemXmlToJsonStylesheet));
     expect(result.descriptions.main.attributes.example)
         .toEqual({label: 'Example', value: 'The HTML element &lt;b&gt; marks bold text.'});
 });
@@ -190,7 +185,65 @@ test('description attribute values not in attributes are HTML', async () => {
     </descriptions>
 </item>`;
 
-    const result = JSON.parse(await applyXslt(itemXmlToJsonStylesheet, xml));
+    const result = parseJSON(await executeXslt('', xml, itemXmlToJsonStylesheet));
     expect(result.descriptions.main.attributes.example)
         .toEqual({label: 'Example', value: 'Bold text: <b>BOO!</b>'});
+});
+
+test('description attribute values containing multiple elements are not wrapped in a single root', async () => {
+    const xml = `\
+<item>
+    <descriptions>
+        <description name="main">
+            <attributes>
+                <attribute name="example" label="Example"><h1>heading</h1><p>paragraph</p></attribute>
+            </attributes>
+        </description>
+    </descriptions>
+</item>`;
+
+    const result = parseJSON(await executeXslt('', xml, itemXmlToJsonStylesheet));
+    expect(result.descriptions.main.attributes.example)
+        .toEqual({label: 'Example', value: '<h1>heading</h1><p>paragraph</p>'});
+});
+
+test('item-xml-to-json.xsl translates item pages', async () => {
+    const xml = `\
+<item>
+    <pages>
+        <page name="front" label="Front board"/>
+        <page name="frontPasteDown" label="Front paste-down"/>
+        <page name="p42" label="42"/>
+        <page name="back" label="Back cover"/>
+    </pages>
+</item>`;
+
+    const result = parseJSON(await executeXslt('', xml, itemXmlToJsonStylesheet));
+    expect(result.pages).toEqual({
+        front: {label: 'Front board', order: '0'},
+        frontPasteDown: {label: 'Front paste-down', order: '1'},
+        p42: {label: '42', order: '2'},
+        back: {label: 'Back cover', order: '3'},
+    });
+});
+
+test.each([
+    [1, 1],
+    [1, 10],
+    [2, 11],
+    [2, 100],
+    [3, 101],
+    [3, 1000],
+    [4, 1001],
+])('item-xml-to-json.xsl 0-pads page order values to width %d for items with %d pages', async (width, count) => {
+    const pages = identify.index(Array.from({length: count}, (v, index) => ({
+        [identify.id]: `p${index}`,
+        label: `${index}`,
+        order: `${index}`.padStart(width, '0'),
+    })));
+    const xmlPages = identify(pages).map(p => `<page name="${p[identify.id]}" label="${p.label}"/>`).join('');
+    const xml = `<item><pages>${xmlPages}</pages></item>`;
+
+    const result = parseJSON(await executeXslt('', xml, itemXmlToJsonStylesheet));
+    expect(result.pages).toEqual(pages);
 });

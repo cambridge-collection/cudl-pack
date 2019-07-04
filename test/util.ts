@@ -1,6 +1,7 @@
 import {applyPatch, Operation} from 'fast-json-patch';
 import _fileUrl from 'file-url';
 import fs from 'fs';
+import parseJSONBetterErrors from 'json-parse-better-errors';
 import json5 from 'json5';
 import * as path from 'path';
 import {join, resolve} from 'path';
@@ -230,3 +231,7 @@ function wrapEnsureDefined<A>(value?: A, path?: Property | Property[]):
 }
 
 ensureDefined.wrap = wrapEnsureDefined;
+
+export function parseJSON(json: string | Buffer): any {
+    return parseJSONBetterErrors(json.toString());
+}

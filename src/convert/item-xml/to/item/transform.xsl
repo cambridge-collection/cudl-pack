@@ -9,6 +9,7 @@ Translates an XML representation of a Package Item into Package Item JSON.
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:fn="http://www.w3.org/2005/xpath-functions"
                 xmlns:map="http://www.w3.org/2005/xpath-functions/map"
+                xmlns:math="http://www.w3.org/2005/xpath-functions/math"
                 version="3.1">
     <xsl:output method="json" indent="yes"/>
 
@@ -21,7 +22,21 @@ Translates an XML representation of a Package Item into Package Item JSON.
             <xsl:apply-templates mode="namespace" select="/"/>
             <xsl:apply-templates mode="data" select="/"/>
             <xsl:apply-templates mode="descriptions" select="/"/>
+            <xsl:apply-templates mode="pages" select="/"/>
+
+            <!-- Fail on and allow overriding unexpected elements. -->
+            <xsl:apply-templates select="/item/element()[not(. = (/item/data|/item/descriptions|/item/pages))]"/>
         </xsl:map>
+    </xsl:template>
+
+    <!-- Fail if unexpected content appears in the document being transformed.
+         This allows us to raise errors without explicitly checking for
+         unexpected content by being permissive about what we send through
+         xsl:apply-templates and restrictive about what we match. It also allows
+         another stylesheet to this by matching content that this doesn't.
+         -->
+    <xsl:template mode="#all" match="node()" priority="-1">
+        <xsl:copy-of select="error($item-error, 'Unexpected content encountered at ' || path() || ' :: ' || .)"/>
     </xsl:template>
 
     <xsl:variable name="cdl:default-curie-prefixes" as="map(*)">
@@ -167,14 +182,14 @@ Translates an XML representation of a Package Item into Package Item JSON.
         </xsl:map>
     </xsl:template>
 
-    <xsl:template mode="data-item-properties" priority="-1" match="data">
+    <xsl:template mode="data-item-properties" match="data">
         <xsl:copy-of select="error($item-error, 'No template handled item data with type: ' || @type)"/>
     </xsl:template>
 
     <xsl:template mode="data-item-properties"
-                  match="data[cdl:expand-curie-or-uri(@type, .) = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/data/link' and @href]">
+                  match="data[cdl:expand-curie-or-uri(@type, .) = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/data/link']">
         <xsl:map-entry key="'href'">
-            <xsl:map-entry key="'@id'" select="string(@href)"/>
+            <xsl:map-entry key="'@id'" select="cdl:require-attribute(., 'href')"/>
         </xsl:map-entry>
     </xsl:template>
 
@@ -187,15 +202,15 @@ Translates an XML representation of a Package Item into Package Item JSON.
         <xsl:copy-of select="error($item-error, 'Unexpected content in cdl-data:properties &lt;data&gt;: ' || .)"/>
     </xsl:template>
 
-    <xsl:template mode="item-data:properties" match="/item/data/(array|string|number|true|false)[@key]">
-        <xsl:map-entry key="string(@key)">
+    <xsl:template mode="item-data:properties" match="/item/data/(array|string|number|true|false)">
+        <xsl:map-entry key="cdl:require-attribute(., 'name')">
             <xsl:next-match/>
         </xsl:map-entry>
     </xsl:template>
 
     <xsl:template mode="item-data:properties" match="array">
         <xsl:variable name="content" as="item()*">
-            <xsl:apply-templates mode="#current" select="*"/>
+            <xsl:apply-templates mode="#current" select="element()"/>
         </xsl:variable>
         <xsl:copy-of select="array{$content}"/>
     </xsl:template>
@@ -259,7 +274,32 @@ Translates an XML representation of a Package Item into Package Item JSON.
         <xsl:map-entry key="'value'" select="array{for $val in value return serialize($val/(text() | element()), map{'method': 'html'})}"/>
     </xsl:template>
 
-    <xsl:template mode="#all" match="node()">
-        <xsl:copy-of select="error($item-error, 'Unexpected content encountered at ' || path() || ' :: ' || .)"/>
+    <xsl:template mode="pages" match="/">
+        <xsl:map-entry key="'pages'">
+            <xsl:map>
+                <xsl:apply-templates mode="#current" select="/item/pages/page">
+                    <!-- Generate a number format string to generate order
+                         strings with. We use the 0-padded index of the page,
+                         e.g. if there are 300 pages, page 32 is order '032'
+                         and in this case the format string would be '000'. -->
+                    <xsl:with-param name="order-pad" select="string-join(for $n in 1 to xs:integer(math:log10(max((1, count(/item/pages/page) - 1)))) + 1 return '0')"/>
+                </xsl:apply-templates>
+            </xsl:map>
+        </xsl:map-entry>
+    </xsl:template>
+
+    <xsl:template mode="pages" match="/item/pages[1]/page">
+        <xsl:param name="order-pad" as="xs:string" required="yes"/>
+        <xsl:map-entry key="cdl:require-attribute(., 'name')">
+            <xsl:map>
+                <xsl:map-entry key="'label'" select="cdl:require-attribute(., 'label')"/>
+                <xsl:map-entry key="'order'" select="format-number(position() - 1, $order-pad)"/>
+                <xsl:apply-templates mode="#current" select="element()"/>
+            </xsl:map>
+        </xsl:map-entry>
+    </xsl:template>
+
+    <xsl:template mode="pages" match="/item/pages[1]/page/resource[cdl:expand-curie-or-uri(@type, .) = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/pageResources/image']">
+
     </xsl:template>
 </xsl:stylesheet>
