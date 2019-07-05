@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<item>
+   <descriptiveMetadata>
+      <part xmlns:xtf="http://cdlib.org/xtf" xtf:subDocument="ITEM-1">
+         <abstract display="false"
+                   displayForm="&lt;p style='text-align: justify;'&gt;This manuscript contains the third part of the Hebrew Bible known as Writings (Ketuvim) with numerous marginal glosses in Hebrew and Judeo-Persian. It was copied by Jacob ben Obadiah ben Joseph ben Ezra in the school of Rabbi Mordechai in Kashan in Iran at the request of Rav Samuel ha-Levi. He completed his copy on Tuesday 2 July 1495. The biblical text is vocalised and accompanied by masorah. According to Moses Gaster, this is a unique manuscript showing the vocalisation and accentuation tradition of Ben Naphtali.&lt;/p&gt;">This manuscript contains the third part of the Hebrew Bible known as Writings (Ketuvim) with numerous marginal glosses in Hebrew and Judeo-Persian. It was copied by Jacob ben Obadiah ben Joseph ben Ezra in the school of Rabbi Mordechai in Kashan in Iran at the request of Rav Samuel ha-Levi. He completed his copy on Tuesday 2 July 1495. The biblical text is vocalised and accompanied by masorah. According to Moses Gaster, this is a unique manuscript showing the vocalisation and accentuation tradition of Ben Naphtali.</abstract>
+         <formerOwners display="true">
+            <name display="true" displayForm="Gaster, Moses 1856-1939">
+               <fullForm>Gaster, Moses 1856-1939</fullForm>
+               <shortForm>Moses Gaster</shortForm>
+               <type>person</type>
+               <role>fmo</role>
+            </name>
+         </formerOwners>
+         <subjects display="true">
+            <subject display="true" displayForm="Bible. Old Testament--Versions, Jewish">
+               <fullForm>Bible. Old Testament--Versions, Jewish</fullForm>
+               <authority>Library of Congress Subject Headings</authority>
+               <authorityURI>http://id.loc.gov/authorities/about.html#lcsh</authorityURI>
+               <valueURI>http://id.loc.gov/authorities/sh85013777</valueURI>
+            </subject>
+            <subject display="true" displayForm="Astrology">
+               <fullForm>Astrology</fullForm>
+               <authority>Library of Congress Subject Headings</authority>
+               <authorityURI>http://id.loc.gov/authorities/about.html#lcsh</authorityURI>
+               <valueURI>http://id.loc.gov/authorities/sh85008893</valueURI>
+            </subject>
+            <subject display="true" displayForm="Astronomy">
+               <fullForm>Astronomy</fullForm>
+               <authority>Library of Congress Subject Headings</authority>
+               <authorityURI>http://id.loc.gov/authorities/about.html#lcsh</authorityURI>
+               <valueURI>http://id.loc.gov/authorities/sh85009003</valueURI>
+            </subject>
+            <subject display="true" displayForm="Bible Commentaries">
+               <fullForm>Bible Commentaries</fullForm>
+               <authority>Library of Congress Subject Headings</authority>
+               <authorityURI>http://id.loc.gov/authorities/about.html#lcsh</authorityURI>
+               <valueURI>http://id.loc.gov/authorities/sh85013597</valueURI>
+            </subject>
+         </subjects>
+         <creations display="true">
+            <event>
+               <type>creation</type>
+               <places display="true">
+                  <place display="true" displayForm="Kashan">
+                     <shortForm>Kashan</shortForm>
+                  </place>
+                  <place display="true" displayForm="Iran">
+                     <shortForm>Iran</shortForm>
+                  </place>
+               </places>
+               <dateStart>1495-07-02</dateStart>
+               <dateEnd>1495-07-02</dateEnd>
+               <dateDisplay display="true"
+                            displayForm="Tuesday 1 Tammuz 1806 of the Seleucid era [= 02-07-1495]">Tuesday 1 Tammuz 1806 of the Seleucid era [= 02-07-1495]</dateDisplay>
+            </event>
+         </creations>
+         <acquisitions display="true">
+            <event>
+               <type>acquisition</type>
+               <dateStart>1954</dateStart>
+               <dateEnd>1954</dateEnd>
+               <dateDisplay display="true" displayForm="1954">1954</dateDisplay>
+            </event>
+         </acquisitions>
+         <physicalLocation display="true" displayForm="The John Rylands Library">The John Rylands Library</physicalLocation>
+         <shelfLocator display="true" displayForm="Gaster Hebrew MS 86">Gaster Hebrew MS 86</shelfLocator>
+         <altIdentifiers display="true">
+            <altIdentifier display="true" displayForm="Gaster 86">Gaster 86</altIdentifier>
+         </altIdentifiers>
+         <thumbnailUrl>MS-HEBREW-GASTER-00086-000-00268.jp2</thumbnailUrl>
+         <thumbnailOrientation>portrait</thumbnailOrientation>
+         <displayImageRights>Zooming image Â© University of Manchester Library, All rights reserved.</displayImageRights>
+         <downloadImageRights>Images made available for download are licensed under a Creative Commons Attribution-NonCommercial 3.0 Unported License (CC BY-NC 3.0)</downloadImageRights>
+         <imageReproPageURL>https://imagingservices.lib.cam.ac.uk/</imageReproPageURL>
+         <metadataRights>This metadata is licensed under a Creative Commons Attribution-NonCommercial 3.0 Unported License.</metadataRights>
+         <docAuthority/>
+         <fundings display="true">
+            <funding display="true" displayForm=""/>
+         </fundings>
+         <form display="true" displayForm="Codex">Codex</form>
+         <material display="true" displayForm="Paper">Paper</material>
+         <extent display="true"
+                 displayForm="293 ff. (ii+293+ii) Leaf height: 256 mm, width: 182 mm. Written height: 170-180 mm, width: 116-120 mm. Ruled height: 170 mm, width: 115 mm.">293 ff. (ii+293+ii) Leaf height: 256 mm, width: 182 mm. Written height: 170-180 mm, width: 116-120 mm. Ruled height: 170 mm, width: 115 mm.</extent>
+         <foliation display="true"
+                    displayForm="&lt;p&gt;&lt;p&gt;Modern pencil foliation in Arabic numerals at the top outer corner of side a of each folio.&lt;/p&gt;&lt;/p&gt;">Modern pencil foliation in Arabic numerals at the top outer corner of side a of each folio.</foliation>
+         <collation display="true"
+                    displayForm="Decorated diagonal catchwords placed at the bottom left of side b of each folio.">Decorated diagonal catchwords placed at the bottom left of side b of each folio.</collation>
+         <conditions display="true">
+            <condition display="true"
+                       displayForm="&lt;p&gt;The codex was conserved (possibly at the beginning of the 20th century); reinforcing strips of paper were added both in the gutter and at the outer edges of several folios. The remaining folios have irregular edges.&lt;/p&gt;">The codex was conserved (possibly at the beginning of the 20th century); reinforcing strips of paper were added both in the gutter and at the outer edges of several folios. The remaining folios have irregular edges.</condition>
+         </conditions>
+         <layouts display="true">
+            <layout display="true"
+                    displayForm="&lt;p&gt;Long line of between 15 and 19 written lines. There is ruling, but it is unclear whether this was created with a mistara or by hand. Unruled marginal glosses.&lt;/p&gt;">Long line of between 15 and 19 written lines. There is ruling, but it is unclear whether this was created with a mistara or by hand. Unruled marginal glosses.</layout>
+         </layouts>
+         <scripts display="true">
+            <script display="true"
+                    displayForm="&lt;div style='list-style-type: disc;'&gt;&lt;div style='display: list-item; margin-left: 20px;'&gt;Persian semi-cursive script.&lt;/div&gt;&lt;div style='display: list-item; margin-left: 20px;'&gt;The Judeo-Persian glosses are in the same hand, in Persian cursive script.&lt;/div&gt;&lt;/div&gt;">Persian semi-cursive script.The Judeo-Persian glosses are in the same hand, in Persian cursive script.</script>
+         </scripts>
+         <bindings display="true">
+            <binding display="true"
+                     displayForm="&lt;p&gt;Modern three-quarter brown leather binding with gold tooling on the spine reading &#34;HAGIOGRAPHA / SAEC. XV. / WITH / PERSIAN GLOSSAR. / COD. HEBR. / GASTER 86&#34;.&lt;/p&gt;">Modern three-quarter brown leather binding with gold tooling on the spine reading "HAGIOGRAPHA / SAEC. XV. / WITH / PERSIAN GLOSSAR. / COD. HEBR. / GASTER 86".</binding>
+         </bindings>
+         <origins display="true">
+            <origin display="true"
+                    displayForm="&lt;p&gt;Produced in Kashan, in modern Iran on Tuesday 1 Tammuz 1806 of the Seleucid era [= 02-07-1495].&lt;/p&gt;">Produced in Kashan, in modern Iran on Tuesday 1 Tammuz 1806 of the Seleucid era [= 02-07-1495].</origin>
+         </origins>
+         <acquisitionTexts display="true">
+            <acquisitionText display="true"
+                             displayForm="Acquired by The John Rylands Library from the heirs of Moses Gaster in 1954.">Acquired by The John Rylands Library from the heirs of Moses Gaster in 1954.</acquisitionText>
+         </acquisitionTexts>
+         <bibliographies display="true">
+            <bibliography display="true"
+                          displayForm="&lt;div style='list-style-type: disc;'&gt;&lt;div style='display: list-item; margin-left: 20px;'&gt;&lt;a target='_blank' class='externalLink' href='http://www.worldcat.org/oclc/7907984'&gt;Catalogue of an Exhibition of Hebrew Manuscripts and Printed Books together with Other Items of Jewish Interest, Manchester: The John Rylands Library, 1958: 10, case 2, item 6.&lt;/a&gt;&lt;/div&gt;&lt;div style='display: list-item; margin-left: 20px;'&gt;&lt;a target='_blank' class='externalLink' href='http://www.worldcat.org/oclc/18071891'&gt;The Jewish Heritage: Catalogue of an Exhibition held in the John Rylands University Library of Manchester, January-April 1988: 5, case three, item 1.&lt;/a&gt;&lt;/div&gt;&lt;div style='display: list-item; margin-left: 20px;'&gt;&lt;a target='_blank' class='externalLink' href='http://www.worldcat.org/oclc/85069649'&gt;M. Beit-AriÃ© et al., Specimens of Mediaeval Hebrew Scripts, Vol. 1: Oriental and Yemenite Scripts, Jerusalem: The Israel Academy of Sciences and Humanities, 1987: no. 110.&lt;/a&gt;&lt;/div&gt;&lt;div style='display: list-item; margin-left: 20px;'&gt;&lt;a target='_blank' class='externalLink' href='http://www.worldcat.org/oclc/800855402'&gt;M. Gaster, Studies and Texts in Folklore, Magic, Mediaeval Romance, Hebrew Apocrypha and Samaritan Archaeology with 14 Plates and 5 Illustrations, London: Maggs Bros, 1925-1928, vol. II: 1295-1329, esp. 1322-1329.&lt;/a&gt;&lt;/div&gt;&lt;/div&gt;&lt;br /&gt;">Catalogue of an Exhibition of Hebrew Manuscripts and Printed Books together with Other Items of Jewish Interest, Manchester: The John Rylands Library, 1958: 10, case 2, item 6.The Jewish Heritage: Catalogue of an Exhibition held in the John Rylands University Library of Manchester, January-April 1988: 5, case three, item 1.M. Beit-AriÃ© et al., Specimens of Mediaeval Hebrew Scripts, Vol. 1: Oriental and Yemenite Scripts, Jerusalem: The Israel Academy of Sciences and Humanities, 1987: no. 110.M. Gaster, Studies and Texts in Folklore, Magic, Mediaeval Romance, Hebrew Apocrypha and Samaritan Archaeology with 14 Plates and 5 Illustrations, London: Maggs Bros, 1925-1928, vol. II: 1295-1329, esp. 1322-1329.</bibliography>
+         </bibliographies>
+         <dataSources display="true">
+            <dataSource display="true"
+                        displayForm="Description based on Alexander Samely's unpublished draft catalogue, revised and expanded by Stefania Silvestri and Renate Smithuis.">Description based on Alexander Samely's unpublished draft catalogue, revised and expanded by Stefania Silvestri and Renate Smithuis.</dataSource>
+         </dataSources>
+         <collections/>
+         <ID>ITEM-1</ID>
+         <fileID>tei-small-item</fileID>
+         <startPageLabel>Front board</startPageLabel>
+         <startPage>1</startPage>
+         <title display="false" displayForm="Ketuvim">Ketuvim</title>
+         <alternativeTitles display="true">
+            <alternativeTitle display="true" displayForm="×›×ª×•×‘×™×&#x9d;">×›×ª×•×‘×™×&#x9d;</alternativeTitle>
+            <alternativeTitle display="true" displayForm="Writings (Hebrew Bible)">Writings (Hebrew Bible)</alternativeTitle>
+         </alternativeTitles>
+         <languageCodes>
+            <languageCode>heb</languageCode>
+         </languageCodes>
+         <languageStrings display="true">
+            <languageString display="true"
+                            displayForm="Hebrew with marginal glosses in Hebrew and Judeo-Persian">Hebrew with marginal glosses in Hebrew and Judeo-Persian</languageString>
+         </languageStrings>
+      </part>
+   </descriptiveMetadata>
+   <numberOfPages>2</numberOfPages>
+   <embeddable>true</embeddable>
+   <sourceData>/v1/metadata/tei/tei-small-item/</sourceData>
+   <pages>
+      <page>
+         <label>Front board</label>
+         <physID>PHYS-1</physID>
+         <sequence>1</sequence>
+         <IIIFImageURL>MS-HEBREW-GASTER-00086-000-00268.jp2</IIIFImageURL>
+         <thumbnailImageOrientation>portrait</thumbnailImageOrientation>
+         <imageWidth>5444</imageWidth>
+         <imageHeight>6500</imageHeight>
+      </page>
+      <page>
+         <label>Front paste-down</label>
+         <physID>PHYS-2</physID>
+         <sequence>2</sequence>
+         <IIIFImageURL>MS-HEBREW-GASTER-00086-000-00269.jp2</IIIFImageURL>
+         <thumbnailImageOrientation>portrait</thumbnailImageOrientation>
+         <imageWidth>4423</imageWidth>
+         <imageHeight>6500</imageHeight>
+      </page>
+   </pages>
+   <logicalStructures xmlns:xtf="http://cdlib.org/xtf" xtf:noindex="true">
+      <logicalStructure>
+         <descriptiveMetadataID>ITEM-1</descriptiveMetadataID>
+         <label>Ketuvim</label>
+         <startPageLabel>Front board</startPageLabel>
+         <startPagePosition>1</startPagePosition>
+         <startPageID>PHYS-1</startPageID>
+         <endPageLabel>Front paste-down</endPageLabel>
+         <endPagePosition>2</endPagePosition>
+      </logicalStructure>
+   </logicalStructures>
+   <textDirection>R</textDirection>
+</item>

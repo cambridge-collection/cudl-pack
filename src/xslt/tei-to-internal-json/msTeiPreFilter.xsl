@@ -172,6 +172,8 @@
         <xsl:if test="//*:list/*:item[*:locus]">
             <xsl:call-template name="make-list-item-pages" />
         </xsl:if>
+
+        <xsl:call-template name="get-text-direction"/>
     </xsl:template>
 
     <!--*******************Descriptive metadata************************************************************************************-->

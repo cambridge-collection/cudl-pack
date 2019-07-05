@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="enrich.css" title="Enrich" alternate="no"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+    <teiHeader>
+        <fileDesc>
+            <titleStmt>
+                <title>Catalogue of Codices, Scrolls, and Other Texts in Hebrew Script in the
+                    University of Manchester (John Rylands) Library</title>
+                <funder/>
+                <principal>Renate Smithuis</principal>
+                <respStmt>
+                    <resp>Cataloguer</resp>
+                    <name>Stefania Silvestri</name>
+                </respStmt>
+            </titleStmt>
+            <publicationStmt>
+                <publisher>The University of Manchester Library</publisher>
+                <date calendar="Gregorian">2017</date>
+                <pubPlace>
+                    <address>
+                        <addrLine>The John Rylands Library</addrLine>
+                        <street>150 Deansgate</street>
+                        <settlement>Manchester</settlement>
+                        <postCode>M3 3EH</postCode>
+                        <addrLine>
+                            <ref target="http://www.library.manchester.ac.uk/specialcollections/">The
+                                John Rylands Library </ref>
+                        </addrLine>
+                        <addrLine>
+                            <email>uml.special-collections@manchester.ac.uk</email>
+                        </addrLine>
+                    </address>
+                </pubPlace>
+                <idno>UkMaJRU-Gaster-Hebrew-MS-00086</idno>
+                <availability xml:id="displayImageRights" status="restricted">
+                    <p>Zooming image Â© University of Manchester Library, All rights reserved.</p>
+                </availability>
+                <availability xml:id="downloadImageRights" status="restricted">
+                    <licence>Images made available for download are licensed under a Creative
+                        Commons Attribution-NonCommercial 3.0 Unported License (CC BY-NC
+                        3.0)</licence>
+                </availability>
+                <availability xml:id="metadataRights" status="restricted">
+                    <licence>This metadata is licensed under a Creative Commons
+                        Attribution-NonCommercial 3.0 Unported License.</licence>
+                </availability>
+            </publicationStmt>
+
+
+            <sourceDesc>
+                <msDesc xml:id="UkMaJRU-Gaster-Hebrew-MS-00086" xml:lang="eng">
+
+                    <msIdentifier>
+                        <country>United Kingdom</country>
+                        <region type="county">Greater Manchester</region>
+                        <settlement>Manchester</settlement>
+                        <institution>The University of Manchester Library</institution>
+                        <repository>The John Rylands Library</repository>
+                        <collection>Hebrew Manuscripts</collection>
+
+
+                        <idno>Gaster Hebrew MS 86</idno>
+
+
+                        <altIdentifier type="former">
+                            <idno>Gaster 86</idno>
+                        </altIdentifier>
+                        <altIdentifier type="internal">
+                            <idno>IMHM F 15994</idno>
+                        </altIdentifier>
+                        <altIdentifier type="internal">
+                            <idno>Aleph Record 000183525</idno>
+                        </altIdentifier>
+                    </msIdentifier>
+
+                    <msContents>
+                        <summary>This manuscript contains the third part of the Hebrew Bible known
+                            as Writings (Ketuvim) with numerous marginal glosses in Hebrew and
+                            Judeo-Persian. It was copied by Jacob ben Obadiah ben Joseph ben Ezra in
+                            the school of Rabbi Mordechai in Kashan in Iran at the request of Rav
+                            Samuel ha-Levi. He completed his copy on Tuesday 2 July 1495. The biblical text
+                            is vocalised and accompanied by masorah. According to Moses Gaster, this
+                            is a unique manuscript showing the vocalisation and accentuation
+                            tradition of Ben Naphtali.</summary>
+
+                        <msItem>
+                            <title>Ketuvim</title>
+                            <title xml:lang="heb" type="alt">×›×ª×•×‘×™×</title>
+                            <title xml:lang="eng" type="alt">Writings (Hebrew Bible)</title>
+
+                            <textLang mainLang="heb" otherLangs="jpr arc">Hebrew with marginal
+                                glosses in Hebrew and Judeo-Persian</textLang>
+
+                        </msItem>
+                    </msContents>
+
+                    <physDesc>
+                        <objectDesc form="codex">
+                            <supportDesc material="paper">
+                                <support>
+                                    <material>Paper</material>
+                                </support>
+
+                                <extent>
+                                    <measure unit="pages" quantity="586">293 ff.
+                                        (ii+293+ii)</measure>
+                                    <dimensions type="leaf" unit="mm">
+                                        <height>256</height>
+                                        <width>182</width>
+                                    </dimensions>
+                                    <dimensions type="written" unit="mm">
+                                        <height scope="range">170-180</height>
+                                        <width scope="range">116-120</width>
+                                    </dimensions>
+                                    <dimensions type="ruled" unit="mm">
+                                        <height>170</height>
+                                        <width>115</width>
+                                    </dimensions>
+                                </extent>
+
+
+                                <foliation>
+                                    <p>Modern pencil foliation in Arabic numerals at the top outer
+                                        corner of side a of each folio.</p>
+                                </foliation>
+
+                                <collation>
+                                    <catchwords>Decorated diagonal catchwords placed at the bottom
+                                        left of side b of each folio.</catchwords>
+                                </collation>
+
+                                <condition>
+                                    <p>The codex was conserved (possibly at the beginning of the
+                                        20th century); reinforcing strips of paper were added both
+                                        in the gutter and at the outer edges of several folios. The
+                                        remaining folios have irregular edges.</p>
+                                </condition>
+                            </supportDesc>
+                            <layoutDesc>
+                                <layout columns="1" writtenLines="15 19" n="mistara">
+                                    <p>Long line of between 15 and 19 written lines. There is
+                                        ruling, but it is unclear whether this was created with a
+                                        mistara or by hand. Unruled marginal glosses.</p>
+                                </layout>
+                            </layoutDesc>
+
+                        </objectDesc>
+
+
+                        <handDesc>
+                            <handNote scope="major" script="persian" rend="semi-cursive" medium="ink">
+                                <desc>Persian semi-cursive script.</desc>
+                            </handNote>
+                            <handNote scope="minor" script="persian" rend="cursive" medium="ink">
+                                <desc>The Judeo-Persian glosses are in the same hand, in Persian
+                                    cursive script.</desc>
+                            </handNote>
+
+                        </handDesc>
+
+
+                        <bindingDesc>
+                            <p>Modern three-quarter brown leather binding with gold tooling on the
+                                spine reading "HAGIOGRAPHA / SAEC. XV. / WITH / PERSIAN
+                                GLOSSAR. / COD. HEBR. / GASTER 86".</p>
+                        </bindingDesc>
+                    </physDesc>
+
+                    <history>
+
+                        <origin>
+                            <p>Produced in <origPlace ref="1079129">Kashan</origPlace>, in modern
+                                <origPlace ref="7000231">Iran</origPlace> on <origDate calendar="seleucid" when="1495-07-02">Tuesday 1 Tammuz 1806 of the
+                                    Seleucid era [= 02-07-1495]</origDate>.</p>
+                        </origin>
+
+
+                        <acquisition>Acquired by <name type="institution" ref="http://viaf.org/viaf/152274029" role="his">
+                            <orgName type="display">The John Rylands
+                                Library</orgName>
+                        </name> from the heirs of <name type="person" ref="http://viaf.org/viaf/12428346" role="fmo">
+                            <persName type="display">Moses Gaster</persName>
+                            <persName type="standard">Gaster, Moses 1856-1939</persName>
+                        </name> in
+                            <date calendar="Gregorian" when="1954">1954</date>.</acquisition>
+                    </history>
+
+
+
+                    <additional>
+                        <adminInfo>
+                            <recordHist>
+                                <source>Description based on <persName>Alexander Samely</persName>'s
+                                    unpublished draft catalogue, revised and expanded by
+                                    <persName>Stefania Silvestri</persName> and <persName>Renate
+                                        Smithuis</persName>.</source>
+                                <change/>
+                            </recordHist>
+
+
+                            <availability status="restricted">
+                                <p>The manuscript is available for consultation by any accredited
+                                    reader.</p>
+                            </availability>
+                            <note/>
+                        </adminInfo>
+
+
+                        <listBibl>
+                            <bibl>
+                                <ref target="http://www.worldcat.org/oclc/7907984">Catalogue of an
+                                    Exhibition of Hebrew Manuscripts and Printed Books together with
+                                    Other Items of Jewish Interest, Manchester: The John Rylands
+                                    Library, 1958: 10, case 2, item 6.</ref>
+                            </bibl>
+                            <bibl>
+                                <ref target="http://www.worldcat.org/oclc/18071891">The Jewish
+                                    Heritage: Catalogue of an Exhibition held in the John Rylands
+                                    University Library of Manchester, January-April 1988: 5, case
+                                    three, item 1.</ref>
+                            </bibl>
+                            <bibl>
+                                <ref target="http://www.worldcat.org/oclc/85069649">M. Beit-AriÃ©
+                                    et al., Specimens of Mediaeval Hebrew Scripts, Vol. 1: Oriental
+                                    and Yemenite Scripts, Jerusalem: The Israel Academy of Sciences
+                                    and Humanities, 1987: no. 110.</ref>
+                            </bibl>
+                            <bibl>
+                                <ref target="http://www.worldcat.org/oclc/800855402">M. Gaster,
+                                    Studies and Texts in Folklore, Magic, Mediaeval Romance, Hebrew
+                                    Apocrypha and Samaritan Archaeology with 14 Plates and 5
+                                    Illustrations, London: Maggs Bros, 1925-1928, vol. II:
+                                    1295-1329, esp. 1322-1329.</ref>
+                            </bibl>
+                        </listBibl>
+                    </additional>
+
+
+                </msDesc>
+            </sourceDesc>
+        </fileDesc>
+
+        <encodingDesc>
+            <classDecl>
+                <taxonomy xml:id="LCSH">
+                    <bibl>
+                        <ref target="http://id.loc.gov/authorities/about.html#lcsh">Library of
+                            Congress Subject Headings</ref>
+                    </bibl>
+                </taxonomy>
+            </classDecl>
+        </encodingDesc>
+
+
+        <profileDesc>
+            <textClass>
+                <keywords scheme="#LCSH">
+                    <list>
+                        <item>
+                            <ref target="http://id.loc.gov/authorities/sh85013777">Bible. Old
+                                Testament--Versions, Jewish</ref>
+                        </item>
+                        <item>
+                            <ref target="http://id.loc.gov/authorities/sh85008893">Astrology</ref>
+                        </item>
+                        <item>
+                            <ref target="http://id.loc.gov/authorities/sh85009003">Astronomy</ref>
+                        </item>
+                        <item>
+                            <ref target="http://id.loc.gov/authorities/sh85013597">Bible
+                                Commentaries </ref>
+                        </item>
+                    </list>
+                </keywords>
+            </textClass>
+        </profileDesc>
+
+    </teiHeader>
+
+
+    <facsimile>
+        <graphic decls="#document-thumbnail"
+                 rend="portrait"
+                 url="MS-HEBREW-GASTER-00086-000-00268.jp2"/>
+        <surface n="Front board" xml:id="i1">
+            <graphic decls="#downloadImageRights #download"
+                     rend="portrait"
+                     height="6500px"
+                     width="5444px"
+                     url="MS-HEBREW-GASTER-00086-000-00268.jp2"/>
+
+        </surface>
+        <surface n="Front paste-down" xml:id="i2">
+            <graphic decls="#downloadImageRights #download"
+                     rend="portrait"
+                     height="6500px"
+                     width="4423px"
+                     url="MS-HEBREW-GASTER-00086-000-00269.jp2"/>
+
+        </surface>
+    </facsimile>
+    <text>
+        <body>
+            <div>
+                <pb n="Front board" xml:id="pb-Frontboard" facs="#i1"/>
+                <pb n="Front paste-down" xml:id="pb-Frontpaste-down" facs="#i2"/>
+            </div>
+        </body>
+    </text>
+
+</TEI>

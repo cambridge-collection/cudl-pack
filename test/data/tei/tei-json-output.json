@@ -1,29 +1,29 @@
 
          {
-            "descriptiveMetadata": 
+            "descriptiveMetadata":
                [
-            
+
          {
-            "abstract": 
+            "abstract":
                {
-               "display": false, 
-                  "displayForm": "<p style='text-align: justify;'>This manuscript contains the third part of the Hebrew Bible known as Writings (Ketuvim) with numerous marginal glosses in Hebrew and Judeo-Persian. It was copied by Jacob ben Obadiah ben Joseph ben Ezra in the school of Rabbi Mordechai in Kashan in Iran at the request of Rav Samuel ha-Levi. He completed his copy on Tuesday 2 July 1495. The order in which the Bible books appear is as follows: Psalms (folios <a href='' onclick='store.loadPage(8);return false;'>1b-72b</a>), Proverbs (folios <a href='' onclick='store.loadPage(151);return false;'>73a-101b</a>), Ruth (folios <a href='' onclick='store.loadPage(210);return false;'>102b-105b</a>), Song of Songs (folios <a href='' onclick='store.loadPage(216);return false;'>105b-109b</a>), Ecclesiastes (folios <a href='' onclick='store.loadPage(224);return false;'>109b-117a</a>), Lamentations (folios <a href='' onclick='store.loadPage(240);return false;'>117b-121b</a>), Esther (folios <a href='' onclick='store.loadPage(250);return false;'>122b-131a</a>), Daniel (folios <a href='' onclick='store.loadPage(268);return false;'>131b-150a</a>), Ezra (folios <a href='' onclick='store.loadPage(306);return false;'>150b-161b</a>), Nehemiah (folios <a href='' onclick='store.loadPage(327);return false;'>161b-179a</a>), Job (folios <a href='' onclick='store.loadPage(363);return false;'>179a-209b</a>), 1 and 2 Chronicles (folios <a href='' onclick='store.loadPage(224);return false;'>209b-290b</a>). The biblical text is vocalised and accompanied by masorah. According to Moses Gaster, this is a unique manuscript showing the vocalisation and accentuation tradition of Ben Naphtali.</p>", 
-                  "label": "Abstract", 
+               "display": false,
+                  "displayForm": "<p style='text-align: justify;'>This manuscript contains the third part of the Hebrew Bible known as Writings (Ketuvim) with numerous marginal glosses in Hebrew and Judeo-Persian. It was copied by Jacob ben Obadiah ben Joseph ben Ezra in the school of Rabbi Mordechai in Kashan in Iran at the request of Rav Samuel ha-Levi. He completed his copy on Tuesday 2 July 1495. The order in which the Bible books appear is as follows: Psalms (folios <a href='' onclick='store.loadPage(8);return false;'>1b-72b</a>), Proverbs (folios <a href='' onclick='store.loadPage(151);return false;'>73a-101b</a>), Ruth (folios <a href='' onclick='store.loadPage(210);return false;'>102b-105b</a>), Song of Songs (folios <a href='' onclick='store.loadPage(216);return false;'>105b-109b</a>), Ecclesiastes (folios <a href='' onclick='store.loadPage(224);return false;'>109b-117a</a>), Lamentations (folios <a href='' onclick='store.loadPage(240);return false;'>117b-121b</a>), Esther (folios <a href='' onclick='store.loadPage(250);return false;'>122b-131a</a>), Daniel (folios <a href='' onclick='store.loadPage(268);return false;'>131b-150a</a>), Ezra (folios <a href='' onclick='store.loadPage(306);return false;'>150b-161b</a>), Nehemiah (folios <a href='' onclick='store.loadPage(327);return false;'>161b-179a</a>), Job (folios <a href='' onclick='store.loadPage(363);return false;'>179a-209b</a>), 1 and 2 Chronicles (folios <a href='' onclick='store.loadPage(224);return false;'>209b-290b</a>). The biblical text is vocalised and accompanied by masorah. According to Moses Gaster, this is a unique manuscript showing the vocalisation and accentuation tradition of Ben Naphtali.</p>",
+                  "label": "Abstract",
                "seq": 11
                },
-            "scribes": 
+            "scribes":
                {
-               "display": true, 
-               "seq": 47, 
-                  "listDisplay": "unordered", 
-                  "label": "Scribe(s)", 
+               "display": true,
+               "seq": 47,
+                  "listDisplay": "unordered",
+                  "label": "Scribe(s)",
                "value": [
-            
+
          {
-               "display": true, 
-                  "displayForm": "Ya'aqov ben 'Ovadiah ben Yosef ben 'Ezrah", 
-               "seq": 48, 
-                  "linktype": "keyword search", 
+               "display": true,
+                  "displayForm": "Ya'aqov ben 'Ovadiah ben Yosef ben 'Ezrah",
+               "seq": 48,
+                  "linktype": "keyword search",
             "fullForm": "Ya'aqov ben 'Ovadiah ben Yosef ben 'Ezrah",
             "shortForm": "Jacob ben Obadiah ben Joseph ben Ezra",
             "type": "person",
@@ -31,18 +31,18 @@
          }
                ]
                },
-            "formerOwners": 
+            "formerOwners":
                {
-               "display": true, 
-               "seq": 130, 
-                  "label": "Former Owner(s)", 
+               "display": true,
+               "seq": 130,
+                  "label": "Former Owner(s)",
                "value": [
-            
+
          {
-               "display": true, 
-                  "displayForm": "Gaster, Moses 1856-1939", 
-               "seq": 131, 
-                  "linktype": "keyword search", 
+               "display": true,
+                  "displayForm": "Gaster, Moses 1856-1939",
+               "seq": 131,
+                  "linktype": "keyword search",
             "fullForm": "Gaster, Moses 1856-1939",
             "shortForm": "Moses Gaster",
             "type": "person",
@@ -50,49 +50,49 @@
          }
                ]
                },
-            "subjects": 
+            "subjects":
                {
-               "display": true, 
-               "seq": 22, 
-                  "listDisplay": "inline", 
-                  "label": "Subject(s)", 
+               "display": true,
+               "seq": 22,
+                  "listDisplay": "inline",
+                  "label": "Subject(s)",
                "value": [
-            
+
          {
-               "display": true, 
-                  "displayForm": "Bible. Old Testament--Versions, Jewish", 
-               "seq": 23, 
-                  "linktype": "keyword search", 
+               "display": true,
+                  "displayForm": "Bible. Old Testament--Versions, Jewish",
+               "seq": 23,
+                  "linktype": "keyword search",
             "fullForm": "Bible. Old Testament--Versions, Jewish",
             "authority": "Library of Congress Subject Headings",
             "authorityURI": "http://id.loc.gov/authorities/about.html#lcsh",
             "valueURI": "http://id.loc.gov/authorities/sh85013777"
          },
          {
-               "display": true, 
-                  "displayForm": "Astrology", 
-               "seq": 23, 
-                  "linktype": "keyword search", 
+               "display": true,
+                  "displayForm": "Astrology",
+               "seq": 23,
+                  "linktype": "keyword search",
             "fullForm": "Astrology",
             "authority": "Library of Congress Subject Headings",
             "authorityURI": "http://id.loc.gov/authorities/about.html#lcsh",
             "valueURI": "http://id.loc.gov/authorities/sh85008893"
          },
          {
-               "display": true, 
-                  "displayForm": "Astronomy", 
-               "seq": 23, 
-                  "linktype": "keyword search", 
+               "display": true,
+                  "displayForm": "Astronomy",
+               "seq": 23,
+                  "linktype": "keyword search",
             "fullForm": "Astronomy",
             "authority": "Library of Congress Subject Headings",
             "authorityURI": "http://id.loc.gov/authorities/about.html#lcsh",
             "valueURI": "http://id.loc.gov/authorities/sh85009003"
          },
          {
-               "display": true, 
-                  "displayForm": "Bible Commentaries", 
-               "seq": 23, 
-                  "linktype": "keyword search", 
+               "display": true,
+                  "displayForm": "Bible Commentaries",
+               "seq": 23,
+                  "linktype": "keyword search",
             "fullForm": "Bible Commentaries",
             "authority": "Library of Congress Subject Headings",
             "authorityURI": "http://id.loc.gov/authorities/about.html#lcsh",
@@ -100,94 +100,94 @@
          }
                ]
                },
-            "creations": 
+            "creations":
                {
-               "display": true, 
-               "seq": 65, 
+               "display": true,
+               "seq": 65,
                "value": [
-            
+
          {
             "type": "creation",
-            "places": 
+            "places":
                {
-               "display": true, 
-               "seq": 70, 
-                  "label": "Origin Place", 
+               "display": true,
+               "seq": 70,
+                  "label": "Origin Place",
                "value": [
-            
+
          {
-               "display": true, 
-                  "displayForm": "Kashan", 
-               "seq": 71, 
-                  "linktype": "keyword search", 
+               "display": true,
+                  "displayForm": "Kashan",
+               "seq": 71,
+                  "linktype": "keyword search",
             "shortForm": "Kashan"
          },
          {
-               "display": true, 
-                  "displayForm": "Iran", 
-               "seq": 71, 
-                  "linktype": "keyword search", 
+               "display": true,
+                  "displayForm": "Iran",
+               "seq": 71,
+                  "linktype": "keyword search",
             "shortForm": "Iran"
          }
                ]
                },
             "dateStart": "1495-07-02",
             "dateEnd": "1495-07-02",
-            "dateDisplay": 
+            "dateDisplay":
                {
-               "display": true, 
-                  "displayForm": "Tuesday 1 Tammuz 1806 of the Seleucid era [= 02-07-1495]", 
-                  "linktype": "keyword search", 
-                  "label": "Date of Creation", 
+               "display": true,
+                  "displayForm": "Tuesday 1 Tammuz 1806 of the Seleucid era [= 02-07-1495]",
+                  "linktype": "keyword search",
+                  "label": "Date of Creation",
                "seq": 79
                }
          }
                ]
                },
-            "acquisitions": 
+            "acquisitions":
                {
-               "display": true, 
-               "seq": 202, 
+               "display": true,
+               "seq": 202,
                "value": [
-            
+
          {
             "type": "acquisition",
             "dateStart": "1954",
             "dateEnd": "1954",
-            "dateDisplay": 
+            "dateDisplay":
                {
-               "display": true, 
-                  "displayForm": "1954", 
-                  "label": "Date of Acquisition", 
+               "display": true,
+                  "displayForm": "1954",
+                  "label": "Date of Acquisition",
                "seq": 207
                }
          }
                ]
                },
-            "physicalLocation": 
+            "physicalLocation":
                {
-               "display": true, 
-                  "displayForm": "The John Rylands Library", 
-                  "label": "Physical Location", 
+               "display": true,
+                  "displayForm": "The John Rylands Library",
+                  "label": "Physical Location",
                "seq": 4
                },
-            "shelfLocator": 
+            "shelfLocator":
                {
-               "display": true, 
-                  "displayForm": "Gaster Hebrew MS 86", 
-                  "label": "Classmark", 
+               "display": true,
+                  "displayForm": "Gaster Hebrew MS 86",
+                  "label": "Classmark",
                "seq": 5
                },
-            "altIdentifiers": 
+            "altIdentifiers":
                {
-               "display": true, 
-               "seq": 6, 
-                  "label": "Alternative Identifier(s)", 
+               "display": true,
+               "seq": 6,
+                  "label": "Alternative Identifier(s)",
                "value": [
-            
+
                {
-               "display": true, 
-                  "displayForm": "Gaster 86", 
+               "display": true,
+                  "displayForm": "Gaster 86",
                "seq": 7
                }
                ]
@@ -199,271 +199,271 @@
             "imageReproPageURL": "https://imagingservices.lib.cam.ac.uk/",
             "metadataRights": "This metadata is licensed under a Creative Commons Attribution-NonCommercial 3.0 Unported License.",
             "docAuthority": "",
-            "fundings": 
+            "fundings":
                {
-               "display": true, 
-               "seq": 208, 
-                  "label": "Funding", 
+               "display": true,
+               "seq": 208,
+                  "label": "Funding",
                "value": [
-            
+
                {
-               "display": true, 
-                  "displayForm": "", 
+               "display": true,
+                  "displayForm": "",
                "seq": 209
                }
                ]
                },
-            "form": 
+            "form":
                {
-               "display": true, 
-                  "displayForm": "Codex", 
-                  "label": "Format", 
+               "display": true,
+                  "displayForm": "Codex",
+                  "label": "Format",
                "seq": 178
                },
-            "material": 
+            "material":
                {
-               "display": true, 
-                  "displayForm": "Paper", 
-                  "label": "Material", 
+               "display": true,
+                  "displayForm": "Paper",
+                  "label": "Material",
                "seq": 177
                },
-            "extent": 
+            "extent":
                {
-               "display": true, 
-                  "displayForm": "293 ff. (ii+293+ii) Leaf height: 256 mm, width: 182 mm. Written height: 170-180 mm, width: 116-120 mm. Ruled height: 170 mm, width: 115 mm.", 
-                  "label": "Extent", 
+               "display": true,
+                  "displayForm": "293 ff. (ii+293+ii) Leaf height: 256 mm, width: 182 mm. Written height: 170-180 mm, width: 116-120 mm. Ruled height: 170 mm, width: 115 mm.",
+                  "label": "Extent",
                "seq": 173
                },
-            "foliation": 
+            "foliation":
                {
-               "display": true, 
-                  "displayForm": "<p><p>Modern pencil foliation in Arabic numerals at the top outer corner of side a of each folio.</p></p>", 
-                  "label": "Foliation", 
+               "display": true,
+                  "displayForm": "<p><p>Modern pencil foliation in Arabic numerals at the top outer corner of side a of each folio.</p></p>",
+                  "label": "Foliation",
                "seq": 189
                },
-            "collation": 
+            "collation":
                {
-               "display": true, 
-                  "displayForm": "Decorated diagonal catchwords placed at the bottom left of side b of each folio.", 
-                  "label": "Collation", 
+               "display": true,
+                  "displayForm": "Decorated diagonal catchwords placed at the bottom left of side b of each folio.",
+                  "label": "Collation",
                "seq": 174
                },
-            "conditions": 
+            "conditions":
                {
-               "display": true, 
-               "seq": 179, 
-                  "label": "Condition", 
+               "display": true,
+               "seq": 179,
+                  "label": "Condition",
                "value": [
-            
+
                {
-               "display": true, 
-                  "displayForm": "<p>The codex was conserved (possibly at the beginning of the 20th century); reinforcing strips of paper were added both in the gutter and at the outer edges of several folios. The remaining folios have irregular edges. Folio <a href='' onclick='store.loadPage(381);return false;'>188</a> is torn at the bottom, with some text loss.</p>", 
+               "display": true,
+                  "displayForm": "<p>The codex was conserved (possibly at the beginning of the 20th century); reinforcing strips of paper were added both in the gutter and at the outer edges of several folios. The remaining folios have irregular edges. Folio <a href='' onclick='store.loadPage(381);return false;'>188</a> is torn at the bottom, with some text loss.</p>",
                "seq": 180
                }
                ]
                },
-            "layouts": 
+            "layouts":
                {
-               "display": true, 
-               "seq": 190, 
-                  "label": "Layout", 
+               "display": true,
+               "seq": 190,
+                  "label": "Layout",
                "value": [
-            
+
                {
-               "display": true, 
-                  "displayForm": "<p>Long line of between 15 and 19 written lines. There is ruling, but it is unclear whether this was created with a mistara or by hand. Unruled marginal glosses.</p>", 
+               "display": true,
+                  "displayForm": "<p>Long line of between 15 and 19 written lines. There is ruling, but it is unclear whether this was created with a mistara or by hand. Unruled marginal glosses.</p>",
                "seq": 191
                }
                ]
                },
-            "scripts": 
+            "scripts":
                {
-               "display": true, 
-               "seq": 185, 
-                  "label": "Script", 
+               "display": true,
+               "seq": 185,
+                  "label": "Script",
                "value": [
-            
+
                {
-               "display": true, 
-                  "displayForm": "<div style='list-style-type: disc;'><div style='display: list-item; margin-left: 20px;'>Persian semi-cursive script.</div><div style='display: list-item; margin-left: 20px;'>The Judeo-Persian glosses are in the same hand, in Persian cursive script.</div></div>", 
+               "display": true,
+                  "displayForm": "<div style='list-style-type: disc;'><div style='display: list-item; margin-left: 20px;'>Persian semi-cursive script.</div><div style='display: list-item; margin-left: 20px;'>The Judeo-Persian glosses are in the same hand, in Persian cursive script.</div></div>",
                "seq": 186
                }
                ]
                },
-            "decorations": 
+            "decorations":
                {
-               "display": true, 
-               "seq": 192, 
-                  "label": "Decoration", 
+               "display": true,
+               "seq": 192,
+                  "label": "Decoration",
                "value": [
-            
+
                {
-               "display": true, 
-                  "displayForm": "<div>Folio <a href='' onclick='store.loadPage(39);return false;'>17a</a>: Marginal indication of parashah decorated in ink.<br />Folios <a href='' onclick='store.loadPage(228);return false;'>111b</a>, <a href='' onclick='store.loadPage(465);return false;'>230a</a>, <a href='' onclick='store.loadPage(484);return false;'>239b</a>, <a href='' onclick='store.loadPage(497);return false;'>246a</a>, <a href='' onclick='store.loadPage(504);return false;'>249b</a>, <a href='' onclick='store.loadPage(510);return false;'>252b</a>, <a href='' onclick='store.loadPage(516);return false;'>255b</a>, <a href='' onclick='store.loadPage(522);return false;'>258b</a>, <a href='' onclick='store.loadPage(540);return false;'>267b</a>, <a href='' onclick='store.loadPage(545);return false;'>270a</a>, <a href='' onclick='store.loadPage(560);return false;'>277b</a>, <a href='' onclick='store.loadPage(567);return false;'>281a</a>: Marginal indication of sedarim decorated in ink. <br />Folio <a href='' onclick='store.loadPage(88);return false;'>41b</a>: Red ink geometric design.<br />Folios <a href='' onclick='store.loadPage(183);return false;'>89a</a>, <a href='' onclick='store.loadPage(213);return false;'>104a</a>, <a href='' onclick='store.loadPage(220);return false;'>107b</a>, <a href='' onclick='store.loadPage(258);return false;'>126b</a>, <a href='' onclick='store.loadPage(393);return false;'>194a</a>: Black ink decoration that indicates the middle of the book.<br /></div><br />", 
+               "display": true,
+                  "displayForm": "<div>Folio <a href='' onclick='store.loadPage(39);return false;'>17a</a>: Marginal indication of parashah decorated in ink.<br />Folios <a href='' onclick='store.loadPage(228);return false;'>111b</a>, <a href='' onclick='store.loadPage(465);return false;'>230a</a>, <a href='' onclick='store.loadPage(484);return false;'>239b</a>, <a href='' onclick='store.loadPage(497);return false;'>246a</a>, <a href='' onclick='store.loadPage(504);return false;'>249b</a>, <a href='' onclick='store.loadPage(510);return false;'>252b</a>, <a href='' onclick='store.loadPage(516);return false;'>255b</a>, <a href='' onclick='store.loadPage(522);return false;'>258b</a>, <a href='' onclick='store.loadPage(540);return false;'>267b</a>, <a href='' onclick='store.loadPage(545);return false;'>270a</a>, <a href='' onclick='store.loadPage(560);return false;'>277b</a>, <a href='' onclick='store.loadPage(567);return false;'>281a</a>: Marginal indication of sedarim decorated in ink. <br />Folio <a href='' onclick='store.loadPage(88);return false;'>41b</a>: Red ink geometric design.<br />Folios <a href='' onclick='store.loadPage(183);return false;'>89a</a>, <a href='' onclick='store.loadPage(213);return false;'>104a</a>, <a href='' onclick='store.loadPage(220);return false;'>107b</a>, <a href='' onclick='store.loadPage(258);return false;'>126b</a>, <a href='' onclick='store.loadPage(393);return false;'>194a</a>: Black ink decoration that indicates the middle of the book.<br /></div><br />",
                "seq": 193
                }
                ]
                },
-            "additions": 
+            "additions":
                {
-               "display": true, 
-               "seq": 194, 
-                  "label": "Additions", 
+               "display": true,
+               "seq": 194,
+                  "label": "Additions",
                "value": [
-            
+
                {
-               "display": true, 
-                  "displayForm": "In later hands: <div style='list-style-type: disc;'><div style='display: list-item; margin-left: 20px;'>Folios <a href='' onclick='store.loadPage(136);return false;'>65b-66a</a>: Pen trial.</div><div style='display: list-item; margin-left: 20px;'>Folio <a href='' onclick='store.loadPage(145);return false;'>70a</a>: Erased addition.</div><div style='display: list-item; margin-left: 20px;'>Folios <a href='' onclick='store.loadPage(253);return false;'>124a-126b</a>: Small additions in the margins.</div><div style='display: list-item; margin-left: 20px;'>Folios <a href='' onclick='store.loadPage(586);return false;'>290b-293a</a>: Several texts in different hands and languages. According to Gaster they contain abstracts from Rashiâ€™s commentary to certain Psalms and folio 293a some aggadic matter referring to the kings of Judah.</div><div style='display: list-item; margin-left: 20px;'>Folio <a href='' onclick='store.loadPage(592);return false;'>293b</a>: list of zodiacal signs and of planets in Hebrew and Judeo-Persian.</div></div>", 
+               "display": true,
+                  "displayForm": "In later hands: <div style='list-style-type: disc;'><div style='display: list-item; margin-left: 20px;'>Folios <a href='' onclick='store.loadPage(136);return false;'>65b-66a</a>: Pen trial.</div><div style='display: list-item; margin-left: 20px;'>Folio <a href='' onclick='store.loadPage(145);return false;'>70a</a>: Erased addition.</div><div style='display: list-item; margin-left: 20px;'>Folios <a href='' onclick='store.loadPage(253);return false;'>124a-126b</a>: Small additions in the margins.</div><div style='display: list-item; margin-left: 20px;'>Folios <a href='' onclick='store.loadPage(586);return false;'>290b-293a</a>: Several texts in different hands and languages. According to Gaster they contain abstracts from Rashiâ€™s commentary to certain Psalms and folio 293a some aggadic matter referring to the kings of Judah.</div><div style='display: list-item; margin-left: 20px;'>Folio <a href='' onclick='store.loadPage(592);return false;'>293b</a>: list of zodiacal signs and of planets in Hebrew and Judeo-Persian.</div></div>",
                "seq": 195
                }
                ]
                },
-            "bindings": 
+            "bindings":
                {
-               "display": true, 
-               "seq": 181, 
-                  "label": "Binding", 
+               "display": true,
+               "seq": 181,
+                  "label": "Binding",
                "value": [
-            
+
                {
-               "display": true, 
-                  "displayForm": "<p>Modern three-quarter brown leather binding with gold tooling on the spine reading \"HAGIOGRAPHA / SAEC. XV. / WITH / PERSIAN GLOSSAR. / COD. HEBR. / GASTER 86\".</p>", 
+               "display": true,
+                  "displayForm": "<p>Modern three-quarter brown leather binding with gold tooling on the spine reading \"HAGIOGRAPHA / SAEC. XV. / WITH / PERSIAN GLOSSAR. / COD. HEBR. / GASTER 86\".</p>",
                "seq": 182
                }
                ]
                },
-            "provenances": 
+            "provenances":
                {
-               "display": true, 
-               "seq": 196, 
-                  "label": "Provenance", 
+               "display": true,
+               "seq": 196,
+                  "label": "Provenance",
                "value": [
-            
+
                {
-               "display": true, 
-                  "displayForm": "<div>Folio <a href='' onclick='store.loadPage(7);return false;'></a>1a: Several ownership marks in Hebrew, mentioning such names as Judah, Isaac, Ezra.<br />Folios <a href='' onclick='store.loadPage(7);return false;'>1a</a>, <a href='' onclick='store.loadPage(586);return false;'>290b</a> and <a href='' onclick='store.loadPage(587);return false;'>291a</a>: Owner's stamp in Hebrew.<br /></div><br />", 
+               "display": true,
+                  "displayForm": "<div>Folio <a href='' onclick='store.loadPage(7);return false;'></a>1a: Several ownership marks in Hebrew, mentioning such names as Judah, Isaac, Ezra.<br />Folios <a href='' onclick='store.loadPage(7);return false;'>1a</a>, <a href='' onclick='store.loadPage(586);return false;'>290b</a> and <a href='' onclick='store.loadPage(587);return false;'>291a</a>: Owner's stamp in Hebrew.<br /></div><br />",
                "seq": 197
                }
                ]
                },
-            "origins": 
+            "origins":
                {
-               "display": true, 
-               "seq": 198, 
-                  "label": "Origin", 
+               "display": true,
+               "seq": 198,
+                  "label": "Origin",
                "value": [
-            
+
                {
-               "display": true, 
-                  "displayForm": "<p>Produced in Kashan, in modern Iran on Tuesday 1 Tammuz 1806 of the Seleucid era [= 02-07-1495].</p>", 
+               "display": true,
+                  "displayForm": "<p>Produced in Kashan, in modern Iran on Tuesday 1 Tammuz 1806 of the Seleucid era [= 02-07-1495].</p>",
                "seq": 199
                }
                ]
                },
-            "acquisitionTexts": 
+            "acquisitionTexts":
                {
-               "display": true, 
-               "seq": 200, 
-                  "label": "Acquisition", 
+               "display": true,
+               "seq": 200,
+                  "label": "Acquisition",
                "value": [
-            
+
                {
-               "display": true, 
-                  "displayForm": "Acquired by The John Rylands Library from the heirs of Moses Gaster in 1954.", 
+               "display": true,
+                  "displayForm": "Acquired by The John Rylands Library from the heirs of Moses Gaster in 1954.",
                "seq": 201
                }
                ]
                },
-            "bibliographies": 
+            "bibliographies":
                {
-               "display": true, 
-               "seq": 214, 
-                  "label": "Bibliography", 
+               "display": true,
+               "seq": 214,
+                  "label": "Bibliography",
                "value": [
-            
+
                {
-               "display": true, 
-                  "displayForm": "<div style='list-style-type: disc;'><div style='display: list-item; margin-left: 20px;'><a target='_blank' class='externalLink' href='http://www.worldcat.org/oclc/7907984'>Catalogue of an Exhibition of Hebrew Manuscripts and Printed Books together with Other Items of Jewish Interest, Manchester: The John Rylands Library, 1958: 10, case 2, item 6.</a></div><div style='display: list-item; margin-left: 20px;'><a target='_blank' class='externalLink' href='http://www.worldcat.org/oclc/18071891'>The Jewish Heritage: Catalogue of an Exhibition held in the John Rylands University Library of Manchester, January-April 1988: 5, case three, item 1.</a></div><div style='display: list-item; margin-left: 20px;'><a target='_blank' class='externalLink' href='http://www.worldcat.org/oclc/85069649'>M. Beit-AriÃ© et al., Specimens of Mediaeval Hebrew Scripts, Vol. 1: Oriental and Yemenite Scripts, Jerusalem: The Israel Academy of Sciences and Humanities, 1987: no. 110.</a></div><div style='display: list-item; margin-left: 20px;'><a target='_blank' class='externalLink' href='http://www.worldcat.org/oclc/800855402'>M. Gaster, Studies and Texts in Folklore, Magic, Mediaeval Romance, Hebrew Apocrypha and Samaritan Archaeology with 14 Plates and 5 Illustrations, London: Maggs Bros, 1925-1928, vol. II: 1295-1329, esp. 1322-1329.</a></div></div><br />", 
+               "display": true,
+                  "displayForm": "<div style='list-style-type: disc;'><div style='display: list-item; margin-left: 20px;'><a target='_blank' class='externalLink' href='http://www.worldcat.org/oclc/7907984'>Catalogue of an Exhibition of Hebrew Manuscripts and Printed Books together with Other Items of Jewish Interest, Manchester: The John Rylands Library, 1958: 10, case 2, item 6.</a></div><div style='display: list-item; margin-left: 20px;'><a target='_blank' class='externalLink' href='http://www.worldcat.org/oclc/18071891'>The Jewish Heritage: Catalogue of an Exhibition held in the John Rylands University Library of Manchester, January-April 1988: 5, case three, item 1.</a></div><div style='display: list-item; margin-left: 20px;'><a target='_blank' class='externalLink' href='http://www.worldcat.org/oclc/85069649'>M. Beit-AriÃ© et al., Specimens of Mediaeval Hebrew Scripts, Vol. 1: Oriental and Yemenite Scripts, Jerusalem: The Israel Academy of Sciences and Humanities, 1987: no. 110.</a></div><div style='display: list-item; margin-left: 20px;'><a target='_blank' class='externalLink' href='http://www.worldcat.org/oclc/800855402'>M. Gaster, Studies and Texts in Folklore, Magic, Mediaeval Romance, Hebrew Apocrypha and Samaritan Archaeology with 14 Plates and 5 Illustrations, London: Maggs Bros, 1925-1928, vol. II: 1295-1329, esp. 1322-1329.</a></div></div><br />",
                "seq": 215
                }
                ]
                },
-            "dataSources": 
+            "dataSources":
                {
-               "display": true, 
-               "seq": 210, 
-                  "label": "Data Source(s)", 
+               "display": true,
+               "seq": 210,
+                  "label": "Data Source(s)",
                "value": [
-            
+
                {
-               "display": true, 
-                  "displayForm": "Description based on Alexander Samely's unpublished draft catalogue, revised and expanded by Stefania Silvestri and Renate Smithuis.", 
+               "display": true,
+                  "displayForm": "Description based on Alexander Samely's unpublished draft catalogue, revised and expanded by Stefania Silvestri and Renate Smithuis.",
                "seq": 211
                }
                ]
                },
             "ID": "ITEM-1",
-            "title": 
+            "title":
                {
-               "display": false, 
-                  "displayForm": "Ketuvim", 
-                  "label": "Title", 
+               "display": false,
+                  "displayForm": "Ketuvim",
+                  "label": "Title",
                "seq": 10
                },
-            "alternativeTitles": 
+            "alternativeTitles":
                {
-               "display": true, 
-               "seq": 16, 
-                  "label": "Alternative Title(s)", 
+               "display": true,
+               "seq": 16,
+                  "label": "Alternative Title(s)",
                "value": [
-            
+
                {
-               "display": true, 
-                  "displayForm": "×›×ª×•×‘×™×", 
+               "display": true,
+                  "displayForm": "×›×ª×•×‘×™×",
                "seq": 17
                },
                {
-               "display": true, 
-                  "displayForm": "Writings (Hebrew Bible)", 
+               "display": true,
+                  "displayForm": "Writings (Hebrew Bible)",
                "seq": 17
                }
                ]
                },
-            "languageCodes": 
+            "languageCodes":
                [
             "heb"
                ],
-            "languageStrings": 
+            "languageStrings":
                {
-               "display": true, 
-               "seq": 119, 
-                  "label": "Language(s)", 
+               "display": true,
+               "seq": 119,
+                  "label": "Language(s)",
                "value": [
-            
+
                {
-               "display": true, 
-                  "displayForm": "Hebrew with marginal glosses in Hebrew and Judeo-Persian", 
+               "display": true,
+                  "displayForm": "Hebrew with marginal glosses in Hebrew and Judeo-Persian",
                "seq": 120
                }
                ]
                },
-            "excerpts": 
+            "excerpts":
                {
-               "display": true, 
-                  "displayForm": "<div><b>Colophon:</b> Folio <a href='' onclick='store.loadPage(587);return false;'>291a</a>:× ×©×œ× ×–×” ×¡×¤×¨ ×\"×™ ×›×ª×•×‘×™× ×‘×¢×–×¨×ª ×©×“×™ ×©×•×›×Ÿ / ×‘×™×Ÿ ×›×¨×•×‘×™× ×‘×ª×œ××ª×” ×‘×©×‘× ×“×”×•× ×™×•× ×—×“ / ×œ×™×¨×— ×ª×ž×•×– ×‘×©× ×ª ××ª×ª\"×• ×œ×©×˜×¨×•×ª ×‘×ž××ª× / ×“×›××©××Ÿ ×©×‘×— ×œ××œ ××—×¨×•×Ÿ ×•×¨××©×•×Ÿ ×‘×‘×™×ª ×ž×“×¨×©×• / ×©×œ ×”×¨×‘ ×”×’×“×•×œ ×”×ž×¢×•×– ×”×ž×’×“×•×œ ×”×“×™×™×Ÿ ×”×“×¨×©×Ÿ ×–×¨×¢ / ××‘×¨×”× × ×™×Ÿ ×™×¦×—×・ × ×›×“ ×™×¢×・×‘ ×ž×¨×“×›×™ ×”×–×ž×Ÿ ×™×©×¨××œ / ×‘×™×ž×™×• ×œ× ××œ×ž×Ÿ ××•×¨ ×ž×–×¨×— ×©× ××•×”×‘×™×• ×™×¤×¨×— ×•×©× / ××™×‘×™×• ×™×ž×— ××•×¨ ×ž×¢×¨×‘ ×©×ž×© ×–×¨×¢×• ××œ ×™×¢×¨×‘ ×”×”×”×”\"×” / ×”×¨×‘ ×¨×³ ×”×©\"× ×”×œ×•×™ ×–×œ×”\"×” ×‘×ž×©×¨×ª ×©×œ ×”×—×›× / ×”× ×‘×•×Ÿ ×ž×œ× ×ž×¦×•×” ×›×¨×ž×•×Ÿ ×¢×ž×• ×‘×™×ž×™×• ×œ× / ××œ×ž×Ÿ ×‘×–×›×•×ª×• ×™×‘× ×” ×‘×™×ª ××¨×ž×•×Ÿ ×ž× ×” ×‘×¨ / ×ž× ×” × ×–×¨×™×– ×‘×ª×•×¨×” ×”×ž×”×™×¨ ×‘×”×œ×›×” ×”×¨×‘ / ×”×ž×ª×™×¨ ×›×œ ×・×©×” ×¡×•×¤×¨ ×ž×”×™×¨ ×‘×ª×•×¨×ª ×ž×©×” / ×”×¨×‘ ×¨×³ ×©×ž×•××œ ×”×œ×•×™ ×™×©\"×œ ×¢×œ ×™×“ ×”×¦×¢×™×¨ / ×”×¢× ×™ ×¢×¤×¨ ×¨×’×œ×™ ×›×œ ×–×¨×¢ ×™×©×•×¨×•×Ÿ <i class='delim' style='font-style:normal; color:red'>〚</i><i class='del' style='font-style:normal; text-decoration:line-through;' title='This text deleted'>×™×¢×・×‘</i><i class='delim' style='font-style:normal; color:red'>〛</i> / ×ž×ª×œ×ž×™×“×™×• ×™×¢×・×‘ ×‘×Ÿ ×”×—×¡×™×“ ×¢×•×‘×“×™×” / ×‘×Ÿ ×”×¦×“×™×・ ×”×ž×¨×•×—× ×ž×¨' ×”×¢× ×™×• ×™×•×¡×£ / ×‘×Ÿ ×¢×–×¨×” × ×¢×’\"× ×”×¨×—×ž×Ÿ ×™×©×™× / ××—×¨×™×ª×™ ×˜×•×‘ ×ž×¨××©×™×ª×™ ×œ×・×™×™× / ×•×”×™×” ×¨××©×™×ª×š ×ž×¦×¢×¨ ×•××—×¨×™×ª×š / ×™×©×’×” ×ž××“ ××•×™\"×¨ / ×ž×× ×›\"×—</div>", 
-                  "label": "Excerpts", 
+               "display": true,
+                  "displayForm": "<div><b>Colophon:</b> Folio <a href='' onclick='store.loadPage(587);return false;'>291a</a>:× ×©×œ× ×–×” ×¡×¤×¨ ×\"×™ ×›×ª×•×‘×™× ×‘×¢×–×¨×ª ×©×“×™ ×©×•×›×Ÿ / ×‘×™×Ÿ ×›×¨×•×‘×™× ×‘×ª×œ××ª×” ×‘×©×‘× ×“×”×•× ×™×•× ×—×“ / ×œ×™×¨×— ×ª×ž×•×– ×‘×©× ×ª ××ª×ª\"×• ×œ×©×˜×¨×•×ª ×‘×ž××ª× / ×“×›××©××Ÿ ×©×‘×— ×œ××œ ××—×¨×•×Ÿ ×•×¨××©×•×Ÿ ×‘×‘×™×ª ×ž×“×¨×©×• / ×©×œ ×”×¨×‘ ×”×’×“×•×œ ×”×ž×¢×•×– ×”×ž×’×“×•×œ ×”×“×™×™×Ÿ ×”×“×¨×©×Ÿ ×–×¨×¢ / ××‘×¨×”× × ×™×Ÿ ×™×¦×—×・ × ×›×“ ×™×¢×・×‘ ×ž×¨×“×›×™ ×”×–×ž×Ÿ ×™×©×¨××œ / ×‘×™×ž×™×• ×œ× ××œ×ž×Ÿ ××•×¨ ×ž×–×¨×— ×©× ××•×”×‘×™×• ×™×¤×¨×— ×•×©× / ××™×‘×™×• ×™×ž×— ××•×¨ ×ž×¢×¨×‘ ×©×ž×© ×–×¨×¢×• ××œ ×™×¢×¨×‘ ×”×”×”×”\"×” / ×”×¨×‘ ×¨×³ ×”×©\"× ×”×œ×•×™ ×–×œ×”\"×” ×‘×ž×©×¨×ª ×©×œ ×”×—×›× / ×”× ×‘×•×Ÿ ×ž×œ× ×ž×¦×•×” ×›×¨×ž×•×Ÿ ×¢×ž×• ×‘×™×ž×™×• ×œ× / ××œ×ž×Ÿ ×‘×–×›×•×ª×• ×™×‘× ×” ×‘×™×ª ××¨×ž×•×Ÿ ×ž× ×” ×‘×¨ / ×ž× ×” × ×–×¨×™×– ×‘×ª×•×¨×” ×”×ž×”×™×¨ ×‘×”×œ×›×” ×”×¨×‘ / ×”×ž×ª×™×¨ ×›×œ ×・×©×” ×¡×•×¤×¨ ×ž×”×™×¨ ×‘×ª×•×¨×ª ×ž×©×” / ×”×¨×‘ ×¨×³ ×©×ž×•××œ ×”×œ×•×™ ×™×©\"×œ ×¢×œ ×™×“ ×”×¦×¢×™×¨ / ×”×¢× ×™ ×¢×¤×¨ ×¨×’×œ×™ ×›×œ ×–×¨×¢ ×™×©×•×¨×•×Ÿ <i class='delim' style='font-style:normal; color:red'>〚</i><i class='del' style='font-style:normal; text-decoration:line-through;' title='This text deleted'>×™×¢×・×‘</i><i class='delim' style='font-style:normal; color:red'>〛</i> / ×ž×ª×œ×ž×™×“×™×• ×™×¢×・×‘ ×‘×Ÿ ×”×—×¡×™×“ ×¢×•×‘×“×™×” / ×‘×Ÿ ×”×¦×“×™×・ ×”×ž×¨×•×—× ×ž×¨' ×”×¢× ×™×• ×™×•×¡×£ / ×‘×Ÿ ×¢×–×¨×” × ×¢×’\"× ×”×¨×—×ž×Ÿ ×™×©×™× / ××—×¨×™×ª×™ ×˜×•×‘ ×ž×¨××©×™×ª×™ ×œ×・×™×™× / ×•×”×™×” ×¨××©×™×ª×š ×ž×¦×¢×¨ ×•××—×¨×™×ª×š / ×™×©×’×” ×ž××“ ××•×™\"×¨ / ×ž×× ×›\"×—</div>",
+                  "label": "Excerpts",
                "seq": 213
                },
-            "notes": 
+            "notes":
                {
-               "display": true, 
-               "seq": 164, 
-                  "label": "Note(s)", 
+               "display": true,
+               "seq": 164,
+                  "label": "Note(s)",
                "value": [
-            
+
                {
-               "display": true, 
-                  "displayForm": "With Tiberian vocalisation and masorah parva and magna (see for example folios <a href='' onclick='store.loadPage(69);return false;'>32a-37b</a>, <a href='' onclick='store.loadPage(84);return false;'>39b</a>). On folio <a href='' onclick='store.loadPage(7);return false;'>1a</a> the same main hand added a note which includes (1) the order of the prophets and writings according to Maimonides, which curiously is then not followed in the manuscript, and (2) a list of biblical accents introduced by the Persian heading (\"these are the names of the accents\"). Folio <a href='' onclick='store.loadPage(170);return false;'>82b</a>: The unvocalised text in the box (Proverbs 12.24-13.3) represents a copying mistake, as Proverbs 11.28 precedes and Proverbs 11.29 follows.", 
+               "display": true,
+                  "displayForm": "With Tiberian vocalisation and masorah parva and magna (see for example folios <a href='' onclick='store.loadPage(69);return false;'>32a-37b</a>, <a href='' onclick='store.loadPage(84);return false;'>39b</a>). On folio <a href='' onclick='store.loadPage(7);return false;'>1a</a> the same main hand added a note which includes (1) the order of the prophets and writings according to Maimonides, which curiously is then not followed in the manuscript, and (2) a list of biblical accents introduced by the Persian heading (\"these are the names of the accents\"). Folio <a href='' onclick='store.loadPage(170);return false;'>82b</a>: The unvocalised text in the box (Proverbs 12.24-13.3) represents a copying mistake, as Proverbs 11.28 precedes and Proverbs 11.29 follows.",
                "seq": 165
                }
                ]
@@ -473,9 +473,10 @@
             "numberOfPages": 602,
             "embeddable": true,
             "sourceData": "/v1/metadata/tei/tei-full-item/",
-            "pages": 
+            "textDirection": "R",
+            "pages":
                [
-            
+
          {
             "label": "Front board",
             "physID": "PHYS-1",
@@ -5895,9 +5896,9 @@
             "imageHeight": 2224
          }
                ],
-            "logicalStructures": 
+            "logicalStructures":
                [
-            
+
          {
             "descriptiveMetadataID": "ITEM-1",
             "label": "Ketuvim",
@@ -5908,9 +5909,9 @@
             "endPagePosition": 602
          }
                ],
-            "listItemPages": 
+            "listItemPages":
                [
-            
+
          {
             "fileID": "tei-full-item",
             "dmdID": "ITEM-1",
