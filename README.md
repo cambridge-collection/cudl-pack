@@ -30,3 +30,24 @@ Unhandled async errors crash Jest.  This can be problematic to debug.
 - The gyp build tool requires python 2.7.14 (or later python 2)
 - Requires jdk 11 (or at least newer than java 8)
 - Requires node 10 (due to java not working on node 12 yet). 
+
+##Releases
+
+In order to bump the pre-release version number you can use the command:
+ 
+`make bump-version-prerelease`
+
+and you need to manually push the tags created by doing the command: 
+
+`git push --tags`
+
+In order to upload the content to the S3 repository so it is ready to be used by 
+the loading data process you need to use the command: 
+
+`make publish`
+
+
+    
+    
+    
+    
