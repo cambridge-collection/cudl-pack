@@ -38,7 +38,7 @@
           "@id":"https://images.example.ac.uk/iiif/MS-HEBREW-GASTER-00086-000-00269"
         }
       },
-      "order":"1"
+      "order":"2"
     },
     {
       "label":"2r",
@@ -49,7 +49,7 @@
           "@id":"https://images.example.ac.uk/iiif/MS-HEBREW-GASTER-00086-000-00270"
         }
       },
-      "order":"1"
+      "order":"3"
     },
     {
       "label":"2v",
@@ -60,7 +60,7 @@
           "@id":"https://images.example.ac.uk/iiif/MS-HEBREW-GASTER-00086-000-00271"
         }
       },
-      "order":"1"
+      "order":"4"
     },
     {
       "label":"3r",
@@ -71,7 +71,7 @@
           "@id":"https://images.example.ac.uk/iiif/MS-HEBREW-GASTER-00086-000-00272"
         }
       },
-      "order":"1"
+      "order":"5"
     }
   ]
 }

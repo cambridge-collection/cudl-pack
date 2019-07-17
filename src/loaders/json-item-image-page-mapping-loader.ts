@@ -93,8 +93,9 @@ async function load(this: webpack.loader.LoaderContext, source: string): Promise
                         '}'),
                     order: order.toString(),
         };
+
         newPages.push(page);
-        order = order ++;
+        order++;
     }
 
     // Insert into the item package JSON and return.
