@@ -8,7 +8,10 @@ const rules: webpack.RuleSetRule[] = [{
     test: /\.json$/,
     use: {
         loader: path.resolve(__dirname, '../src/loaders/json-item-image-page-mapping-loader.ts'),
-        options: {imageServerPath: 'https://images.example.ac.uk/iiif/'},
+        options: {
+            imageServerPath: 'https://images.example.ac.uk/iiif/',
+            imageType: 'iiif',
+        },
     }}];
 
 test('test loading CSV file and generating page mapped item JSON', async () => {

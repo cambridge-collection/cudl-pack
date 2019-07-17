@@ -32,6 +32,7 @@ interface JSONPage {
 
 interface Options {
     imageServerPath: string;
+    imageType: string;
 }
 
 async function parseCSV(csvPath: string): Promise<object[]> {
@@ -45,13 +46,13 @@ async function parseCSV(csvPath: string): Promise<object[]> {
 
 async function load(this: webpack.loader.LoaderContext, source: string): Promise<string> {
 
-    // Get the image server path
+    // Get the image server path and image type parameters
     const options = loaderUtils.getOptions(this);
-    if (!options.imageServerPath) {
-        return Promise.reject('You need to set the imageServerPath parameter in your loader options.');
+    if (!options.imageServerPath || !options.imageType) {
+        return Promise.reject('You need to set the imageServerPath and imageType parameters in your loader options.');
     }
-
     const imageServerPath = (options as Options).imageServerPath;
+    const imageType = (options as Options).imageType;
 
     // Find the path to the CSV pagination in the JSON item data.
     const json = JSON.parse(source);
@@ -87,7 +88,7 @@ async function load(this: webpack.loader.LoaderContext, source: string): Promise
         const page: JSONPage = {
                     label: foliation,
                     resources:  JSON.parse('{ "@type": "cdl-page:image",' +
-                        '"imageType": "iiif",' +
+                        '"imageType": "' + imageType + '",' +
                         '"image": {"@id": "' + imageServerPath + filename + '"}' +
                         '}'),
                     order: order.toString(),
