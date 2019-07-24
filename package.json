@@ -48,6 +48,7 @@
     "webpack": "^4.0.0"
   },
   "dependencies": {
+    "@types/neat-csv": "^4.0.0",
     "ajv": "^6.10.0",
     "ajv-keywords": "^3.4.0",
     "clone": "^2.1.2",
@@ -63,6 +64,7 @@
     "jsonpointer": "^4.0.1",
     "loader-utils": "^1.2.3",
     "lodash": "^4.17.11",
+    "neat-csv": "^5.1.0",
     "object.fromentries": "^2.0.0",
     "schema-utils": "^1.0.0",
     "tapable": "^1.1.3",

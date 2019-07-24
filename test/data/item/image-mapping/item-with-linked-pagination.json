@@ -1,0 +1,23 @@
+{
+  "@type": "https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json",
+  "data": [
+    {
+      "@type": "cdl-data:link",
+      "@role": [
+        "cdl-role:pagination"
+      ],
+      "href": {
+        "@id": "linked-pagination.csv"
+      }
+    }
+  ],
+  "descriptions": {
+    "main": {
+      "coverage": {
+        "firstPage": true,
+        "lastPage": true
+      }
+    }
+  },
+  "pages": {}
+}
