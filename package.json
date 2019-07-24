@@ -48,6 +48,7 @@
     "webpack": "^4.0.0"
   },
   "dependencies": {
+    "@types/neat-csv": "^4.0.0",
     "ajv": "^6.10.0",
     "ajv-keywords": "^3.4.0",
     "clone": "^2.1.2",

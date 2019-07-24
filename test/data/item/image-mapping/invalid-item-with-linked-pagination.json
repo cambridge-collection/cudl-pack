@@ -7,7 +7,7 @@
         "cdl-role:pagination"
       ],
       "href": {
-        "@id": "linked-pagination.csv"
+        "@id": "invalid-linked-pagination.csv"
       }
     }
   ],

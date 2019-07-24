@@ -1,77 +1,89 @@
 {
-  "@type":"https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json",
-  "data":[
+  "@type": "https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json",
+  "data": [
     {
-      "@type":"cdl-data:link",
-      "@role":"cdl-role:pagination",
-      "href":{
-        "@id":"linked-pagination.csv"
+      "@type": "cdl-data:link",
+      "@role": [
+        "cdl-role:pagination"
+      ],
+      "href": {
+        "@id": "linked-pagination.csv"
       }
     }
   ],
-  "descriptions":{
-    "main":{
-      "coverage":{
-        "firstPage":true,
-        "lastPage":true
+  "descriptions": {
+    "main": {
+      "coverage": {
+        "firstPage": true,
+        "lastPage": true
       }
     }
   },
-  "pages":[
-    {
-      "label":"Front board",
-      "resources":{
-        "@type":"cdl-page:image",
-        "imageType":"iiif",
-        "image":{
-          "@id":"https://images.example.ac.uk/iiif/MS-HEBREW-GASTER-00086-000-00268"
+  "pages": {
+    "1": {
+      "label": "Front board",
+      "resources": [
+        {
+          "@type": "cdl-page:image",
+          "imageType": "iiif",
+          "image": {
+            "@id": "https://images.example.ac.uk/iiif/MS-HEBREW-GASTER-00086-000-00268"
+          }
         }
-      },
-      "order":"1"
+      ],
+      "order": "00001"
     },
-    {
-      "label":"1v",
-      "resources":{
-        "@type":"cdl-page:image",
-        "imageType":"iiif",
-        "image":{
-          "@id":"https://images.example.ac.uk/iiif/MS-HEBREW-GASTER-00086-000-00269"
+    "2": {
+      "label": "1v",
+      "resources": [
+        {
+          "@type": "cdl-page:image",
+          "imageType": "iiif",
+          "image": {
+            "@id": "https://images.example.ac.uk/iiif/MS-HEBREW-GASTER-00086-000-00269"
+          }
         }
-      },
-      "order":"2"
+      ],
+      "order": "00002"
     },
-    {
-      "label":"2r",
-      "resources":{
-        "@type":"cdl-page:image",
-        "imageType":"iiif",
-        "image":{
-          "@id":"https://images.example.ac.uk/iiif/MS-HEBREW-GASTER-00086-000-00270"
+    "3": {
+      "label": "2r",
+      "resources": [
+        {
+          "@type": "cdl-page:image",
+          "imageType": "iiif",
+          "image": {
+            "@id": "https://images.example.ac.uk/iiif/MS-HEBREW-GASTER-00086-000-00270"
+          }
         }
-      },
-      "order":"3"
+      ],
+      "order": "00003"
     },
-    {
-      "label":"2v",
-      "resources":{
-        "@type":"cdl-page:image",
-        "imageType":"iiif",
-        "image":{
-          "@id":"https://images.example.ac.uk/iiif/MS-HEBREW-GASTER-00086-000-00271"
+    "4": {
+      "label": "2v",
+      "resources": [
+        {
+          "@type": "cdl-page:image",
+          "imageType": "iiif",
+          "image": {
+            "@id": "https://images.example.ac.uk/iiif/MS-HEBREW-GASTER-00086-000-00271"
+          }
         }
-      },
-      "order":"4"
+      ],
+      "order": "00004"
     },
-    {
-      "label":"3r",
-      "resources":{
-        "@type":"cdl-page:image",
-        "imageType":"iiif",
-        "image":{
-          "@id":"https://images.example.ac.uk/iiif/MS-HEBREW-GASTER-00086-000-00272"
+    "5": {
+      "label": "3r",
+      "resources": [
+        {
+          "@type": "cdl-page:image",
+          "imageType": "iiif",
+          "image": {
+            "@id": "https://images.example.ac.uk/iiif/MS-HEBREW-GASTER-00086-000-00272"
+          }
         }
-      },
-      "order":"5"
+      ],
+      "order": "00005"
     }
-  ]
+  }
 }
