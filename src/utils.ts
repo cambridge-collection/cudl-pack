@@ -41,7 +41,7 @@ export function createAsyncLoaderFromMethod<T, Source extends string | Buffer = 
  */
 export function createAsyncLoader<Source extends string | Buffer = string>(load: AsyncLoadFunction<Source>):
         webpack.loader.Loader {
-    return createAsyncLoaderFromMethod((context, source, sourceMap) => load.call(context, source, sourceMap));
+    return createAsyncLoaderFromMethod<Source>((context, source, sourceMap) => load.call(context, source, sourceMap));
 }
 
 /**

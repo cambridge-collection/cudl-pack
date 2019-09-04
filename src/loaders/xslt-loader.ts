@@ -1,5 +1,5 @@
+import {execute} from '@lib.cam/xslt-nailgun';
 import Ajv from 'ajv';
-import {DocumentFile, XsltTransformer} from 'cudl-node-xslt-java-bridge';
 import loaderUtils from 'loader-utils';
 import {promisify} from 'util';
 import webpack from 'webpack';
@@ -17,26 +17,16 @@ const validateOptions = createValidator<Options>({
     name: 'options',
 });
 
-async function load(this: webpack.loader.LoaderContext, source: string): Promise<string> {
+async function load(this: webpack.loader.LoaderContext, source: string): Promise<Buffer> {
     const options: Options = validateOptions(loaderUtils.getOptions(this) || {});
 
     const stylesheetPath = await promisify(this.resolve.bind(this))(this.rootContext, options.stylesheet);
 
-    const transformer = new XsltTransformer(stylesheetPath);
-    const transform = promisify<DocumentFile, DocumentFile[]>(transformer.transform.bind(transformer));
-
-    const document: DocumentFile = {
-        base: this.context,
-        path: this.resourcePath,
-        contents: source,
-    };
-    const results: DocumentFile[] = await transform(document);
-
-    if(results.length !== 1) {
-        throw new Error(`Expected 1 result from XSLT transform but got ${results.length}`);
-    }
-    const [{contents}] = results;
-    return contents;
+    // TODO: Maintain an executor instance for the lifetime of a build. Using
+    //  execute() directly will share a JVM if multiple execute() calls overlap,
+    //  but they happen serially then a new JVM will be spawned for each call,
+    //  which will be slow.
+    return await execute(this.resourcePath, source, stylesheetPath);
 }
 
-export default createAsyncLoader(load);
+export default createAsyncLoader<string | Buffer>(load);

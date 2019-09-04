@@ -3,7 +3,7 @@
   "version": "0.0.0-alpha.7",
   "description": "Data package compiler for Cambridge Digital Library instances",
   "engines": {
-    "node": "<0.11"
+    "node": ">=8"
   },
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
@@ -48,16 +48,15 @@
     "webpack": "^4.0.0"
   },
   "dependencies": {
+    "@lib.cam/xslt-nailgun": "0.0.0-beta.3",
     "@types/neat-csv": "^4.0.0",
     "ajv": "^6.10.0",
     "ajv-keywords": "^3.4.0",
     "clone": "^2.1.2",
-    "cudl-node-xslt-java-bridge": "https://s3-eu-west-1.amazonaws.com/cudl-artefacts/projects/cudl-packaging/dist/cudl-node-xslt-java-bridge-1.1.0-beta.1.tgz",
     "cudl-schema-internal-json": "https://s3-eu-west-1.amazonaws.com/cudl-artefacts/projects/cudl-packaging/dist/cudl-schema-internal-json-1.0.0-alpha.8.tgz",
     "cudl-schema-package-json": "https://s3-eu-west-1.amazonaws.com/cudl-artefacts/projects/cudl-packaging/dist/cudl-schema-package-json-1.0.0-alpha.10.tgz",
     "fast-json-patch": "^2.1.0",
     "file-url": "^3.0.0",
-    "java": "^0.11.0",
     "json-parse-better-errors": "^1.0.2",
     "json5": "^2.1.0",
     "jsonpath": "^1.0.1",
