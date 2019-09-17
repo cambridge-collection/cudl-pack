@@ -50,5 +50,5 @@ test('XSLT knows document location', async () => {
     const stats = await runXsltLoader({inputPath, stylesheetPath: './data/xslt/document-location.xsl'});
     const module = stats.toJson().modules[0];
     expect(JSON.parse(module.source)).toEqualXML(`\
-<?xml version="1.0" encoding="UTF-8"?><location>${inputPath}</location>`);
+<?xml version="1.0" encoding="UTF-8"?><location>file://${inputPath}</location>`);
 });

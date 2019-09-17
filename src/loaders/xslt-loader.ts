@@ -26,7 +26,7 @@ async function load(this: webpack.loader.LoaderContext, source: string): Promise
     // The JVM which execute() uses to run XSLT is kept alive for a short time between calls, so it shouldn't be
     // necessary to share an XSLTExecutor instance across loader invocations.
     return await execute({
-        systemIdentifier: this.resourcePath,
+        systemIdentifier: new URL(this.resourcePath, 'file://').toString(),
         xml: source,
         xsltPath: stylesheetPath,
     });
