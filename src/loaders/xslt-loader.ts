@@ -1,6 +1,7 @@
 import {execute} from '@lib.cam/xslt-nailgun';
 import Ajv from 'ajv';
 import loaderUtils from 'loader-utils';
+import {URL} from 'url';
 import {promisify} from 'util';
 import webpack from 'webpack';
 import {createValidator} from '../schemas';
@@ -22,11 +23,13 @@ async function load(this: webpack.loader.LoaderContext, source: string): Promise
 
     const stylesheetPath = await promisify(this.resolve.bind(this))(this.rootContext, options.stylesheet);
 
-    // TODO: Maintain an executor instance for the lifetime of a build. Using
-    //  execute() directly will share a JVM if multiple execute() calls overlap,
-    //  but they happen serially then a new JVM will be spawned for each call,
-    //  which will be slow.
-    return await execute(this.resourcePath, source, stylesheetPath);
+    // The JVM which execute() uses to run XSLT is kept alive for a short time between calls, so it shouldn't be
+    // necessary to share an XSLTExecutor instance across loader invocations.
+    return await execute({
+        systemIdentifier: this.resourcePath,
+        xml: source,
+        xsltPath: stylesheetPath,
+    });
 }
 
 export default createAsyncLoader<string | Buffer>(load);
