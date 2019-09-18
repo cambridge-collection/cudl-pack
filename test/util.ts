@@ -4,7 +4,9 @@ import fs from 'fs';
 import json5 from 'json5';
 import {join, resolve} from 'path';
 import url from 'url';
+import util from 'util';
 import {promisify} from 'util';
+import {isNotUndefined} from '../src/utils';
 
 /**
  * Return the contents of a file as bytes.
@@ -150,3 +152,78 @@ type ErrorMessageMatcher = SubstringErrorMessageMatcher | ExactErrorMessageMatch
 interface RegexErrorMessageMatcher { regex: string; }
 interface ExactErrorMessageMatcher { exact: string; }
 interface SubstringErrorMessageMatcher { contains: string; }
+
+export function ensure<A, B extends A>(value: A, predicate: (value: A) => value is B): B {
+    if(predicate(value)) {
+        return value;
+    }
+    throw new Error(`predicate not satisfied; value: ${util.inspect(value)}`);
+}
+
+/**
+ * Throw an error if value is undefined, otherwise return it.
+ */
+export function ensureDefined<A>(value?: A): A {
+    return ensure(value, isNotUndefined);
+}
+
+type NotUndefined<A> = A extends undefined ? never : A;
+
+type EnsureDefinedWrapper<T> = {
+    [P in keyof T]-?:
+        NotUndefined<T[P]> extends object ? EnsureDefinedWrapper<T[P]> :
+        NotUndefined<T[P]>;
+} & {unwrap: () => NotUndefined<T>};
+
+type Property = string | number | symbol;
+
+function renderPath(path: Property[]): string {
+    return path.reduce<string>((rendered, p) => rendered + renderPathProperty(p), '');
+}
+
+function renderPathProperty(property: Property): string {
+    return typeof property === 'string' && /^\w+$/.test(property) ? `.${property}` : `[${String(property)}]`;
+}
+
+/**
+ * Wrap an object with a proxy which acts like calling ensureDefined() on each
+ * property access. i.e. accessing a property with an undefined value will
+ * immediately fail, rather than later when something attempts to do something
+ * with the undefined value.
+ *
+ * The returned wrapper has all the properties of the original object, plus an
+ * unwrap() method to obtain the unwrapped object. Properties which resolve to
+ * non-object values return values directly.
+ */
+function wrapEnsureDefined<A>(value?: A, path?: Property | Property[]):
+    A extends object ? EnsureDefinedWrapper<A> : NotUndefined<A> {
+
+    const _path = Array.isArray(path) ? path : path === undefined ? [] : [path];
+
+    if(value === undefined)
+        throw new Error(`value${renderPath(_path)} is undefined`);
+
+    if(value === null ||
+        typeof value === 'string' ||
+        typeof value === 'boolean' ||
+        typeof value === 'number' ||
+        typeof value === 'bigint' ||
+        typeof value === 'symbol') {
+        return value as any;
+    }
+
+    return new Proxy(value as any, {
+        get(target: object, p: string | number | symbol, receiver: any): any {
+            if(p === 'unwrap') {
+                return () => value;
+            }
+            const next = Reflect.get(target, p, receiver);
+            if(typeof next === 'function') {
+                return next.bind(target);
+            }
+            return wrapEnsureDefined(next, _path.concat(p));
+        },
+    }) as any;
+}
+
+ensureDefined.wrap = wrapEnsureDefined;
