@@ -3,7 +3,7 @@ import webpack from 'webpack';
 import {generateItemJson, parseItemJson} from '../src/item';
 import {Item} from '../src/item-types';
 import compiler from './compiler';
-import {readPathAsString} from './util';
+import {ensureDefined, readPathAsString} from './util';
 
 const rules: webpack.RuleSetRule[] = [{
     type: 'json',
@@ -19,7 +19,7 @@ const rules: webpack.RuleSetRule[] = [{
 test('test loading CSV file and generating page mapped item JSON', async () => {
 
     const stats = await compiler('./data/item/image-mapping/item-with-linked-pagination.json', rules);
-    const module = stats.toJson().modules[0];
+    const module = ensureDefined.wrap(stats.toJson()).modules[0];
 
     // validate the input against item schema
     const dataInput: string = await readPathAsString('./data/item/image-mapping/item-with-linked-pagination.json');

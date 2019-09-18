@@ -1,6 +1,7 @@
 import path from 'path';
 import webpack from 'webpack';
 import compiler from './compiler';
+import {ensureDefined} from './util';
 
 const xmlLoaderRules: webpack.RuleSetRule[] = [{
     type: 'json',
@@ -12,7 +13,7 @@ const xmlLoaderRules: webpack.RuleSetRule[] = [{
 
 test('dl-dataset-xml-loader', async () => {
     const stats = await compiler('./data/example.dl-dataset.xml', xmlLoaderRules);
-    const output = stats.toJson().modules[0].source;
+    const output = ensureDefined.wrap(stats.toJson()).modules[0].source;
 
     expect(JSON.parse(output)).toEqual({
         '@type': 'https://schemas.cudl.lib.cam.ac.uk/package/v1/dl-dataset.json',

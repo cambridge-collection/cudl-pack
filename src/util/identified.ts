@@ -16,4 +16,4 @@ function index<T>(identified: Array<Identified<T>>): {[key: string]: T} {
 }
 identify.index = index;
 
-export type Identified<T> = { [identify.id]: string } & { [K in keyof T]: T[K] };
+export type Identified<T> = { [identifiedID]: string } & { [K in keyof T]: T[K] };

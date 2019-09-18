@@ -1,7 +1,9 @@
 import fp from 'lodash/fp';
 import path from 'path';
 import webpack from 'webpack';
+import {isNotUndefined} from '../src/utils';
 import compiler from './compiler';
+import {ensure, ensureDefined} from './util';
 
 const extractToFileLoaders: webpack.RuleSetUseItem[] = [
     path.resolve(__dirname, '../src/loaders/json-wrap-loader.ts?insertionPoint=/@id'),
@@ -50,10 +52,11 @@ const jsonLoaderRules: webpack.RuleSetRule[] = [
 
 test('collection references are resolved', async () => {
     const stats = await compiler('./data/collections/kitchen-sink.collection.json', jsonLoaderRules);
-    const modules = stats.toJson().modules;
+    const modules = stats.toJson().modules || [];
 
-    const kitchenSinkModule = modules[0];
+    const kitchenSinkModule = ensureDefined.wrap(modules)[0];
     expect(kitchenSinkModule.name).toEqual('./data/collections/kitchen-sink.collection.json');
+    expect(typeof kitchenSinkModule.source).toBe('string');
     const kitchenSink = JSON.parse(kitchenSinkModule.source);
 
     // This is the loaded module
@@ -65,7 +68,7 @@ test('collection references are resolved', async () => {
         .toEqual({'@id': 'bundled/data/collections/referenced-modules/mock.item.json'});
 
     expect(fp.pipe(
-        fp.map((mod: {name: string, source: string}) => ({name: mod.name, source: mod.source})),
+        fp.map((mod: {name: string, source?: string}) => ({name: mod.name, source: mod.source})),
         fp.sortBy(['name']),
     )(modules.slice(1))).toEqual([
         {name: './data/collections/referenced-modules/from-nested-collection.item.json',

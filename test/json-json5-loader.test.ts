@@ -5,6 +5,7 @@ import webpack from 'webpack';
 
 import {default as loader} from '../src/loaders/json-json5-loader';
 import compiler from './compiler';
+import {ensureDefined} from './util';
 
 const decodedExampleJson5 = {
     unquoted: 'and you can quote me on that',
@@ -34,7 +35,7 @@ test('webpack loads json5 to json with loader ', async () => {
     }];
 
     const stats = await compiler('./data/json5/example.json5', rules);
-    const module = stats.toJson().modules[0];
+    const module = ensureDefined.wrap(stats.toJson()).modules[0];
 
     expect(stats.compilation.modules[0].type).toEqual('json');
     expect(JSON.parse(module.source)).toEqual(decodedExampleJson5);

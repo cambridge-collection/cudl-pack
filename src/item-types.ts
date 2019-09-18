@@ -46,7 +46,7 @@ export function isLinkItemData(data: ItemData, ns: Namespace): data is LinkItemD
 export type PropertiesItemData = ItemData | ItemProperties;
 
 export interface ItemResource extends TypeBearer {
-    [key: string]: unknown;
+    [key: string]: any;
 }
 
 export interface ImageItemResource extends TypeBearer {

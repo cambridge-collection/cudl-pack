@@ -12,7 +12,7 @@ import {
     ResolvedReference,
 } from '../src/loaders/json-dependencies-loader';
 import compiler from './compiler';
-import {readPathAsString} from './util';
+import {ensureDefined, readPathAsString} from './util';
 
 test('references are replaced by resolved JSON objects', async () => {
     const rules = [{
@@ -23,7 +23,7 @@ test('references are replaced by resolved JSON objects', async () => {
     }];
 
     const stats = await compiler('./data/references/a', rules);
-    const module = stats.toJson().modules[0];
+    const module = ensureDefined.wrap(stats.toJson()).modules[0];
 
     expect(stats.compilation.modules[0].type).toEqual('json');
 
@@ -54,7 +54,7 @@ test('reference pattern can be specified via options', async () => {
     }];
 
     const stats = await compiler('./data/references/alternate-syntax', rules);
-    const module = stats.toJson().modules[0];
+    const module = ensureDefined.wrap(stats.toJson()).modules[0];
 
     expect(stats.compilation.modules[0].type).toEqual('json');
 
@@ -91,7 +91,7 @@ test('a user-provided function can enumerate references', async () => {
     }];
 
     const stats = await compiler('./data/references/alternate-syntax', rules);
-    const module = stats.toJson().modules[0];
+    const module = ensureDefined.wrap(stats.toJson()).modules[0];
 
     expect(stats.compilation.modules[0].type).toEqual('json');
 
@@ -110,7 +110,7 @@ test('references in arrays are replaced by resolved JSON objects', async () => {
     }];
 
     const stats = await compiler('./data/references/ref-list', rules);
-    const module = stats.toJson().modules[0];
+    const module = ensureDefined.wrap(stats.toJson()).modules[0];
 
     expect(stats.compilation.modules[0].type).toEqual('json');
 
@@ -154,7 +154,7 @@ test('references are replaced by resolved JSON strings', async () => {
     ];
 
     const stats = await compiler('./data/references/json-pointing-to-non-json', rules);
-    const module = stats.toJson().modules[0];
+    const module = ensureDefined.wrap(stats.toJson()).modules[0];
 
     expect(stats.compilation.modules[0].type).toEqual('json');
 
@@ -213,7 +213,7 @@ test('references to ignored dependencies are left as-is', async () => {
     };
 
     const stats = await compiler(config);
-    const module = stats.toJson().modules[0];
+    const module = ensureDefined.wrap(stats.toJson()).modules[0];
 
     expect(stats.compilation.modules[0].type).toEqual('json');
     expect(JSON.parse(module.source)).toEqual({
@@ -362,7 +362,7 @@ test('plugins can control loader behaviour', async () => {
             }],
         },
     });
-    const module = stats.toJson().modules[0];
+    const module = ensureDefined.wrap(stats.toJson()).modules[0];
 
     // Specific formatting from hooks.dump is preserved
     expect(module.source).toBe(' {"foo": [456]} ');

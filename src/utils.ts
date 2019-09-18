@@ -65,7 +65,7 @@ export function isNotUndefined<T>(x: T | undefined): x is T {
 }
 
 export function enumMembers<T>(_enum: T): Set<keyof T> {
-    const props = _enum as {[key: string]: unknown};
+    const props = _enum as {[key: string]: any};
     return new Set(Object.keys(props)
         .filter(k => typeof props[k] === 'number') as Array<keyof T>);
 }

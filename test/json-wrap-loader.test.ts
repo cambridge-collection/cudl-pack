@@ -3,6 +3,7 @@ import webpack from 'webpack';
 import compiler from './compiler';
 
 import loader from '../src/loaders/json-wrap-loader';
+import {ensureDefined} from './util';
 
 test.each([
     ['?insertionPoint=/foo', 123, {foo: 123}],
@@ -32,7 +33,7 @@ test.each([
     }];
 
     const stats = await compiler('./data/text.txt', rules);
-    const module = stats.toJson().modules[0];
+    const module = ensureDefined.wrap(stats.toJson()).modules[0];
 
     expect(stats.compilation.modules[0].type).toEqual('json');
     expect(JSON.parse(module.source)).toEqual(expected);

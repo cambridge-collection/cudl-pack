@@ -2,6 +2,7 @@ import path from 'path';
 import webpack from 'webpack';
 import {Options} from '../src/loaders/json-format-loader';
 import compiler from './compiler';
+import {ensureDefined} from './util';
 
 const noIndent = '{"thisIs":"c"}';
 const indent2 = `\
@@ -41,6 +42,6 @@ test.each<[string, Options | undefined, string]>([
     }];
 
     const stats = await compiler('./data/references/c.json', rules);
-    const module = stats.toJson().modules[0];
+    const module = ensureDefined.wrap(stats.toJson()).modules[0];
     expect(module.source).toBe(expectedJson);
 });

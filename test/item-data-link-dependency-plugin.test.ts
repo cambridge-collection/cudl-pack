@@ -3,7 +3,7 @@ import webpack from 'webpack';
 import {ItemDataLinkDependencyPlugin} from '../src/loaders/item-data-link-dependency-plugin';
 import {CDLRole} from '../src/uris';
 import compiler from './compiler';
-import {readPathAsString} from './util';
+import {ensureDefined, readPathAsString} from './util';
 
 test('item data links are handled specially by ItemDataLinkDependencyPlugin', async () => {
     // Here we load the data.json dependency linked from item.json in two ways based on @role values.
@@ -29,7 +29,7 @@ test('item data links are handled specially by ItemDataLinkDependencyPlugin', as
             use: '../src/loaders/json-wrap-loader.ts?{insertionPoint: "/data", template: {handledBy: "b"}}'},
     ];
 
-    const stats = (await compiler(item, rules)).toJson();
+    const stats = ensureDefined.wrap((await compiler(item, rules)).toJson());
     const [mainModule, dataA, dataB] = [
         stats.modules.filter((m: any) => m.name === item)[0],
         stats.modules.filter((m: any) => m.name === `${dir}/data.json?a`)[0],

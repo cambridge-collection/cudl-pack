@@ -1,4 +1,4 @@
-import jsonpatch from 'fast-json-patch';
+import {applyPatch, Operation} from 'fast-json-patch';
 import _fileUrl from 'file-url';
 import fs from 'fs';
 import json5 from 'json5';
@@ -115,10 +115,10 @@ export class NegativeSchemaTestCase {
 
     public readonly testcasePath: string;
     public readonly baseJSONPath: string;
-    public readonly patch: jsonpatch.Operation[];
+    public readonly patch: Operation[];
     public readonly errorMatchers: ErrorMessageMatcher[];
 
-    constructor(testcasePath: string, baseJSONPath: string, patch: jsonpatch.Operation[],
+    constructor(testcasePath: string, baseJSONPath: string, patch: Operation[],
                 errorMatchers: ErrorMessageMatcher[]) {
         this.testcasePath = testcasePath;
         this.baseJSONPath = baseJSONPath;
@@ -138,13 +138,13 @@ export class NegativeSchemaTestCase {
 
     public getPatchedJSON(): Promise<object> {
         return this.readBaseJSON()
-            .then((baseJSON) => jsonpatch.applyPatch(baseJSON, this.patch).newDocument);
+            .then((baseJSON) => applyPatch(baseJSON, this.patch).newDocument);
     }
 }
 
 interface NegativeSchemaTestcaseJSON {
     base: string;
-    patch: jsonpatch.Operation[];
+    patch: Operation[];
     expectedErrors?: string | string[] | ErrorMessageMatcher | ErrorMessageMatcher[];
 }
 

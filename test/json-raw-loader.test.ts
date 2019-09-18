@@ -1,6 +1,7 @@
 import path from 'path';
 import webpack from 'webpack';
 import compiler from './compiler';
+import {ensureDefined} from './util';
 
 test('loader integration', async () => {
     const rules: webpack.RuleSetRule[] = [{
@@ -10,7 +11,7 @@ test('loader integration', async () => {
     }];
 
     const stats = await compiler('./data/text.txt', rules);
-    const module = stats.toJson().modules[0];
+    const module = ensureDefined.wrap(stats.toJson()).modules[0];
 
     expect(stats.compilation.modules[0].type).toEqual('json');
     expect(JSON.parse(module.source)).toEqual('Text\nfile.\n');
