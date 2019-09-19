@@ -146,17 +146,17 @@ Translates an XML representation of a Package Item into Package Item JSON.
     </xsl:template>
 
     <!-- The resolve-qnames mode generates all QNames used by type and role attribute values through the document.  -->
-    <xsl:template mode="resolve-qnames" match="node()"/>
-    <xsl:template mode="resolve-qnames" match="element()">
+    <xsl:template mode="resolve-qnames" match="node()" priority="0"/>
+    <xsl:template mode="resolve-qnames" match="element()" priority="1">
         <xsl:apply-templates select="element()" mode="#current"/>
     </xsl:template>
 
-    <xsl:template mode="resolve-qnames" match="*[@type]">
+    <xsl:template mode="resolve-qnames" match="*[@type]" priority="2">
         <xsl:copy-of select="cdl:curie-as-qname(@type, .)"/>
         <xsl:next-match/>
     </xsl:template>
 
-    <xsl:template mode="resolve-qnames" match="*[@role]">
+    <xsl:template mode="resolve-qnames" match="*[@role]" priority="2">
         <xsl:copy-of select="for $role in fn:tokenize(fn:normalize-space(@role), ' ')
                                return cdl:curie-as-qname($role, .)"/>
         <xsl:next-match/>
@@ -202,7 +202,7 @@ Translates an XML representation of a Package Item into Package Item JSON.
         <xsl:copy-of select="error($item-error, 'Unexpected content in cdl-data:properties &lt;data&gt;: ' || .)"/>
     </xsl:template>
 
-    <xsl:template mode="item-data:properties" match="/item/data/(array|string|number|true|false)">
+    <xsl:template mode="item-data:properties" match="/item/data/(array|string|number|child::true|child::false)">  <!-- child::true instead of true to avoid triggering SXWN9000 -->
         <xsl:map-entry key="cdl:require-attribute(., 'name')">
             <xsl:next-match/>
         </xsl:map-entry>
