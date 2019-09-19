@@ -1,29 +1,7 @@
 import 'jest-xml-matcher';
 import * as path from 'path';
-import webpack from 'webpack';
-import compiler from '../compiler';
 import {ensureDefined, readPathAsString} from '../util';
-
-interface Options {
-    stylesheetPath: string;
-    inputPath?: string;
-    postLoaders?: webpack.RuleSetUseItem[];
-}
-function runXsltLoader({stylesheetPath, inputPath, postLoaders}: Options) {
-    inputPath = inputPath || './data/xslt/data.xml';
-    postLoaders = postLoaders || ['../src/loaders/json-raw-loader.ts'];
-
-    return compiler(inputPath, [{
-        type: 'json',
-        test: /\.xml$/,
-        use: postLoaders.concat([
-            {
-                loader: '../src/loaders/xslt-loader.ts',
-                options: {stylesheet: stylesheetPath},
-            },
-        ]),
-    }]);
-}
+import {runXsltLoader} from '../xslt-loader.test';
 
 test('item-manchester-tei.xsl converts TEI to package item XML representation', async () => {
     const stats = await runXsltLoader({
