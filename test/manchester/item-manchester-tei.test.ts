@@ -2,7 +2,7 @@ import 'jest-xml-matcher';
 import * as path from 'path';
 import webpack from 'webpack';
 import compiler from '../compiler';
-import {readPathAsString} from '../util';
+import {ensureDefined, readPathAsString} from '../util';
 
 interface Options {
     stylesheetPath: string;
@@ -30,7 +30,7 @@ test('item-manchester-tei.xsl converts TEI to package item XML representation', 
         stylesheetPath: path.resolve(__dirname, '../../src/loaders/manchester/item-manchester-tei.xsl'),
         inputPath: './manchester/data/MS-HEBREW-GASTER-00086.xml',
     });
-    const module = stats.toJson().modules[0];
+    const module = ensureDefined.wrap(stats.toJson()).modules[0];
     expect(JSON.parse(module.source))
         .toEqualXML(await readPathAsString('manchester/data/MS-HEBREW-GASTER-00086.item.xml'));
 });
