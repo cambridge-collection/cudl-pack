@@ -8,7 +8,9 @@
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
     "docs": "typedoc --ignoreCompilerErrors --out docs src",
-    "test": "jest",
+    "test": "npm run $([ \"$CI\" = true ] && echo ci-test || echo non-ci-test)",
+    "non-ci-test": "jest",
+    "ci-test": "jest --ci --reporters=default --reporters=jest-junit",
     "lint": "tslint --project tsconfig.json"
   },
   "author": "Hal Blackburn <hwtb2@cam.ac.uk>",
@@ -31,6 +33,7 @@
     "file-loader": "^4.2.0",
     "html-loader": "^0.5.5",
     "jest": "^24.9.0",
+    "jest-junit": "^8.0.0",
     "jest-xml-matcher": "^1.1.1",
     "json-loader": "^0.5.7",
     "loglevelnext": "^3.0.1",
@@ -74,5 +77,9 @@
     "modulePathIgnorePatterns": [
       "<rootDir>/build/"
     ]
+  },
+  "jest-junit": {
+    "outputDirectory": "test-reports",
+    "outputName": "jest.xml"
   }
 }
