@@ -294,12 +294,31 @@ Translates an XML representation of a Package Item into Package Item JSON.
             <xsl:map>
                 <xsl:map-entry key="'label'" select="cdl:require-attribute(., 'label')"/>
                 <xsl:map-entry key="'order'" select="format-number(position() - 1, $order-pad)"/>
-                <xsl:apply-templates mode="#current" select="element()"/>
+                <xsl:if test="resource">
+                    <xsl:variable name="resources" as="map(*)*">
+                        <xsl:apply-templates mode="page-resource" select="resource"/>
+                    </xsl:variable>
+                    <xsl:map-entry key="'resources'" select="array { $resources }"/>
+                </xsl:if>
             </xsl:map>
         </xsl:map-entry>
     </xsl:template>
 
-    <xsl:template mode="pages" match="/item/pages[1]/page/resource[cdl:expand-curie-or-uri(@type, .) = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/pageResources/image']">
+    <xsl:template mode="page-resource" match="resource">
+        <xsl:map>
+            <xsl:map-entry key="'@type'" select="if (@type) then string(@type) else error($item-error, 'page resource has no type attribute')"/>
+            <xsl:apply-templates mode="page-resource-properties" select="."/>
+        </xsl:map>
+    </xsl:template>
 
+    <xsl:template mode="page-resource-properties" match="resource">
+        <xsl:copy-of select="error($item-error, 'No template handled page resource with type: ' || @type)"/>
+    </xsl:template>
+
+    <xsl:template mode="page-resource-properties" match="/item/pages[1]/page/resource[cdl:expand-curie-or-uri(@type, .) = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/pageResources/image']">
+        <xsl:map-entry key="'imageType'" select="cdl:require-attribute(., 'imageType')"/>
+        <xsl:map-entry key="'image'">
+            <xsl:map-entry key="'@id'" select="cdl:require-attribute(., 'image')"/>
+        </xsl:map-entry>
     </xsl:template>
 </xsl:stylesheet>

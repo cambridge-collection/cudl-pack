@@ -45,28 +45,16 @@
    </descriptions>
    <pages>
       <page xml:id="pb-Frontboard" label="Front board">
-         <resource type="cdl-page:image">
-            <imageType>iiif</imageType>
-            <image>MS-HEBREW-GASTER-00086-000-00268.jp2</image>
-         </resource>
+         <resource type="cdl-page:image" imageType="iiif" image="MS-HEBREW-GASTER-00086-000-00268.jp2"/>
       </page>
       <page xml:id="pb-Frontpaste-down" label="Front paste-down">
-         <resource type="cdl-page:image">
-            <imageType>iiif</imageType>
-            <image>MS-HEBREW-GASTER-00086-000-00269.jp2</image>
-         </resource>
+         <resource type="cdl-page:image" imageType="iiif" image="MS-HEBREW-GASTER-00086-000-00269.jp2"/>
       </page>
       <page xml:id="pb-edge" label="edge">
-         <resource type="cdl-page:image">
-            <imageType>iiif</imageType>
-            <image>MS-HEBREW-GASTER-00086-000-00868.jp2</image>
-         </resource>
+         <resource type="cdl-page:image" imageType="iiif" image="MS-HEBREW-GASTER-00086-000-00868.jp2"/>
       </page>
       <page xml:id="pb-bottom" label="bottom">
-         <resource type="cdl-page:image">
-            <imageType>iiif</imageType>
-            <image>MS-HEBREW-GASTER-00086-000-00869.jp2</image>
-         </resource>
+         <resource type="cdl-page:image" imageType="iiif" image="MS-HEBREW-GASTER-00086-000-00869.jp2"/>
       </page>
    </pages>
 </item>

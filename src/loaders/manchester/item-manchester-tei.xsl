@@ -79,7 +79,7 @@
         <attribute name="title" label="title" sort="a"/>
         <attribute name="alt-title" label="Alternative Title(s)" sort="b"/>
     </xsl:variable>
-    
+
     <xsl:template match="attribute[not(@label)]" mode="finish-attributes">
         <xsl:variable name="name" select="@name"/>
         <xsl:variable name="default" select="$attribute-defaults/*[@name = $name][1]" as="element()?"/>
@@ -163,10 +163,7 @@
     </xsl:template>
 
     <xsl:template match="t:graphic" mode="pages">
-        <resource type="cdl-page:image">
-            <imageType>iiif</imageType>
-            <image><xsl:value-of select="@url"/></image>
-        </resource>
+        <resource type="cdl-page:image" imageType="iiif" image="{@url}"/>
     </xsl:template>
 
     <xsl:template match="node()" mode="pages"/>

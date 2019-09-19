@@ -248,3 +248,61 @@ test.each([
     const result = parseJSON(await executeXslt({xml, xsltPath: itemXmlToJsonStylesheet}));
     expect(result.pages).toEqual(pages);
 });
+
+test('page resources wth @type cdl-page:image are converted', async () => {
+    const xml = `\
+<item>
+    <pages>
+        <page name="front" label="Front board">
+            <resource type="cdl-page:image" imageType="iiif" image="MS-HEBREW-GASTER-00086-000-00268.jp2"/>
+        </page>
+    </pages>
+</item>`;
+    const result = parseJSON(await executeXslt({xml, xsltPath: itemXmlToJsonStylesheet}));
+    expect(result.pages).toEqual({
+        front: {
+            label: 'Front board',
+            order: '0',
+            resources: [
+                {
+                    '@type': 'cdl-page:image',
+                    imageType: 'iiif',
+                    image: {'@id': 'MS-HEBREW-GASTER-00086-000-00268.jp2'},
+                },
+            ],
+        },
+    });
+});
+
+test('page resources with unsupported types are unhandled by default fail the transform', async () => {
+    const xml = `\
+<item>
+    <pages>
+        <page name="front" label="Front board">
+            <resource type="unknown"/>
+        </page>
+    </pages>
+</item>`;
+
+    await expect(executeXslt({xml, xsltPath: itemXmlToJsonStylesheet}))
+        .rejects.toThrow('item:error: No template handled page resource with type: unknown');
+});
+
+test('custom page resources can be handled extending stylesheet', async () => {
+    const xml = `\
+<item xmlns:example-page-resource="http://example.org/page-resource/">
+    <pages>
+        <page name="front" label="Front board">
+            <resource type="example-page-resource:custom">
+                <foo>bar</foo>
+            </resource>
+        </page>
+    </pages>
+</item>`;
+
+    const result = JSON.parse(
+        (await executeXslt({xml, xsltPath: path.resolve(__dirname, 'custom-page-resource.xsl')})).toString());
+    expect(result.pages.front.resources).toEqual([
+        {'@type': 'example-page-resource:custom', foo: 'bar'},
+    ]);
+});
