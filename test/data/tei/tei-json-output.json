@@ -118,6 +118,7 @@
          {
                "display": true,
                   "displayForm": "Kashan",
+                  "fullForm": "Kashan",
                "seq": 71,
                   "linktype": "keyword search",
             "shortForm": "Kashan"
@@ -125,6 +126,7 @@
          {
                "display": true,
                   "displayForm": "Iran",
+                  "fullForm": "Iran",
                "seq": 71,
                   "linktype": "keyword search",
             "shortForm": "Iran"

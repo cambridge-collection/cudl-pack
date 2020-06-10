@@ -916,6 +916,9 @@
                                             <shortForm>
                                                 <xsl:value-of select="normalize-space(.)"/>
                                             </shortForm>
+                                            <fullForm>
+                                                <xsl:value-of select="normalize-space(.)"/>
+                                            </fullForm>
                                         </place>
 
                                     </xsl:for-each>
@@ -1033,6 +1036,9 @@
                                             <shortForm>
                                                 <xsl:value-of select="normalize-space(.)"/>
                                             </shortForm>
+                                            <fullForm>
+                                                <xsl:value-of select="normalize-space(.)"/>
+                                            </fullForm>
                                         </place>
 
                                     </xsl:for-each>
