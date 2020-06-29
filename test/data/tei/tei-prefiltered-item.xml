@@ -52,9 +52,11 @@
                <places display="true">
                   <place display="true" displayForm="Kashan">
                      <shortForm>Kashan</shortForm>
+                     <fullForm>Kashan</fullForm>
                   </place>
                   <place display="true" displayForm="Iran">
                      <shortForm>Iran</shortForm>
+                      <fullForm>Iran</fullForm>
                   </place>
                </places>
                <dateStart>1495-07-02</dateStart>
