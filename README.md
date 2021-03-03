@@ -1,3 +1,13 @@
+# cudl-pack
+
+cudl-pack is a prototype data package compiler for the Cambridge Digital Collection Platform. It acts as the source of truth for the metadata that defines the set of items, collections etc available from a CDCP deployment.
+
+The idea is to define a dependency graph for the data that should be on a CDCP instance. The graph references externally-held resources, and defines data transformations which are neccisary to make them available as items, collections etc. For this prototype, Webpack is being used to build a depenency graph and apply transformations.
+
+See the [CUDL Data-Definition Architecture Proposal][data-arch-doc] for the background to this.
+
+[data-arch-doc]: https://docs.google.com/document/d/1rIDvEfdJmvyiSnXYBQ0fOEGxL7B04re8xJ2kmoSyRyE/edit?usp=sharing
+
 ## Debugging
 
 Install the `node-nightly` npm package, then:
