@@ -313,7 +313,7 @@ function getPlugins(options: Options): PluginFunction[] {
                     if(typeof ref === 'string')
                         return {expression: ref, substitutionLevel: 0};
                     else
-                        return {substitutionLevel: 0, ...ref};
+                        return ref;
                 });
             referenceSelector = ({context, json}) => selectReferencesWithJSONPath(context, jsonpathSelectors, json);
         }
