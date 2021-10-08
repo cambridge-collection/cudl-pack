@@ -23,9 +23,9 @@ function getOptions(context: webpack.loader.LoaderContext): Options {
     };
 }
 
-async function load(this: webpack.loader.LoaderContext, source: string): Promise<string> {
+async function load(this: webpack.loader.LoaderContext, source: string | Buffer): Promise<string> {
     const options = getOptions(this);
-    const item: Item = parseItemJson(source);
+    const item: Item = parseItemJson(source.toString());
     const internalItem = await options.converter.convert(item);
 
     return generateInternalItemJson(internalItem, {validate: options.postValidate});

@@ -34,7 +34,7 @@ The InlineNamespacePlugin doesn't support resolving namespace references: ${item
     }
 
     protected applyHooks(hooks: ItemToInternalItemConversionHooks, item: Item): void {
-        hooks.createNamespace.tapPromise(this.pluginName, this.handleCreateNamespace.bind(this, [item]));
+        hooks.createNamespace.tapPromise(this.pluginName, this.handleCreateNamespace.bind(this, item));
     }
 }
 

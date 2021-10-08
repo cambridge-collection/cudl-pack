@@ -56,7 +56,7 @@ async function parseCSV(csvPath: string): Promise<PageMapping[]> {
 
 }
 
-async function load(this: webpack.loader.LoaderContext, source: string): Promise<string> {
+async function load(this: webpack.loader.LoaderContext, source: string | Buffer): Promise<string | Buffer> {
 
     // Get the image server path and image type parameters
     const options = loaderUtils.getOptions(this);
@@ -67,7 +67,7 @@ async function load(this: webpack.loader.LoaderContext, source: string): Promise
     const imageType = (options as Options).imageType;
 
     // Find the path to the CSV pagination in the JSON item data.
-    const json = parseItemJson(source);
+    const json = parseItemJson(source.toString());
     const item = validateItem(json);
     const ns = await NamespaceLoader.forWebpackLoader(this).loadNamespace(item);
     const paginationLinks: LinkItemData[] = getData(item, ns,

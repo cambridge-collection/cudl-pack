@@ -245,21 +245,17 @@ exist`);
     }
 }
 
-interface WebpackModule extends webpack.Module {
-    type: string;
-}
-
 export interface LoadedModule {
     source?: string;
     sourceMap?: RawSourceMap;
-    module?: WebpackModule;
+    module?: webpack.Module;
 }
 
 export class IgnoredModule extends Error {}
 
 function loadModule(loaderContext: webpack.loader.LoaderContext, request: string): Promise<LoadedModule> {
     return new Promise((resolve, reject) => {
-        loaderContext.loadModule(request, (err, source, sourceMap, module: WebpackModule) => {
+        loaderContext.loadModule(request, (err, source, sourceMap, module: webpack.Module) => {
             if(err) {
                 // Webpack allows modules to be ignored, e.g. via the NormalModuleFactory beforeResolve hook.
                 // However the LoaderContext.loadModule() method doesn't handle ignored modules, and fails with the
@@ -295,7 +291,7 @@ const defaultReferenceSelector: JSONPathReferenceSelector = {
 };
 
 function pluginAsFunction(plugin: Plugin): PluginFunction {
-    return typeof plugin === 'function' ? plugin : plugin.apply.bind(plugin);
+    return typeof plugin === 'function' ? plugin as PluginFunction : plugin.apply.bind(plugin);
 }
 
 function getPlugins(options: Options): PluginFunction[] {
@@ -324,14 +320,15 @@ function getPlugins(options: Options): PluginFunction[] {
     return plugins;
 }
 
-const loader: AsyncLoadFunction = (async function(this: webpack.loader.LoaderContext, source: string): Promise<string> {
+const loader: AsyncLoadFunction =
+(async function(this: webpack.loader.LoaderContext, source: string | Buffer): Promise<string> {
     const options = validateOptions(clone(loaderUtils.getOptions(this) || {}));
     const plugins = getPlugins(options);
 
     const hooks = new DependencyResolutionHooks();
     plugins.forEach(p => p(hooks));
 
-    const json = await hooks.load.promise(source, this, this.request);
+    const json = await hooks.load.promise(source.toString(), this, this.request);
     let result: HandleReferenceResult = {doc: json, docChanged: false};
     const references: Reference[] = await hooks.findReferences.promise([], json, this);
     for(const ref of references) {
@@ -354,7 +351,7 @@ const loader: AsyncLoadFunction = (async function(this: webpack.loader.LoaderCon
             result, {reference: loadedReference, doc: json, context: this});
     }
 
-    const output = await hooks.dump.promise(result, this, source);
+    const output = await hooks.dump.promise(result, this, source.toString());
     if(output === undefined) {
         throw new Error('dump hook produced no output');
     }

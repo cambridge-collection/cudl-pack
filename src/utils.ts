@@ -9,12 +9,13 @@ export function bindPromiseToCallback<T>(
         (value) => { callback(null, value); }, callback);
 }
 
-export type AsyncLoadFunction<Source extends string | Buffer = string> =
+type Source = string | Buffer;
+export type AsyncLoadFunction =
     (this: webpack.loader.LoaderContext, source: Source, sourceMap?: RawSourceMap)
-        => Promise<Source | void | undefined>;
-export type AsyncLoadMethod<T, Source extends string | Buffer = string> =
+        => Promise<Source>;
+export type AsyncLoadMethod<T> =
     (this: T, context: webpack.loader.LoaderContext, source: Source, sourceMap?: RawSourceMap)
-        => Promise<Source | void | undefined>;
+        => Promise<Source>;
 
 /**
  * Create a normal webpack loader function from a promise-returning async function which takes an explicit context
@@ -23,8 +24,8 @@ export type AsyncLoadMethod<T, Source extends string | Buffer = string> =
  * The difference with [[createAsyncLoader]] is that this doesn't require the use of the `this` arg, so class methods
  * can use it directly.
  */
-export function createAsyncLoaderFromMethod<T, Source extends string | Buffer = string>(
-        load: AsyncLoadMethod<T, Source>, thisArg?: T): webpack.loader.Loader {
+export function createAsyncLoaderFromMethod<T>(
+        load: AsyncLoadMethod<T>, thisArg: T): webpack.loader.Loader {
     return function(this: webpack.loader.LoaderContext, source: Source, sourceMap?: RawSourceMap): void {
         const callback = this.async();
         if(callback === undefined) {
@@ -39,9 +40,10 @@ export function createAsyncLoaderFromMethod<T, Source extends string | Buffer = 
  * Create a normal webpack loader function from a promise-returning async
  * loader function.
  */
-export function createAsyncLoader<Source extends string | Buffer = string>(load: AsyncLoadFunction<Source>):
+export function createAsyncLoader(load: AsyncLoadFunction):
         webpack.loader.Loader {
-    return createAsyncLoaderFromMethod<Source>((context, source, sourceMap) => load.call(context, source, sourceMap));
+    return createAsyncLoaderFromMethod(
+        (context, source, sourceMap) => load.call(context, source, sourceMap), undefined);
 }
 
 /**

@@ -12,7 +12,7 @@ test.each([
     // jsonpointer / is the empty string at root
     ['?insertionPoint=/', 123, {'': 123}],
 ])('loader with options query %s wraps %j as %j', (query: string, source: any, expected: any) => {
-    const jsonResult = loader.call({query}, JSON.stringify(source));
+    const jsonResult = loader.call({query} as webpack.loader.LoaderContext, JSON.stringify(source));
     expect(JSON.parse(jsonResult)).toEqual(expected);
 });
 

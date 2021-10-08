@@ -83,7 +83,7 @@ function errorMessage(errorObject: Ajv.ErrorObject, name: string, includeSchemaP
 export type Validator<T> = (obj: any, options?: ValidationOptions) => T;
 
 export function createValidator<T>(spec: SchemaSpec): Validator<T> {
-    return expectValid.bind(spec);
+    return expectValid.bind(spec) as Validator<T>;
 }
 function createValidatorInternal<T>(schemaId: string, name: string): Validator<T> {
     return createValidator<T>({schemaId, name, validate: ajv.getSchema(schemaId)});
