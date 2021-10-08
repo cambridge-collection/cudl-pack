@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "3": "^2.1.0",
-    "@lib.cam/xslt-nailgun": "0.0.0-beta.4",
+    "@lib.cam/xslt-nailgun": "^0.3.1",
     "@types/neat-csv": "^4.0.0",
     "ajv": "^6.10.2",
     "ajv-keywords": "^3.4.1",
