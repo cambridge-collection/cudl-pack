@@ -18,5 +18,8 @@ module.exports = {
   testEnvironment: 'node',
   setupFilesAfterEnv: [
     '<rootDir>/test/setup.ts'
+  ],
+  modulePathIgnorePatterns: [
+    '<rootDir>/build/'
   ]
 };

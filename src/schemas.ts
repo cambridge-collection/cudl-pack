@@ -86,7 +86,11 @@ export function createValidator<T>(spec: SchemaSpec): Validator<T> {
     return expectValid.bind(spec) as Validator<T>;
 }
 function createValidatorInternal<T>(schemaId: string, name: string): Validator<T> {
-    return createValidator<T>({schemaId, name, validate: ajv.getSchema(schemaId)});
+    let validate = ajv.getSchema(schemaId);
+    if(validate === undefined) {
+        throw new Error(`AJV schema does not exist: ${schemaId}`);
+    }
+    return createValidator<T>({schemaId, name, validate});
 }
 
 export const validateCollection = createValidatorInternal(collectionId, 'collection');
