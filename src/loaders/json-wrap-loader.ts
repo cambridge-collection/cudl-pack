@@ -10,7 +10,12 @@ const optionsSchema = {
     type: 'object',
     properties: {
         insertionPoint: { type: 'string' },
-        template: { type: ['object', 'array'] },
+        template: {
+            anyOf: [
+                {type: 'object'},
+                {type: 'array'},
+            ],
+        },
     },
     required: ['insertionPoint'],
 };

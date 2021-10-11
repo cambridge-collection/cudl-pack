@@ -1,4 +1,5 @@
-import Ajv from 'ajv';
+import {default as Ajv, ErrorObject, ValidateFunction} from 'ajv';
+import addFormats from "ajv-formats"
 import internalItemSchema from 'cudl-schema-internal-json/schemas/item.json';
 
 import collectionSchema from 'cudl-schema-package-json/schemas/collection.json';
@@ -20,6 +21,7 @@ const internalBase = TypeUri.InternalItem;
 const internalItemId = url.resolve(internalBase, 'item.json');
 
 const ajv = new Ajv();
+addFormats(ajv, ['uri', 'uri-reference']);
 ajv.addSchema(collectionSchema, collectionId);
 ajv.addSchema(commonSchema, commonId);
 ajv.addSchema(dlDatasetSchema, dlDatasetId);
@@ -52,7 +54,7 @@ function defaultValidationOptions(opts?: ValidationOptions): StrictValidationOpt
     };
 }
 
-interface SchemaSpec { schemaId: string; validate: Ajv.ValidateFunction; name: string; }
+interface SchemaSpec { schemaId: string; validate: ValidateFunction; name: string; }
 function expectValid<T>(this: SchemaSpec, obj: unknown, options?: ValidationOptions): T {
     const resolvedOptions = defaultValidationOptions(options);
     const inputDescription = resolvedOptions.inputDescription;
@@ -71,8 +73,8 @@ function expectValid<T>(this: SchemaSpec, obj: unknown, options?: ValidationOpti
     return obj as T;
 }
 
-function errorMessage(errorObject: Ajv.ErrorObject, name: string, includeSchemaPath: boolean): string {
-    const msg = `${name}${errorObject.dataPath} ${errorObject.message}`;
+function errorMessage(errorObject: ErrorObject, name: string, includeSchemaPath: boolean): string {
+    const msg = `${name}${errorObject.instancePath} ${errorObject.message}`;
 
     if(includeSchemaPath) {
         return `${msg} (${errorObject.schemaPath})`;
