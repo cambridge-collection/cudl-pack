@@ -36,20 +36,20 @@ export class ItemToInternalItemConversionHooks {
      * The first handler receives undefined as the namespace, and should return the namespace to use. Subsequent
      * handlers receive the namespace returned by preceding handlers.
      */
-    public readonly createNamespace = new AsyncSeriesWaterfallHook<Namespace | undefined>(['namespace']);
+    public readonly createNamespace = new AsyncSeriesWaterfallHook<[Namespace?], Namespace>(['namespace']);
 
     /**
      * Invoked with the internal JSON Page that was created from a package JSON Page.
      */
-    public readonly page = new AsyncSeriesWaterfallHook<InternalPage, Identified<Page>>(
+    public readonly page = new AsyncSeriesWaterfallHook<[InternalPage, Identified<Page>]>(
         ['internalPage', 'packagePage']);
 
     /**
      * A map of hooks invoked to convert page resources to internal item pages.
      * For each resource two hooks are called: '*' and the expanded @type URI of the resource.
      */
-    public readonly pageResource = new HookMap<InternalPage, PageResourceContext>(
-        () => new AsyncSeriesWaterfallHook<InternalPage, PageResourceContext>(
+    public readonly pageResource = new HookMap(
+        () => new AsyncSeriesWaterfallHook<[InternalPage, PageResourceContext]>(
             ['internalPage', 'context']));
 
     /**
@@ -59,11 +59,11 @@ export class ItemToInternalItemConversionHooks {
      * be thrown.
      */
     public readonly invalidDescriptionCoverage =
-        new SyncBailHook<PageReferenceError, DescriptionSection, never, true | undefined>(
+        new SyncBailHook<[PageReferenceError, DescriptionSection], true | undefined>(
             ['error', 'description']);
 
     public readonly descriptionTitle =
-        new SyncBailHook<DescriptionSection, never, never, string | undefined>(
+        new SyncBailHook<[DescriptionSection], string | undefined>(
             ['description']);
 
     /**
@@ -73,15 +73,15 @@ export class ItemToInternalItemConversionHooks {
      *
      * For each item data resource found two hooks are called: '*' and the expanded @type URI of the data resource.
      */
-    public readonly itemData = new HookMap<InternalItem, ItemData, Namespace>(
-        () => new AsyncSeriesWaterfallHook<InternalItem, ItemData, Namespace>(
+    public readonly itemData = new HookMap(
+        () => new AsyncSeriesWaterfallHook<[InternalItem, ItemData, Namespace]>(
             ['internalItem', 'data', 'namespace']));
 
     /**
      * Invoked immediately prior to returning the generated internal item. Handlers can modify the internal item, and or
      * return a new value to use.
      */
-    public readonly postprocess = new AsyncSeriesWaterfallHook<InternalItem, Namespace>(
+    public readonly postprocess = new AsyncSeriesWaterfallHook<[InternalItem, Namespace]>(
         ['internalItem', 'namespace']);
 }
 
@@ -115,7 +115,7 @@ export class ItemToInternalItemConverter {
          * Triggered at the start of each conversion operation initiated by calls to [[convert]]. Handlers gain access
          * to conversion-specific hooks to customise the upcoming conversion operation.
          */
-        conversion: new SyncHook<ItemToInternalItemConversionHooks, Item>(['conversion', 'item']),
+        conversion: new SyncHook<[ItemToInternalItemConversionHooks, Item]>(['conversion', 'item']),
     };
 
     public async convert(item: Item): Promise<InternalItem> {
@@ -128,7 +128,7 @@ export class ItemToInternalItemConverter {
 
 async function itemToInternalItem(item: Item, hooks: ItemToInternalItemConversionHooks):
         Promise<InternalItem> {
-    let ns = await hooks.createNamespace.promise(undefined, item);
+    let ns = await hooks.createNamespace.promise(undefined);
     if(ns === undefined)
         ns = Namespace.fromNamespaceMap({});
 

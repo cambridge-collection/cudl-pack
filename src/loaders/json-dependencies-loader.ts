@@ -58,24 +58,24 @@ export interface HandleReferenceResult {
 
 export class DependencyResolutionHooks {
     /** Parse the incoming JSON document. */
-    public readonly load = new tapable.AsyncSeriesBailHook<string, webpack.loader.LoaderContext, string, any>(
+    public readonly load = new tapable.AsyncSeriesBailHook<[string, webpack.loader.LoaderContext, string], any>(
         ['source', 'context', 'request']);
 
     public readonly findReferences = new tapable.AsyncSeriesWaterfallHook<
-        Reference[], any, webpack.loader.LoaderContext>(['references', 'doc', 'context']);
+        [Reference[], any, webpack.loader.LoaderContext]>(['references', 'doc', 'context']);
 
-    public readonly resolveReference = new tapable.AsyncSeriesBailHook<Reference, any,
-        webpack.loader.LoaderContext, ResolvedReference | IgnoredReference>(
+    public readonly resolveReference = new tapable.AsyncSeriesBailHook<[Reference, any,
+        webpack.loader.LoaderContext], ResolvedReference | IgnoredReference>(
         ['reference', 'doc', 'context']);
 
     public readonly handleIgnoredModule = new tapable.AsyncParallelHook<
-        IgnoredReference, any, webpack.loader.LoaderContext>(['ignored', 'doc', 'context']);
+        [IgnoredReference, any, webpack.loader.LoaderContext]>(['ignored', 'doc', 'context']);
 
-    public readonly handleReference = new tapable.SyncWaterfallHook<HandleReferenceResult,
-        {reference: LoadedReference, doc: any, context: webpack.loader.LoaderContext}>(['result', 'options']);
+    public readonly handleReference = new tapable.SyncWaterfallHook<[HandleReferenceResult,
+        {reference: LoadedReference, doc: any, context: webpack.loader.LoaderContext}]>(['result', 'options']);
 
     public readonly dump =
-        new tapable.AsyncSeriesBailHook<HandleReferenceResult, webpack.loader.LoaderContext, string, string>(
+        new tapable.AsyncSeriesBailHook<[HandleReferenceResult, webpack.loader.LoaderContext, string], string>(
             ['result', 'context', 'source']);
 }
 
@@ -89,16 +89,14 @@ export class DefaultsPlugin implements PluginObject {
     public static readonly TAP_STAGE = 100;
 
     public apply(hooks: DependencyResolutionHooks): void {
-        // Hack: type definitions for tapable only allow string values for the first argument to .tap(), but tapable
-        // actually accepts an options object to configure the tap.
-        const optionsHack = {
+        const options = {
             name: DefaultsPlugin.TAP_NAME,
             // Tap with a higher stage than the default (0) so that anyone tapping hooks will get their version run
             // first by default.
             stage: DefaultsPlugin.TAP_STAGE,
-        } as unknown as string;
+        };
 
-        hooks.load.tap(optionsHack, (source, context, request) => {
+        hooks.load.tap(options, (source, context, request) => {
             try {
                 return parseJson(source);
             }
@@ -107,7 +105,7 @@ export class DefaultsPlugin implements PluginObject {
                 throw new Error(`Unable to parse ${type} module as JSON. request: ${request}, parse error: ${e}`);
             }
         });
-        hooks.resolveReference.tapPromise(optionsHack, async (reference, doc, context) => {
+        hooks.resolveReference.tapPromise(options, async (reference, doc, context) => {
             try {
                 const module = await loadModule(context, reference.request);
                 return {...reference, resolvedRequest: module};
@@ -119,10 +117,10 @@ export class DefaultsPlugin implements PluginObject {
                 throw new Error(`Unable to load module referenced by: ${reference.request} : ${e}`);
             }
         });
-        hooks.handleIgnoredModule.tap(optionsHack, (ignored, doc, context) => {
+        hooks.handleIgnoredModule.tap(options, (ignored, doc, context) => {
             log.debug(`Ignored module referenced by ${context.resourcePath}: ${ignored.request}`);
         });
-        hooks.dump.tap(optionsHack,
+        hooks.dump.tap(options,
             (result, context, source) => result.docChanged ? JSON.stringify(result.doc) : source);
     }
 }
@@ -246,7 +244,7 @@ exist`);
 }
 
 export interface LoadedModule {
-    source?: string;
+    source: string;
     sourceMap?: RawSourceMap;
     module?: webpack.Module;
 }

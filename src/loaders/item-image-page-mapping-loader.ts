@@ -56,15 +56,20 @@ async function parseCSV(csvPath: string): Promise<PageMapping[]> {
 
 }
 
+function isOptions(value: object): value is Options {
+    return (typeof (value as Record<string, unknown>).imageServerPath === 'string' &&
+        typeof (value as Record<string, unknown>).imageType === 'string');
+}
+
 async function load(this: webpack.loader.LoaderContext, source: string | Buffer): Promise<string | Buffer> {
 
     // Get the image server path and image type parameters
     const options = loaderUtils.getOptions(this);
-    if (options.imageServerPath == null || options.imageType == null) {
+    if (!isOptions(options)) {
         throw new Error('You need to set the imageServerPath and imageType parameters in your loader options.');
     }
-    const imageServerPath = (options as Options).imageServerPath;
-    const imageType = (options as Options).imageType;
+    const imageServerPath = options.imageServerPath;
+    const imageType = options.imageType;
 
     // Find the path to the CSV pagination in the JSON item data.
     const json = parseItemJson(source.toString());

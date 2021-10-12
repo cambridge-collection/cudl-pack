@@ -67,7 +67,7 @@ export class IIIFPageResourcePlugin extends ContextFreeBasePlugin {
     }
 
     protected applyHooks(hooks: ItemToInternalItemConversionHooks): void {
-        hooks.pageResource.tapPromise(PackageItemPage.image, this.pluginName, this.handleIIIFImagePageResource);
+        hooks.pageResource.for(PackageItemPage.image).tapPromise(this.pluginName, this.handleIIIFImagePageResource);
     }
 }
 
