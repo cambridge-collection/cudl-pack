@@ -1,11 +1,10 @@
 import {execute} from '@lib.cam/xslt-nailgun';
 import Ajv from 'ajv';
-import loaderUtils from 'loader-utils';
 import {URL} from 'url';
 import {promisify} from 'util';
 import webpack from 'webpack';
 import {createValidator} from '../schemas';
-import {createAsyncLoader} from '../utils';
+import {AsyncLoadFunction, createAsyncLoader} from '../utils';
 import optionsSchema from './xslt-loader-options.schema.json';
 
 interface Options {
@@ -18,10 +17,14 @@ const validateOptions = createValidator<Options>({
     name: 'options',
 });
 
-async function load(this: webpack.loader.LoaderContext, source: string | Buffer): Promise<Buffer> {
-    const options: Options = validateOptions(loaderUtils.getOptions(this) || {});
+const loader: AsyncLoadFunction = async function (this: webpack.LoaderContext<{}>, source: string | Buffer): Promise<Buffer> {
+    const options: Options = validateOptions(this.getOptions());
 
     const stylesheetPath = await promisify(this.resolve.bind(this))(this.rootContext, options.stylesheet);
+
+    if(typeof stylesheetPath !== 'string') {
+        throw new Error(`Failed to resolve path of stylesheet: ${options.stylesheet}`);
+    }
 
     // The JVM which execute() uses to run XSLT is kept alive for a short time between calls, so it shouldn't be
     // necessary to share an XSLTExecutor instance across loader invocations.
@@ -32,4 +35,4 @@ async function load(this: webpack.loader.LoaderContext, source: string | Buffer)
     });
 }
 
-export default createAsyncLoader(load);
+export default createAsyncLoader(loader);

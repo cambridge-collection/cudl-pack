@@ -9,7 +9,7 @@ import {ImageItemResource, ItemPages, Page, UriReference} from '../item-types';
 import {isLinkItemData, LinkItemData} from '../item-types';
 import {validateItem} from '../schemas';
 import {CDLRole} from '../uris';
-import {createAsyncLoader} from '../utils';
+import {AsyncLoadFunction, createAsyncLoader} from '../utils';
 
 /**
  * A loader which uses the CSV image mapping defined in the additional metadata
@@ -57,14 +57,14 @@ async function parseCSV(csvPath: string): Promise<PageMapping[]> {
 }
 
 function isOptions(value: object): value is Options {
-    return (typeof (value as Record<string, unknown>).imageServerPath === 'string' &&
-        typeof (value as Record<string, unknown>).imageType === 'string');
+    return (typeof (value as Record<keyof Options, unknown>).imageServerPath === 'string' &&
+        typeof (value as Record<keyof Options, unknown>).imageType === 'string');
 }
 
-async function load(this: webpack.loader.LoaderContext, source: string | Buffer): Promise<string | Buffer> {
+const loader: AsyncLoadFunction = async function (this: webpack.LoaderContext<{}>, source: string | Buffer): Promise<string | Buffer> {
 
     // Get the image server path and image type parameters
-    const options = loaderUtils.getOptions(this);
+    const options = this.getOptions();
     if (!isOptions(options)) {
         throw new Error('You need to set the imageServerPath and imageType parameters in your loader options.');
     }
@@ -114,4 +114,4 @@ async function load(this: webpack.loader.LoaderContext, source: string | Buffer)
 
 }
 
-export default createAsyncLoader(load);
+export default createAsyncLoader(loader);

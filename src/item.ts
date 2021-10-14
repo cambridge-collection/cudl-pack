@@ -61,7 +61,7 @@ export class NamespaceLoader {
      * Create a NamespaceLoader which resolves @namespace URLs as webpack module
      * requests.
      */
-    public static forWebpackLoader(context: webpack.loader.LoaderContext): NamespaceLoader {
+    public static forWebpackLoader(context: webpack.LoaderContext<unknown>): NamespaceLoader {
         const resolver: NamespaceResolver = async (url) => {
             const source: string = await promisify(context.loadModule)(url);
             let map;

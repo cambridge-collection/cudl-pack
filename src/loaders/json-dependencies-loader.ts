@@ -17,7 +17,7 @@ import assert from 'assert';
 import clone from 'clone';
 import parseJson from 'json-parse-better-errors';
 import jsonpath from 'jsonpath';
-import loaderUtils, {urlToRequest} from 'loader-utils';
+import {urlToRequest} from 'loader-utils';
 import fp from 'lodash/fp';
 import {RawSourceMap} from 'source-map';
 import * as tapable from 'tapable';
@@ -58,24 +58,24 @@ export interface HandleReferenceResult {
 
 export class DependencyResolutionHooks {
     /** Parse the incoming JSON document. */
-    public readonly load = new tapable.AsyncSeriesBailHook<[string, webpack.loader.LoaderContext, string], any>(
+    public readonly load = new tapable.AsyncSeriesBailHook<[string, webpack.LoaderContext<{}>, string], any>(
         ['source', 'context', 'request']);
 
     public readonly findReferences = new tapable.AsyncSeriesWaterfallHook<
-        [Reference[], any, webpack.loader.LoaderContext]>(['references', 'doc', 'context']);
+        [Reference[], any, webpack.LoaderContext<{}>]>(['references', 'doc', 'context']);
 
     public readonly resolveReference = new tapable.AsyncSeriesBailHook<[Reference, any,
-        webpack.loader.LoaderContext], ResolvedReference | IgnoredReference>(
+        webpack.LoaderContext<{}>], ResolvedReference | IgnoredReference>(
         ['reference', 'doc', 'context']);
 
     public readonly handleIgnoredModule = new tapable.AsyncParallelHook<
-        [IgnoredReference, any, webpack.loader.LoaderContext]>(['ignored', 'doc', 'context']);
+        [IgnoredReference, any, webpack.LoaderContext<{}>]>(['ignored', 'doc', 'context']);
 
     public readonly handleReference = new tapable.SyncWaterfallHook<[HandleReferenceResult,
-        {reference: LoadedReference, doc: any, context: webpack.loader.LoaderContext}]>(['result', 'options']);
+        {reference: LoadedReference, doc: any, context: webpack.LoaderContext<{}>}]>(['result', 'options']);
 
     public readonly dump =
-        new tapable.AsyncSeriesBailHook<[HandleReferenceResult, webpack.loader.LoaderContext, string], string>(
+        new tapable.AsyncSeriesBailHook<[HandleReferenceResult, webpack.LoaderContext<{}>, string], string>(
             ['result', 'context', 'source']);
 }
 
@@ -147,7 +147,7 @@ export interface JSONPathReferenceSelector {
     substitutionLevel: number;
 }
 
-export type AncestorSubstitutionReferenceSelector = (options: {context: webpack.loader.LoaderContext, json: any})
+export type AncestorSubstitutionReferenceSelector = (options: {context: webpack.LoaderContext<{}>, json: any})
     => AncestorSubstitutionReference[];
 
 /** Implements the options.references behaviour. */
@@ -181,7 +181,7 @@ interface Node {
 interface ReferenceNode extends Node, JSONPathReferenceSelector { }
 
 export function selectReferencesWithJSONPath(
-    context: webpack.loader.LoaderContext, selectors: JSONPathReferenceSelector[], json: any,
+    context: webpack.LoaderContext<{}>, selectors: JSONPathReferenceSelector[], json: any,
 ): AncestorSubstitutionReference[] {
     const [referenceNodes, ignoredNodes] = fp.pipe(
         fp.flatMap((selector: JSONPathReferenceSelector): ReferenceNode[] => {
@@ -205,9 +205,9 @@ ${selector.substitutionLevel}, matched path:, ${util.inspect(node.path)}, expres
     )(selectors);
 
     for(const ignoredNode of ignoredNodes) {
-        context.emitWarning(`Ignoring non-string reference value at \
+        context.emitWarning(new Error(`Ignoring non-string reference value at \
 ${util.inspect(ignoredNode.path)}, selected by ${ignoredNode.expression}: \
-${util.inspect(ignoredNode.value)}`);
+${util.inspect(ignoredNode.value)}`));
     }
 
     return referenceNodes.map((node) => ({
@@ -217,7 +217,7 @@ ${util.inspect(ignoredNode.value)}`);
 }
 
 function insertReference(jsonRoot: any, ref: LoadedReference & AncestorSubstitutionReference,
-                         context: webpack.loader.LoaderContext): HandleReferenceResult {
+                         context: webpack.LoaderContext<{}>): HandleReferenceResult {
     if(ref.substitutionPoint.length === 0) {
         // We're replacing the root value
         return {doc: ref.loadedRequest, docChanged: true};
@@ -228,9 +228,9 @@ function insertReference(jsonRoot: any, ref: LoadedReference & AncestorSubstitut
         const parent = parentPath.length === 0 ? jsonRoot : fp.get(parentPath)(jsonRoot);
 
         if(parent === undefined) {
-            context.emitWarning( `\
+            context.emitWarning(new Error(`\
 Substitution point ${util.inspect(ref.substitutionPoint)} for reference to ${util.inspect(ref.request)} does not \
-exist`);
+exist`));
             return {doc: jsonRoot, docChanged: false};
         }
 
@@ -251,7 +251,7 @@ export interface LoadedModule {
 
 export class IgnoredModule extends Error {}
 
-function loadModule(loaderContext: webpack.loader.LoaderContext, request: string): Promise<LoadedModule> {
+function loadModule(loaderContext: webpack.LoaderContext<{}>, request: string): Promise<LoadedModule> {
     return new Promise((resolve, reject) => {
         loaderContext.loadModule(request, (err, source, sourceMap, module: webpack.Module) => {
             if(err) {
@@ -319,8 +319,8 @@ function getPlugins(options: Options): PluginFunction[] {
 }
 
 const loader: AsyncLoadFunction =
-(async function(this: webpack.loader.LoaderContext, source: string | Buffer): Promise<string> {
-    const options = validateOptions(clone(loaderUtils.getOptions(this) || {}));
+(async function(this: webpack.LoaderContext<{}>, source: string | Buffer): Promise<string> {
+    const options = validateOptions(clone(this.getOptions()));
     const plugins = getPlugins(options);
 
     const hooks = new DependencyResolutionHooks();
