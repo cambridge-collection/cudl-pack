@@ -51,6 +51,7 @@
   "dependencies": {
     "3": "^2.1.0",
     "@lib.cam/xslt-nailgun": "^0.3.1",
+    "@types/loader-utils": "^2.0.3",
     "ajv": "^8.6.3",
     "ajv-formats": "^2.1.1",
     "ajv-keywords": "^5.0.0",
@@ -63,6 +64,7 @@
     "json5": "^2.2.0",
     "jsonpath": "^1.1.1",
     "jsonpointer": "^4.1.0",
+    "loader-utils": "^2.0.0",
     "lodash": "^4.17.21",
     "neat-csv": "^6.0.1",
     "object.fromentries": "^2.0.5",
