@@ -1,7 +1,7 @@
 import path from 'path';
 import webpack from 'webpack';
 import compiler from './compiler';
-import {ensureDefined} from './util';
+import { getModuleSource } from './util';
 
 const jsonLoaderRules: webpack.RuleSetRule[] = [
     {
@@ -33,9 +33,8 @@ const jsonLoaderRules: webpack.RuleSetRule[] = [
 
 test('collection references are resolved', async () => {
     const stats = await compiler('./data/minimal/dl-dataset.json', jsonLoaderRules);
-    const output = ensureDefined((stats.toJson().modules || [])[0]).source;
 
-    expect(JSON.parse(ensureDefined(output))).toEqual({
+    expect(JSON.parse(getModuleSource('./data/minimal/dl-dataset.json', stats))).toEqual({
         '@type': 'https://schemas.cudl.lib.cam.ac.uk/package/v1/dl-dataset.json',
         name: 'John Rylands',
         collections: [
