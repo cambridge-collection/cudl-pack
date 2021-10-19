@@ -11,7 +11,7 @@ import {
     ResolvedReference,
 } from '../src/loaders/json-dependencies-loader';
 import compiler from './compiler';
-import {ensureDefined, getModule, getModuleSource, readPathAsString} from './util';
+import {getModule, getModuleSource, readPathAsString} from './util';
 
 test('references are replaced by resolved JSON objects', async () => {
     const rules = [{
