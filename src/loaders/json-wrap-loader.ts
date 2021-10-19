@@ -19,7 +19,7 @@ const optionsSchema = {
     required: ['insertionPoint'],
 };
 
-interface Options {
+export interface Options {
     insertionPoint: string;
     template?: object;
 }
