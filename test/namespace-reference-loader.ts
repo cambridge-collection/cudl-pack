@@ -2,8 +2,8 @@ import webpack from 'webpack';
 import {NamespaceLoader} from '../src/item';
 import {createAsyncLoader} from '../src/utils';
 
-export default createAsyncLoader(
-async function(this: webpack.loader.LoaderContext): Promise<string> {
+const load: webpack.LoaderDefinitionFunction = createAsyncLoader(
+async function(this: webpack.LoaderContext<{}>): Promise<string> {
     const ns = await NamespaceLoader.forWebpackLoader(this).loadNamespace('./namespace.json');
 
     expect(ns.getExpandedUri('foo:bar')).toBe('http://example.com/bar');
@@ -11,3 +11,5 @@ async function(this: webpack.loader.LoaderContext): Promise<string> {
 
     return JSON.stringify({});
 });
+
+export default load;
