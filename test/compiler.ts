@@ -20,6 +20,7 @@ function run(options: string | webpack.Configuration, rules?: webpack.RuleSetRul
         output: {
             path: path.resolve(__dirname),
             filename: 'bundle.js',
+            publicPath: '',
         },
         resolve: {
             extensions: [
@@ -31,6 +32,9 @@ function run(options: string | webpack.Configuration, rules?: webpack.RuleSetRul
                 '.wasm', '.mjs', '.js', '.json',
             ],
         },
+        stats: {
+            logging: 'verbose',
+        },
         ...configuration,
     });
 
@@ -38,8 +42,27 @@ function run(options: string | webpack.Configuration, rules?: webpack.RuleSetRul
 
     return new Promise((resolve, reject) => {
         compiler.run((err, stats) => {
-            if(err || stats.hasErrors()) {
-                reject(err || stats.toJson().errors.join('\n\n'));
+            if(err) {
+                reject(err);
+            }
+            if(stats === undefined) {
+                reject(new Error('Webpack compiler run() produced no stats'));
+                return;
+            }
+            if(stats.hasErrors()) {
+                const statsJson = stats.toJson();
+                const errorMessages = statsJson.errors?.map(e => {
+                    if(e.moduleName && e.moduleIdentifier) {
+                        // jest cleverly strips out tracebacks from error messages, so prepend a > to each line to stop
+                        // it being quite so "clever".
+                        const message = e.stack ? e.stack.split('\n').map(line => `> ${line}`).join('\n') : e.message;
+                        return `Failed to build module ${e.moduleName} ('${e.moduleIdentifier}'):\n${message}`;
+                    }
+                    else {
+                        return `${e.message}\n${e.stack}`;
+                    }
+                }).join('\n---\n');
+                reject(new Error(`Webpack build failed with ${statsJson.errorsCount} errors:\n${errorMessages}`));
             }
 
             resolve(stats);
