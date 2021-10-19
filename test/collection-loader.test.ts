@@ -1,12 +1,16 @@
 import fp from 'lodash/fp';
 import path from 'path';
 import webpack from 'webpack';
-import {isNotUndefined} from '../src/utils';
 import compiler from './compiler';
-import {ensure, ensureDefined} from './util';
+import { getModuleSource } from './util';
 
 const extractToFileLoaders: webpack.RuleSetUseItem[] = [
-    path.resolve(__dirname, '../src/loaders/json-wrap-loader.ts?insertionPoint=/@id'),
+    {
+        loader: path.resolve(__dirname, '../src/loaders/json-wrap-loader.ts'),
+        options: {
+            insertionPoint: '/@id',
+        },
+    },
     path.resolve(__dirname, '../src/loaders/json-raw-loader.ts'),
     'extract-loader',
     {
@@ -17,23 +21,26 @@ const extractToFileLoaders: webpack.RuleSetUseItem[] = [
     },
 ];
 
+const collectionLoaders = [
+    path.resolve(__dirname, '../src/loaders/collection-loader.ts'),
+    path.resolve(__dirname, '../src/loaders/json-dependencies-loader.ts'),
+    path.resolve(__dirname, '../src/loaders/json-json5-loader.ts'),
+];
+
 const jsonLoaderRules: webpack.RuleSetRule[] = [
+    // If a collection is loaded from another collection then turn it into a reference to an extracted file,
+    // otherwise we would nest the collections where they're referenced (which the schema doesn't allow).
     {
         type: 'json',
-        test: /[/.]collection.json$/,
-        use: (info) => {
-            const collectionLoaders = [
-                path.resolve(__dirname, '../src/loaders/collection-loader.ts'),
-                path.resolve(__dirname, '../src/loaders/json-dependencies-loader.ts'),
-                path.resolve(__dirname, '../src/loaders/json-json5-loader.ts'),
-            ];
-            // If a collection is loaded from another collection then turn it into a reference to an extracted file,
-            // otherwise we would nest the collections where they're referenced (which the schema doesn't allow).
-            if(info.issuer.endsWith('.collection.json')) {
-                return extractToFileLoaders.concat(collectionLoaders);
-            }
-            return collectionLoaders;
-        },
+        test: /[/.]collection\.json$/,
+        issuer: /\.collection\.json$/,
+        use: extractToFileLoaders.concat(collectionLoaders),
+    },
+    {
+        type: 'json',
+        test: /[/.]collection\.json$/,
+        issuer: {not: /\.collection\.json$/},
+        use: collectionLoaders,
     },
     {
         type: 'json',
@@ -52,12 +59,9 @@ const jsonLoaderRules: webpack.RuleSetRule[] = [
 
 test('collection references are resolved', async () => {
     const stats = await compiler('./data/collections/kitchen-sink.collection.json', jsonLoaderRules);
-    const modules = stats.toJson().modules || [];
+    const modules = Array.from(stats.toJson({source: true}).modules || []);
 
-    const kitchenSinkModule = ensureDefined.wrap(modules)[0];
-    expect(kitchenSinkModule.name).toEqual('./data/collections/kitchen-sink.collection.json');
-    expect(typeof kitchenSinkModule.source).toBe('string');
-    const kitchenSink = JSON.parse(kitchenSinkModule.source);
+    const kitchenSink = JSON.parse(getModuleSource('./data/collections/kitchen-sink.collection.json', stats));
 
     // This is the loaded module
     expect(kitchenSink['@type'])
@@ -68,7 +72,7 @@ test('collection references are resolved', async () => {
         .toEqual({'@id': 'bundled/data/collections/referenced-modules/mock.item.json'});
 
     expect(fp.pipe(
-        fp.map((mod: {name: string, source?: string}) => ({name: mod.name, source: mod.source})),
+        fp.map((mod: webpack.StatsModule) => ({name: mod.name, source: mod.source})),
         fp.sortBy(['name']),
     )(modules.slice(1))).toEqual([
         {name: './data/collections/referenced-modules/from-nested-collection.item.json',
