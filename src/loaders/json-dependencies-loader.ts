@@ -252,8 +252,11 @@ export interface LoadedModule {
 export class IgnoredModule extends Error {}
 
 function loadModule(loaderContext: webpack.LoaderContext<{}>, request: string): Promise<LoadedModule> {
+    const logger = loaderContext.getLogger();
     return new Promise((resolve, reject) => {
+        logger.info(`Calling loadModule() for request: '${request}'`);
         loaderContext.loadModule(request, (err, source, sourceMap, module: webpack.Module) => {
+            logger.info(`loadModule() called back for request: '${request}', failed?: ${!!err}`);
             if(err) {
                 // Webpack allows modules to be ignored, e.g. via the NormalModuleFactory beforeResolve hook.
                 // However the LoaderContext.loadModule() method doesn't handle ignored modules, and fails with the
