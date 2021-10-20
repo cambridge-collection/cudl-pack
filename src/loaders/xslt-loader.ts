@@ -17,7 +17,8 @@ const validateOptions = createValidator<Options>({
     name: 'options',
 });
 
-const loader: AsyncLoadFunction = async function (this: webpack.LoaderContext<{}>, source: string | Buffer): Promise<Buffer> {
+const loader: AsyncLoadFunction = async function(this: webpack.LoaderContext<{}>,
+                                                 source: string | Buffer): Promise<Buffer> {
     const options: Options = validateOptions(this.getOptions());
 
     const stylesheetPath = await promisify(this.resolve.bind(this))(this.rootContext, options.stylesheet);
@@ -33,6 +34,6 @@ const loader: AsyncLoadFunction = async function (this: webpack.LoaderContext<{}
         xml: source,
         xsltPath: stylesheetPath,
     });
-}
+};
 
 export default createAsyncLoader(loader);

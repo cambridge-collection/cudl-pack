@@ -229,7 +229,9 @@ function wrapEnsureDefined<A>(value?: A, path?: Property | Property[]):
 
 ensureDefined.wrap = wrapEnsureDefined;
 
-export function getModule(modName: string, stats: webpack.Stats, statsOptions?: Parameters<webpack.Stats['toJson']>[0]): webpack.StatsModule {
+export function getModule(
+    modName: string, stats: webpack.Stats, statsOptions?: Parameters<webpack.Stats['toJson']>[0],
+): webpack.StatsModule {
     const modules = stats.toJson(statsOptions).modules;
     const mod = stats.toJson(statsOptions).modules?.find(m => m.name === modName);
     if(mod === undefined) {

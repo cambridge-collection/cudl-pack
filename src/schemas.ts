@@ -1,5 +1,5 @@
 import {default as Ajv, ErrorObject, ValidateFunction} from 'ajv';
-import addFormats from "ajv-formats"
+import addFormats from 'ajv-formats';
 import internalItemSchema from 'cudl-schema-internal-json/schemas/item.json';
 
 import collectionSchema from 'cudl-schema-package-json/schemas/collection.json';
@@ -88,7 +88,7 @@ export function createValidator<T>(spec: SchemaSpec): Validator<T> {
     return expectValid.bind(spec) as Validator<T>;
 }
 function createValidatorInternal<T>(schemaId: string, name: string): Validator<T> {
-    let validate = ajv.getSchema(schemaId);
+    const validate = ajv.getSchema(schemaId);
     if(validate === undefined) {
         throw new Error(`AJV schema does not exist: ${schemaId}`);
     }

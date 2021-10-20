@@ -1,5 +1,4 @@
 import fs from 'fs';
-import loaderUtils from 'loader-utils';
 import csv from 'neat-csv';
 import path from 'path';
 import util from 'util';
@@ -61,7 +60,8 @@ function isOptions(value: object): value is Options {
         typeof (value as Record<keyof Options, unknown>).imageType === 'string');
 }
 
-const loader: AsyncLoadFunction = async function (this: webpack.LoaderContext<{}>, source: string | Buffer): Promise<string | Buffer> {
+const loader: AsyncLoadFunction = async function(this: webpack.LoaderContext<{}>,
+                                                 source: string | Buffer): Promise<string | Buffer> {
 
     // Get the image server path and image type parameters
     const options = this.getOptions();
@@ -112,6 +112,6 @@ const loader: AsyncLoadFunction = async function (this: webpack.LoaderContext<{}
 
     return JSON.stringify(json);
 
-}
+};
 
 export default createAsyncLoader(loader);

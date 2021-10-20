@@ -30,7 +30,8 @@ export class ItemDataLinkDependencyPlugin implements PluginObject {
 
     public apply(hooks: DependencyResolutionHooks) {
         const options = ItemDataLinkDependencyPlugin.TAP_NAME;
-        hooks.findReferences.tapPromise(options, async (references: Reference[], doc: any, context: webpack.LoaderContext<{}>) => {
+        hooks.findReferences.tapPromise(options, async (references: Reference[], doc: any,
+                                                        context: webpack.LoaderContext<{}>) => {
             const item = validateItem(doc);
             const ns = await NamespaceLoader.forWebpackLoader(context).loadNamespace(item);
             const links: LinkItemData[] = getData(item, ns, {type: isLinkItemData, roles: this.roles});

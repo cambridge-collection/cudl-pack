@@ -17,12 +17,12 @@ function getOptions(context: webpack.LoaderContext<{}>): Options {
 
     const postValidate = options.postValidate;
     if(postValidate !== undefined && typeof postValidate !== 'boolean') {
-        throw new Error(`postValidate option must be a boolean`);
+        throw new Error('postValidate option must be a boolean');
     }
 
     const converter = options.converter;
     if (!(converter === undefined || isItemToInternalItemConverter(converter))) {
-        throw new Error(`converter option must be a ItemToInternalItemConverter object`);
+        throw new Error('converter option must be a ItemToInternalItemConverter object');
     }
 
     return {
@@ -32,7 +32,7 @@ function getOptions(context: webpack.LoaderContext<{}>): Options {
     };
 }
 
-export default createAsyncLoader(async function (this, source) {
+export default createAsyncLoader(async function(this, source) {
     const options = getOptions(this);
     const item: Item = parseItemJson(source.toString());
     const internalItem = await options.converter.convert(item);
