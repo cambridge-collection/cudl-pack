@@ -10,7 +10,7 @@
     "docs": "find src -name '*.ts' -exec typedoc --out docs {} +",
     "test": "npm run $([ \"$CI\" = true ] && echo ci-test || echo non-ci-test)",
     "non-ci-test": "jest",
-    "ci-test": "jest --ci --reporters=default --reporters=jest-junit",
+    "ci-test": "jest --ci",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
     "check-format": "prettier --check ."
@@ -38,7 +38,6 @@
     "file-loader": "^6.2.0",
     "html-loader": "^2.1.2",
     "jest": "^27.3.1",
-    "jest-junit": "^13.0.0",
     "jest-xml-matcher": "^1.2.0",
     "json-loader": "^0.5.7",
     "loglevelnext": "^5.0.6",
@@ -77,9 +76,5 @@
     "tapable": "^2.2.1",
     "webpack-log": "^3.0.2",
     "xml2js": "^0.4.23"
-  },
-  "jest-junit": {
-    "outputDirectory": "test-reports",
-    "outputName": "jest.xml"
   }
 }
