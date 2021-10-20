@@ -48,7 +48,6 @@
     "webpack": "^5.59.0"
   },
   "dependencies": {
-    "3": "^2.1.0",
     "@lib.cam/xslt-nailgun": "^0.3.1",
     "@types/loader-utils": "^2.0.3",
     "ajv": "^8.6.3",
@@ -67,6 +66,7 @@
     "lodash": "^4.17.21",
     "neat-csv": "^6.0.1",
     "object.fromentries": "^2.0.5",
+    "source-map": "^0.7.3",
     "tapable": "^2.2.1",
     "webpack-log": "^3.0.2",
     "xml2js": "^0.4.23"
