@@ -4,7 +4,7 @@ import webpack from 'webpack';
 import {ItemToInternalItemConverter} from '../src/convert/item/to/internal-item';
 import {InternalItemfromPackageItemLoaderOptions} from '../src/loaders/internal-item-from-package-item-loader';
 import compiler from './compiler';
-import {ensureDefined, readPathAsString} from './util';
+import {ensureDefined, getModuleSource, readPathAsString} from './util';
 
 test('loader transforms package items to internal items', async () => {
     const rules: webpack.RuleSetRule[] = [
@@ -19,12 +19,12 @@ test('loader transforms package items to internal items', async () => {
     ];
 
     const stats = await compiler('./convert/item/to/internal-item/data/package-item.json5', rules);
-    const output = ensureDefined.wrap(stats.toJson()).modules[0].source;
 
     const expected = json5.parse(await readPathAsString(
         './convert/item/to/internal-item/data/internal-item_default-plugins.json5'));
 
-    expect(JSON.parse(output)).toEqual(expected);
+    expect(JSON.parse(getModuleSource('./convert/item/to/internal-item/data/package-item.json5', stats)))
+        .toEqual(expected);
 });
 
 test('loader uses converter option', async () => {
@@ -47,10 +47,10 @@ test('loader uses converter option', async () => {
     ];
 
     const stats = await compiler('./convert/item/to/internal-item/data/package-item.json5', rules);
-    const output = ensureDefined.wrap(stats.toJson()).modules[0].source;
 
     const expected = json5.parse(await readPathAsString(
         './convert/item/to/internal-item/data/internal-item_no-plugins.json5'));
 
-    expect(JSON.parse(output)).toEqual(expected);
+    expect(JSON.parse(getModuleSource('./convert/item/to/internal-item/data/package-item.json5', stats)))
+        .toEqual(expected);
 });
