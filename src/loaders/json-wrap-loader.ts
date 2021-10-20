@@ -1,22 +1,19 @@
-import Ajv from 'ajv';
-import clone from 'clone';
-import jsonpointer from 'jsonpointer';
-import webpack from 'webpack';
-import {createValidator} from '../schemas';
+import Ajv from "ajv";
+import clone from "clone";
+import jsonpointer from "jsonpointer";
+import webpack from "webpack";
+import { createValidator } from "../schemas";
 
 const optionsSchema = {
-    $id: 'cudl-pack/loaders/json-wrap-loader.schema.json',
-    type: 'object',
+    $id: "cudl-pack/loaders/json-wrap-loader.schema.json",
+    type: "object",
     properties: {
-        insertionPoint: { type: 'string' },
+        insertionPoint: { type: "string" },
         template: {
-            anyOf: [
-                {type: 'object'},
-                {type: 'array'},
-            ],
+            anyOf: [{ type: "object" }, { type: "array" }],
         },
     },
-    required: ['insertionPoint'],
+    required: ["insertionPoint"],
 };
 
 export interface Options {
@@ -27,13 +24,13 @@ export interface Options {
 const validateOptions = createValidator<Options>({
     schemaId: optionsSchema.$id,
     validate: new Ajv().compile(optionsSchema),
-    name: 'options',
+    name: "options",
 });
 
 /**
  * A loader which nests the loaded value into a JSON structure
  */
-export default function(this: webpack.LoaderContext<{}>, source: string) {
+export default function (this: webpack.LoaderContext<{}>, source: string) {
     const options = validateOptions(this.getOptions());
 
     const template = clone(options.template || {}, false);

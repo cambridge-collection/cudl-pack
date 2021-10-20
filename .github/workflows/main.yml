@@ -2,13 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -19,8 +18,8 @@ jobs:
           node-version: 14.x
       - uses: actions/setup-java@v2
         with:
-          distribution: 'zulu'
-          java-version: '17'
+          distribution: "zulu"
+          java-version: "17"
       - name: Install dependencies
         run: npm ci
       - run: npm run lint

@@ -1,13 +1,21 @@
-import {enumMemberGuard} from './utils';
+import { enumMemberGuard } from "./utils";
 
 export enum Orientation {
-    Portrait = 'portrait',
-    Landscape = 'landscape',
+    Portrait = "portrait",
+    Landscape = "landscape",
 }
 
 export enum TopLevelKeys {
-    ID, thumbnailUrl, thumbnailOrientation, displayImageRights, downloadImageRights, imageReproPageURL, docAuthority,
-    type, manuscript, itemReferences,
+    ID,
+    thumbnailUrl,
+    thumbnailOrientation,
+    displayImageRights,
+    downloadImageRights,
+    imageReproPageURL,
+    docAuthority,
+    type,
+    manuscript,
+    itemReferences,
 }
 export const isTopLevelKey = enumMemberGuard(TopLevelKeys);
 
@@ -19,9 +27,9 @@ export interface TopLevelDescriptiveMetadataProperties {
     downloadImageRights?: string;
     imageReproPageURL?: string;
     docAuthority?: string;
-    type?: 'text';
+    type?: "text";
     manuscript?: boolean;
-    itemReferences?: Array<{ID: string}>;
+    itemReferences?: Array<{ ID: string }>;
 }
 
 export interface NestedMetadata {
@@ -38,7 +46,7 @@ export interface DisplayableMetadataBase {
 
 export interface SingleDisplayableMetadata {
     displayForm: string;
-    linktype?: 'keyword search';
+    linktype?: "keyword search";
     value?: never;
 
     // Additional arbitrary properties allowed
@@ -53,23 +61,34 @@ export interface MultipleDisplayableMetadata {
     [key: string]: any;
 }
 
-export type DisplayableMetadata = DisplayableMetadataBase & (SingleDisplayableMetadata | MultipleDisplayableMetadata);
+export type DisplayableMetadata = DisplayableMetadataBase &
+    (SingleDisplayableMetadata | MultipleDisplayableMetadata);
 
 enum MetadataKeys {
-    display, displayForm, label, linktype, seq, value,
+    display,
+    displayForm,
+    label,
+    linktype,
+    seq,
+    value,
 }
 const isMetadataKey = enumMemberGuard(MetadataKeys);
-type NotMetadataKeys = {[K in keyof MetadataKeys]?: never};
+type NotMetadataKeys = { [K in keyof MetadataKeys]?: never };
 
 /** Anything except reserved metadata keys */
-export type NonDisplayableMetadata = {[K in string]: any} & NotMetadataKeys;
+export type NonDisplayableMetadata = { [K in string]: any } & NotMetadataKeys;
 
-export function isNonDisplayableMetadata(obj: any): obj is NonDisplayableMetadata {
+export function isNonDisplayableMetadata(
+    obj: any
+): obj is NonDisplayableMetadata {
     return !Object.keys(obj).some(isMetadataKey);
 }
 
 export interface MetadataContainer {
-    [key: string]: NestedMetadata | DisplayableMetadata | NonDisplayableMetadata;
+    [key: string]:
+        | NestedMetadata
+        | DisplayableMetadata
+        | NonDisplayableMetadata;
 }
 
 /**
@@ -80,7 +99,8 @@ export interface MetadataContainer {
  * properties it allows, which aren't allowed by general metadata properties.) Instead you can use
  * [[createDescriptiveMetadataSection]] to create instances.
  */
-export type DescriptiveMetadataSection = TopLevelDescriptiveMetadataProperties & MetadataContainer;
+export type DescriptiveMetadataSection = TopLevelDescriptiveMetadataProperties &
+    MetadataContainer;
 
 /**
  * Create a DescriptiveMetadataSection from top-level properties and general metadata properties.
@@ -88,24 +108,27 @@ export type DescriptiveMetadataSection = TopLevelDescriptiveMetadataProperties &
  * This is a helper to work around the types being strictly incompatible (see [[DescriptiveMetadataSection]].
  */
 export function createDescriptiveMetadataSection(
-        topLevel: TopLevelDescriptiveMetadataProperties, metadata: MetadataContainer, strict: boolean = true,
+    topLevel: TopLevelDescriptiveMetadataProperties,
+    metadata: MetadataContainer,
+    strict: boolean = true
 ): DescriptiveMetadataSection {
-
     // Ensure we don't allow non top-level keys from metadata
     const allKeys = Object.keys(metadata);
     let _metadata;
-    if(allKeys.some(isTopLevelKey)) {
-        if(strict) {
-            const reservedKeys = allKeys.filter(key => !isTopLevelKey(key)).join(', ');
+    if (allKeys.some(isTopLevelKey)) {
+        if (strict) {
+            const reservedKeys = allKeys
+                .filter((key) => !isTopLevelKey(key))
+                .join(", ");
             throw new Error(`\
 metadata contained a displayable object under a key reserved for top-level non-displayable metadata: ${reservedKeys}`);
         }
 
         // non-strict mode: Exclude reserved metadata from the result
-        _metadata = allKeys.filter(member => !isTopLevelKey(member))
-            .map(member => [member, metadata[member]]);
-    }
-    else {
+        _metadata = allKeys
+            .filter((member) => !isTopLevelKey(member))
+            .map((member) => [member, metadata[member]]);
+    } else {
         _metadata = metadata;
     }
 
@@ -158,8 +181,8 @@ export interface ListItemPage {
 }
 
 export interface ItemProperties {
-    textDirection?: 'L' | 'R';
-    itemType?: 'essay';
+    textDirection?: "L" | "R";
+    itemType?: "essay";
     numberOfPages?: number;
     embeddable?: boolean;
     sourceData?: string;

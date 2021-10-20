@@ -26,20 +26,20 @@ a break point from the start.
 ### Setting up tests in IntelliJ Idea
 
 You can run the tests in IntelliJ by selecting 'Edit Configurations' to open
-the 'Run/Debug Configuration' screen.  You can then select the + symbol to run
-using a new configuration and select 'Jest' as the type.  Then if you give the
+the 'Run/Debug Configuration' screen. You can then select the + symbol to run
+using a new configuration and select 'Jest' as the type. Then if you give the
 test configuration a name e.g. 'all tests' and then save you can then run normally
 (shift-f10 or using the green arrow).
 
 ### Gotchas
 
-Unhandled async errors crash Jest.  This can be problematic to debug.
+Unhandled async errors crash Jest. This can be problematic to debug.
 
 ## Requirements
 
-- The gyp build tool requires python 2.7.14 (or later python 2)
-- Requires jdk 11 (or at least newer than java 8)
-- Requires node 10 (due to java not working on node 12 yet).
+-   The gyp build tool requires python 2.7.14 (or later python 2)
+-   Requires jdk 11 (or at least newer than java 8)
+-   Requires node 10 (due to java not working on node 12 yet).
 
 ## Releases
 

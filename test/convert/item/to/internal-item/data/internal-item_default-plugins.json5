@@ -1,90 +1,92 @@
 {
-  "descriptiveMetadata": [
-    {
-      "ID": "main",
-      "title": {
-        "display": true,
-        "label": "Title",
-        "displayForm": "Book of Foo",
-        "seq": 1
-      },
-      "formerOwners": {
-        "display": true,
-        "label": "Former Owners",
-        "value": [
-          {"displayForm": "<a href='cudl:///search?keyword=Joe%20Bloggs'>Bloggs, Joe, ca. 1082-1153</a>"}
-        ],
-        "seq": 2
-      }
-    },
-    {
-      "ID": "1-4",
-      "title": {
-        "display": true,
-        "label": "Title",
-        "displayForm": "Excerpts from the Gospel of FooBar",
-        "seq": 1
-      }
-    },
-    {
-      "ID": "chapter1"
-    }
-  ],
-  "pages": [
-    {
-      "label": "cover",
-      "physID": "1",
-      "sequence": 1
-    },
-    {
-      "label": "2r",
-      "physID": "4",
-      "sequence": 2,
-      "IIIFImageURL": "https://iiif.example.com/2r"
-    },
-    {
-      "label": "p10",
-      "physID": "10",
-      "sequence": 3
-    },
-    {
-      "label": "p35",
-      "physID": "35",
-      "sequence": 4
-    }
-  ],
-  "logicalStructures": [
-    {
-      "label": "Book of Foo",
-      "descriptiveMetadataID": "main",
-      "startPageID": "1",
-      "startPageLabel": "cover",
-      "startPagePosition": 1,
-      "endPageID": "35",
-      "endPageLabel": "p35",
-      "endPagePosition": 4,
-      "children": [
+    descriptiveMetadata: [
         {
-          "label": "Excerpts from the Gospel of FooBar",
-          "descriptiveMetadataID": "1-4",
-          "startPageID": "1",
-          "startPageLabel": "cover",
-          "startPagePosition": 1,
-          "endPageID": "4",
-          "endPageLabel": "2r",
-          "endPagePosition": 2
+            ID: "main",
+            title: {
+                display: true,
+                label: "Title",
+                displayForm: "Book of Foo",
+                seq: 1,
+            },
+            formerOwners: {
+                display: true,
+                label: "Former Owners",
+                value: [
+                    {
+                        displayForm: "<a href='cudl:///search?keyword=Joe%20Bloggs'>Bloggs, Joe, ca. 1082-1153</a>",
+                    },
+                ],
+                seq: 2,
+            },
         },
         {
-          "label": "Untitled",
-          "descriptiveMetadataID": "chapter1",
-          "startPageID": "10",
-          "startPageLabel": "p10",
-          "startPagePosition": 3,
-          "endPageID": "35",
-          "endPageLabel": "p35",
-          "endPagePosition": 4
-        }
-      ]
-    }
-  ]
+            ID: "1-4",
+            title: {
+                display: true,
+                label: "Title",
+                displayForm: "Excerpts from the Gospel of FooBar",
+                seq: 1,
+            },
+        },
+        {
+            ID: "chapter1",
+        },
+    ],
+    pages: [
+        {
+            label: "cover",
+            physID: "1",
+            sequence: 1,
+        },
+        {
+            label: "2r",
+            physID: "4",
+            sequence: 2,
+            IIIFImageURL: "https://iiif.example.com/2r",
+        },
+        {
+            label: "p10",
+            physID: "10",
+            sequence: 3,
+        },
+        {
+            label: "p35",
+            physID: "35",
+            sequence: 4,
+        },
+    ],
+    logicalStructures: [
+        {
+            label: "Book of Foo",
+            descriptiveMetadataID: "main",
+            startPageID: "1",
+            startPageLabel: "cover",
+            startPagePosition: 1,
+            endPageID: "35",
+            endPageLabel: "p35",
+            endPagePosition: 4,
+            children: [
+                {
+                    label: "Excerpts from the Gospel of FooBar",
+                    descriptiveMetadataID: "1-4",
+                    startPageID: "1",
+                    startPageLabel: "cover",
+                    startPagePosition: 1,
+                    endPageID: "4",
+                    endPageLabel: "2r",
+                    endPagePosition: 2,
+                },
+                {
+                    label: "Untitled",
+                    descriptiveMetadataID: "chapter1",
+                    startPageID: "10",
+                    startPageLabel: "p10",
+                    startPagePosition: 3,
+                    endPageID: "35",
+                    endPageLabel: "p35",
+                    endPagePosition: 4,
+                },
+            ],
+        },
+    ],
 }

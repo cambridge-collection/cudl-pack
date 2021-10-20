@@ -9,15 +9,15 @@
     "full-module-reference-selector": {
       "type": "object",
       "properties": {
-        "expression": {"$ref": "#/definitions/module-reference-pattern"},
-        "substitutionLevel": {"type": "number"}
+        "expression": { "$ref": "#/definitions/module-reference-pattern" },
+        "substitutionLevel": { "type": "number" }
       },
       "required": ["expression"]
     },
     "module-reference-selector": {
       "oneOf": [
-        {"$ref": "#/definitions/module-reference-pattern"},
-        {"$ref": "#/definitions/full-module-reference-selector"}
+        { "$ref": "#/definitions/module-reference-pattern" },
+        { "$ref": "#/definitions/full-module-reference-selector" }
       ]
     }
   },
@@ -25,23 +25,23 @@
   "properties": {
     "references": {
       "oneOf": [
-        {"$ref": "#/definitions/module-reference-selector"},
+        { "$ref": "#/definitions/module-reference-selector" },
         {
           "type": "array",
-          "items": {"$ref": "#/definitions/module-reference-selector"}
+          "items": { "$ref": "#/definitions/module-reference-selector" }
         },
-        {"typeof": "function"}
+        { "typeof": "function" }
       ]
     },
     "plugins": {
       "type": "array",
       "items": {
         "anyOf": [
-          {"typeof": "function"},
+          { "typeof": "function" },
           {
             "type": "object",
             "properties": {
-              "apply": {"typeof": "function"}
+              "apply": { "typeof": "function" }
             }
           }
         ]
