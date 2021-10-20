@@ -3,7 +3,7 @@ import webpack from 'webpack';
 import {ItemDataLinkDependencyPlugin} from '../src/loaders/item-data-link-dependency-plugin';
 import {CDLRole} from '../src/uris';
 import compiler from './compiler';
-import {ensureDefined, readPathAsString} from './util';
+import {getModuleSource, readPathAsString} from './util';
 
 test('item data links are handled specially by ItemDataLinkDependencyPlugin', async () => {
     // Here we load the data.json dependency linked from item.json in two ways based on @role values.
@@ -24,19 +24,13 @@ test('item data links are handled specially by ItemDataLinkDependencyPlugin', as
             ],
         },
         {test: /\/data\.json$/, resourceQuery: '?a',
-         use: '../src/loaders/json-wrap-loader.ts?{insertionPoint: "/data", template: {handledBy: "a"}}'},
+         use: '../src/loaders/json-wrap-loader.ts?{"insertionPoint": "/data", "template": {"handledBy": "a"}}'},
         {test: /\/data\.json$/, resourceQuery: '?b',
-            use: '../src/loaders/json-wrap-loader.ts?{insertionPoint: "/data", template: {handledBy: "b"}}'},
+            use: '../src/loaders/json-wrap-loader.ts?{"insertionPoint": "/data", "template": {"handledBy": "b"}}'},
     ];
 
-    const stats = ensureDefined.wrap((await compiler(item, rules)).toJson());
-    const [mainModule, dataA, dataB] = [
-        stats.modules.filter((m: any) => m.name === item)[0],
-        stats.modules.filter((m: any) => m.name === `${dir}/data.json?a`)[0],
-        stats.modules.filter((m: any) => m.name === `${dir}/data.json?b`)[0],
-    ];
-
-    expect(JSON.parse(mainModule.source)).toEqual(JSON.parse(await readPathAsString(item)));
-    expect(JSON.parse(dataA.source)).toEqual({handledBy: 'a', data: {data: 42}});
-    expect(JSON.parse(dataB.source)).toEqual({handledBy: 'b', data: {data: 42}});
+    const stats = await compiler(item, rules);
+    expect(JSON.parse(getModuleSource(item, stats))).toEqual(JSON.parse(await readPathAsString(item)));
+    expect(JSON.parse(getModuleSource(`${dir}/data.json?a`, stats))).toEqual({handledBy: 'a', data: {data: 42}});
+    expect(JSON.parse(getModuleSource(`${dir}/data.json?b`, stats))).toEqual({handledBy: 'b', data: {data: 42}});
 });
