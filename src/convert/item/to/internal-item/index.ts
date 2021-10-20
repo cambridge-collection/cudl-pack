@@ -126,6 +126,14 @@ export class ItemToInternalItemConverter {
     }
 }
 
+export function isItemToInternalItemConverter(value: unknown): value is ItemToInternalItemConverter {
+    return value instanceof ItemToInternalItemConverter || (
+        typeof value === 'object' &&
+        (value as Partial<ItemToInternalItemConverter>).convert !== undefined &&
+        (value as Partial<ItemToInternalItemConverter>).hooks !== undefined
+    );
+}
+
 async function itemToInternalItem(item: Item, hooks: ItemToInternalItemConversionHooks):
         Promise<InternalItem> {
     let ns = await hooks.createNamespace.promise(undefined);

@@ -1,6 +1,6 @@
 import objectFromEntries from 'object.fromentries';
 import webpack from 'webpack';
-import {ItemToInternalItemConverter} from '../convert/item/to/internal-item';
+import {isItemToInternalItemConverter, ItemToInternalItemConverter} from '../convert/item/to/internal-item';
 import {generateInternalItemJson} from '../internal-item';
 import {parseItemJson} from '../item';
 import {Item} from '../item-types';
@@ -20,10 +20,10 @@ function getOptions(context: webpack.LoaderContext<{}>): Options {
         throw new Error(`postValidate option must be a boolean`);
     }
 
-    if(options.converter !== undefined && typeof options.converter !== 'function') {
-        throw new Error(`converter option must be a function`);
+    const converter = options.converter;
+    if (!(converter === undefined || isItemToInternalItemConverter(converter))) {
+        throw new Error(`converter option must be a ItemToInternalItemConverter object`);
     }
-    const converter = options.converter as unknown as (ItemToInternalItemConverter | undefined);
 
     return {
         postValidate: postValidate === undefined ? true : postValidate,
