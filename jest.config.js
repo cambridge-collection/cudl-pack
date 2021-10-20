@@ -1,7 +1,7 @@
 module.exports = {
   globals: {
     'ts-jest': {
-      tsConfig: 'tsconfig.json'
+      tsconfig: 'tsconfig.json'
     }
   },
   moduleFileExtensions: [
@@ -18,5 +18,8 @@ module.exports = {
   testEnvironment: 'node',
   setupFilesAfterEnv: [
     '<rootDir>/test/setup.ts'
+  ],
+  modulePathIgnorePatterns: [
+    '<rootDir>/build/'
   ]
 };

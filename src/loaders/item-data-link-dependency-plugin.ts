@@ -5,8 +5,6 @@ import {isLinkItemData, LinkItemData} from '../item-types';
 import {validateItem} from '../schemas';
 import {DependencyResolutionHooks, PluginObject, Reference} from './json-dependencies-loader';
 
-type LoaderContext = webpack.loader.LoaderContext;
-
 interface Options {
     /** The roles that the link data items must have to be considered. */
     roles?: string | Iterable<string>;
@@ -32,7 +30,8 @@ export class ItemDataLinkDependencyPlugin implements PluginObject {
 
     public apply(hooks: DependencyResolutionHooks) {
         const options = ItemDataLinkDependencyPlugin.TAP_NAME;
-        hooks.findReferences.tapPromise(options, async (references: Reference[], doc: any, context: LoaderContext) => {
+        hooks.findReferences.tapPromise(options, async (references: Reference[], doc: any,
+                                                        context: webpack.LoaderContext<{}>) => {
             const item = validateItem(doc);
             const ns = await NamespaceLoader.forWebpackLoader(context).loadNamespace(item);
             const links: LinkItemData[] = getData(item, ns, {type: isLinkItemData, roles: this.roles});

@@ -1,9 +1,9 @@
 import webpack from 'webpack';
 import {parseDlDatasetJson} from '../dl-dataset';
 
-const loader: webpack.loader.Loader = (source: string) => {
+const loader: webpack.LoaderDefinitionFunction = (source: string | Buffer) => {
     // This just serves to ensure the input is valid dl-dataset JSON
-    parseDlDatasetJson(source);
+    parseDlDatasetJson(source.toString());
 
     return source;
 };

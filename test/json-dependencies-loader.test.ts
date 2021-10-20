@@ -1,6 +1,5 @@
 import path from 'path';
 import webpack from 'webpack';
-import IgnorePlugin from 'webpack/lib/IgnorePlugin';
 import {
     AncestorSubstitutionReferenceSelector,
     DependencyResolutionHooks,
@@ -12,7 +11,7 @@ import {
     ResolvedReference,
 } from '../src/loaders/json-dependencies-loader';
 import compiler from './compiler';
-import {ensureDefined, readPathAsString} from './util';
+import {getModule, getModuleSource, readPathAsString} from './util';
 
 test('references are replaced by resolved JSON objects', async () => {
     const rules = [{
@@ -23,11 +22,9 @@ test('references are replaced by resolved JSON objects', async () => {
     }];
 
     const stats = await compiler('./data/references/a', rules);
-    const module = ensureDefined.wrap(stats.toJson()).modules[0];
 
-    expect(stats.compilation.modules[0].type).toEqual('json');
-
-    expect(JSON.parse(module.source)).toEqual({
+    expect(getModule('./data/references/a.json', stats).moduleType).toEqual('json');
+    expect(JSON.parse(getModuleSource('./data/references/a.json', stats))).toEqual({
             thisIs: 'a',
             b: {
                 thisIs: 'b',
@@ -54,11 +51,9 @@ test('reference pattern can be specified via options', async () => {
     }];
 
     const stats = await compiler('./data/references/alternate-syntax', rules);
-    const module = ensureDefined.wrap(stats.toJson()).modules[0];
 
-    expect(stats.compilation.modules[0].type).toEqual('json');
-
-    expect(JSON.parse(module.source)).toEqual({
+    expect(getModule('./data/references/alternate-syntax.json', stats).moduleType).toEqual('json');
+    expect(JSON.parse(getModuleSource('./data/references/alternate-syntax.json', stats))).toEqual({
         c: {
             thisIs: 'c',
         },
@@ -91,11 +86,9 @@ test('a user-provided function can enumerate references', async () => {
     }];
 
     const stats = await compiler('./data/references/alternate-syntax', rules);
-    const module = ensureDefined.wrap(stats.toJson()).modules[0];
 
-    expect(stats.compilation.modules[0].type).toEqual('json');
-
-    expect(JSON.parse(module.source)).toEqual({
+    expect(getModule('./data/references/alternate-syntax.json', stats).moduleType).toEqual('json');
+    expect(JSON.parse(getModuleSource('./data/references/alternate-syntax.json', stats))).toEqual({
         c: {
             thisIs: 'c',
         },
@@ -110,11 +103,9 @@ test('references in arrays are replaced by resolved JSON objects', async () => {
     }];
 
     const stats = await compiler('./data/references/ref-list', rules);
-    const module = ensureDefined.wrap(stats.toJson()).modules[0];
 
-    expect(stats.compilation.modules[0].type).toEqual('json');
-
-    expect(JSON.parse(module.source)).toEqual({
+    expect(getModule('./data/references/ref-list.json', stats).moduleType).toEqual('json');
+    expect(JSON.parse(getModuleSource('./data/references/ref-list.json', stats))).toEqual({
             references: [
                 {this:  'is not a ref'},
                 {
@@ -154,11 +145,9 @@ test('references are replaced by resolved JSON strings', async () => {
     ];
 
     const stats = await compiler('./data/references/json-pointing-to-non-json', rules);
-    const module = ensureDefined.wrap(stats.toJson()).modules[0];
 
-    expect(stats.compilation.modules[0].type).toEqual('json');
-
-    expect(JSON.parse(module.source)).toEqual({
+    expect(getModule('./data/references/json-pointing-to-non-json.json', stats).moduleType).toEqual('json');
+    expect(JSON.parse(getModuleSource('./data/references/json-pointing-to-non-json.json', stats))).toEqual({
         nonJsonThing: 'Plain text.\n',
     });
 });
@@ -172,7 +161,7 @@ test('references to missing modules are reported', async () => {
     }];
 
     await expect(compiler('./data/references/missing', rules)).rejects
-        .toMatch(/Unable to load module referenced by: \.\/does-not-exist : ModuleNotFoundError: /);
+        .toThrowError(/ModuleNotFoundError: Module not found: Error: Can't resolve '\.\/does-not-exist'/);
 });
 
 test('referenced modules not containing JSON are reported', async () => {
@@ -191,8 +180,7 @@ test('referenced modules not containing JSON are reported', async () => {
     ];
 
     await expect(compiler('./data/references/json-pointing-to-non-json', rules)).rejects
-        .toMatch(new RegExp(`\
-Unable to parse referenced module as JSON. request: \./file\.txt, parse error: SyntaxError: `));
+        .toThrowError(/Unable to parse referenced module as JSON. request: \.\/file\.txt, parse error: SyntaxError: /);
 });
 
 test('references to ignored dependencies are left as-is', async () => {
@@ -208,15 +196,13 @@ test('references to ignored dependencies are left as-is', async () => {
         },
         plugins: [
             // c.json is ignored
-            new IgnorePlugin({resourceRegExp: /c\.json$/}),
+            new webpack.IgnorePlugin({resourceRegExp: /c\.json$/}),
         ],
     };
 
     const stats = await compiler(config);
-    const module = ensureDefined.wrap(stats.toJson()).modules[0];
-
-    expect(stats.compilation.modules[0].type).toEqual('json');
-    expect(JSON.parse(module.source)).toEqual({
+    expect(getModule('./data/references/a.json', stats).moduleType).toEqual('json');
+    expect(JSON.parse(getModuleSource('./data/references/a.json', stats))).toEqual({
             thisIs: 'a',
             b: {
                 thisIs: 'b',
@@ -267,7 +253,7 @@ test('plugins can be functions', async () => {
     expect.assertions(1);
 });
 
-type LoaderContext = webpack.loader.LoaderContext;
+type LoaderContext = webpack.LoaderContext<{}>;
 
 function isWebpackContext(obj: any): obj is LoaderContext {
     return typeof obj === 'object' && obj.version === 2 && typeof obj.loadModule === 'function';
@@ -362,9 +348,8 @@ test('plugins can control loader behaviour', async () => {
             }],
         },
     });
-    const module = ensureDefined.wrap(stats.toJson()).modules[0];
 
     // Specific formatting from hooks.dump is preserved
-    expect(module.source).toBe(' {"foo": [456]} ');
+    expect(getModuleSource('./data/references/b.json', stats)).toBe(' {"foo": [456]} ');
     expect.assertions(24);
 });

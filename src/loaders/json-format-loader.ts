@@ -1,6 +1,5 @@
 import Ajv from 'ajv';
 import parseJson from 'json-parse-better-errors';
-import loaderUtils from 'loader-utils';
 import * as util from 'util';
 import webpack from 'webpack';
 import {createValidator} from '../schemas';
@@ -22,8 +21,8 @@ const validateOptions = createValidator<Options>({
 /**
  * A loader which re-indents JSON.
  */
-export default function(this: webpack.loader.LoaderContext, source: string): string {
-    const options: Options = normaliseOptions(validateOptions(loaderUtils.getOptions(this) || {}));
+export default function(this: webpack.LoaderContext<{}>, source: string): string {
+    const options: Options = normaliseOptions(validateOptions(this.getOptions()));
     return JSON.stringify(parseJson(source), undefined, options.indent) + (options.finalNewline ? '\n' : '');
 }
 

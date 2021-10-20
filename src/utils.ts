@@ -1,5 +1,4 @@
 import fp from 'lodash/fp';
-import {RawSourceMap} from 'source-map';
 import webpack from 'webpack';
 
 export function bindPromiseToCallback<T>(
@@ -9,12 +8,18 @@ export function bindPromiseToCallback<T>(
         (value) => { callback(null, value); }, callback);
 }
 
-export type AsyncLoadFunction<Source extends string | Buffer = string> =
-    (this: webpack.loader.LoaderContext, source: Source, sourceMap?: RawSourceMap)
-        => Promise<Source | void | undefined>;
-export type AsyncLoadMethod<T, Source extends string | Buffer = string> =
-    (this: T, context: webpack.loader.LoaderContext, source: Source, sourceMap?: RawSourceMap)
-        => Promise<Source | void | undefined>;
+type LoaderDefinitionFunctionThis<OptionsType, ContextAdditions> =
+    ThisParameterType<webpack.LoaderDefinitionFunction<OptionsType, ContextAdditions>>;
+// Webpack doesn't export the types of some arguments, e.g. SourceMap
+type LoaderDefinitionFunctionArgs = Parameters<webpack.LoaderDefinitionFunction>;
+
+type Source = string | Buffer;
+export type AsyncLoadFunction<OptionsType = {}, ContextAdditions = {}> =
+    (this: LoaderDefinitionFunctionThis<OptionsType, ContextAdditions>, ...args: LoaderDefinitionFunctionArgs)
+        => Promise<Source>;
+export type AsyncLoadMethod<T, OptionsType = {}, ContextAdditions = {}> =
+    (this: T, context: LoaderDefinitionFunctionThis<OptionsType, ContextAdditions>,
+     ...args: LoaderDefinitionFunctionArgs) => Promise<Source>;
 
 /**
  * Create a normal webpack loader function from a promise-returning async function which takes an explicit context
@@ -23,15 +28,17 @@ export type AsyncLoadMethod<T, Source extends string | Buffer = string> =
  * The difference with [[createAsyncLoader]] is that this doesn't require the use of the `this` arg, so class methods
  * can use it directly.
  */
-export function createAsyncLoaderFromMethod<T, Source extends string | Buffer = string>(
-        load: AsyncLoadMethod<T, Source>, thisArg?: T): webpack.loader.Loader {
-    return function(this: webpack.loader.LoaderContext, source: Source, sourceMap?: RawSourceMap): void {
+export function createAsyncLoaderFromMethod<T, OptionsType = {}, ContextAdditions = {}>(
+        load: AsyncLoadMethod<T, OptionsType, ContextAdditions>, thisArg: T,
+): webpack.LoaderDefinition<OptionsType, ContextAdditions> {
+    return function(this: LoaderDefinitionFunctionThis<OptionsType, ContextAdditions>, source, sourceMap,
+                    additionalData): void {
         const callback = this.async();
         if(callback === undefined) {
             throw new Error('loader context returned no callback from async()');
         }
 
-        bindPromiseToCallback(load.call(thisArg, this, source, sourceMap), callback);
+        bindPromiseToCallback(load.call(thisArg, this, source, sourceMap, additionalData), callback);
     };
 }
 
@@ -39,9 +46,11 @@ export function createAsyncLoaderFromMethod<T, Source extends string | Buffer = 
  * Create a normal webpack loader function from a promise-returning async
  * loader function.
  */
-export function createAsyncLoader<Source extends string | Buffer = string>(load: AsyncLoadFunction<Source>):
-        webpack.loader.Loader {
-    return createAsyncLoaderFromMethod<Source>((context, source, sourceMap) => load.call(context, source, sourceMap));
+export function createAsyncLoader<OptionsType = {}, ContextAdditions = {}>(
+    load: AsyncLoadFunction<OptionsType, ContextAdditions>,
+): webpack.LoaderDefinition<OptionsType, ContextAdditions> {
+    return createAsyncLoaderFromMethod(
+        (context, source, sourceMap) => load.call(context, source, sourceMap), undefined);
 }
 
 /**

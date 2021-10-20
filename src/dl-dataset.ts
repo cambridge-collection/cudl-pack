@@ -7,15 +7,12 @@ import {validateDlDataset, ValidationOptions} from './schemas';
 
 const parseXml: (xml: string | Buffer) => Promise<object> = promisify(new xml2js.Parser().parseString);
 
-export function parseDlDatasetXml(xml: string | Buffer): Promise<DlDataset> {
-    return parseXml(xml)
-    .then((dlDatasetXml) => {
-        if(!ajv.validate('parsedDlDatasetXml', dlDatasetXml)) {
-            throw new Error(`Parsed dl-dataset XML is invalid: ${ajv.errorsText()}`);
-        }
-        return dlDatasetXml;
-    })
-    .then(loadDlDatasetXml);
+export async function parseDlDatasetXml(xml: string | Buffer): Promise<DlDataset> {
+    const dlDatasetXml = await parseXml(xml);
+    if(!ajv.validate('parsedDlDatasetXml', dlDatasetXml)) {
+        throw new Error(`Parsed dl-dataset XML is invalid: ${ajv.errorsText()}`);
+    }
+    return loadDlDatasetXml((dlDatasetXml as any) as DlDatasetXml);
 }
 
 export function parseDlDatasetJson(json: string, options?: ValidationOptions): DlDataset {

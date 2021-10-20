@@ -6,6 +6,7 @@ import {join, resolve} from 'path';
 import url from 'url';
 import util from 'util';
 import {promisify} from 'util';
+import webpack, { Stats } from 'webpack';
 import {isNotUndefined} from '../src/utils';
 
 /**
@@ -227,3 +228,23 @@ function wrapEnsureDefined<A>(value?: A, path?: Property | Property[]):
 }
 
 ensureDefined.wrap = wrapEnsureDefined;
+
+export function getModule(
+    modName: string, stats: webpack.Stats, statsOptions?: Parameters<webpack.Stats['toJson']>[0],
+): webpack.StatsModule {
+    const modules = stats.toJson(statsOptions).modules;
+    const mod = stats.toJson(statsOptions).modules?.find(m => m.name === modName);
+    if(mod === undefined) {
+        const modNames = modules?.map(m => m.name || '** unnamed module **').join(', ');
+        throw new Error(`stats contains no module named '${modName}' (Module names: ${modNames})`);
+    }
+    return mod;
+}
+
+export function getModuleSource(modName: string, stats: webpack.Stats): string {
+    const src = getModule(modName, stats, {source: true}).source;
+    if(src === undefined) {
+        throw new Error(`module '${modName}' has no source`);
+    }
+    return src.toString();
+}
