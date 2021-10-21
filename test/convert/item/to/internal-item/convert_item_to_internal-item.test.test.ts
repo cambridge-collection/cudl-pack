@@ -253,14 +253,12 @@ test.each([
     [
         "have broken firstPage references",
         { firstPage: "broken", lastPage: "a" },
-        `\
-Invalid description coverage: /descriptions/main/coverage/firstPage references a page that doesn\'t exist: broken`,
+        "Invalid description coverage: /descriptions/main/coverage/firstPage references a page that doesn't exist: broken",
     ],
     [
         "have broken lastPage references",
         { firstPage: "a", lastPage: "broken" },
-        `\
-Invalid description coverage: /descriptions/main/coverage/lastPage references a page that doesn\'t exist: broken`,
+        "Invalid description coverage: /descriptions/main/coverage/lastPage references a page that doesn't exist: broken",
     ],
     [
         "have broken firstPage and lastPage references",

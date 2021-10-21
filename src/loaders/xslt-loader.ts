@@ -2,7 +2,6 @@ import { execute } from "@lib.cam/xslt-nailgun";
 import Ajv from "ajv";
 import { URL } from "url";
 import { promisify } from "util";
-import webpack from "webpack";
 import { createValidator } from "../schemas";
 import { AsyncLoadFunction, createAsyncLoader } from "../utils";
 import optionsSchema from "./xslt-loader-options.schema.json";
@@ -17,10 +16,7 @@ const validateOptions = createValidator<Options>({
     name: "options",
 });
 
-const loader: AsyncLoadFunction = async function (
-    this: webpack.LoaderContext<{}>,
-    source: string | Buffer
-): Promise<Buffer> {
+const load: AsyncLoadFunction = async function (this, source): Promise<Buffer> {
     const options: Options = validateOptions(this.getOptions());
 
     const stylesheetPath = await promisify(this.resolve.bind(this))(
@@ -43,4 +39,4 @@ const loader: AsyncLoadFunction = async function (
     });
 };
 
-export default createAsyncLoader(loader);
+export default createAsyncLoader(load);

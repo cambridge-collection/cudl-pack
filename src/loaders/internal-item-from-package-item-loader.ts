@@ -15,7 +15,9 @@ interface Options {
 }
 type ExternalOptions = Partial<Options>;
 
-function getOptions(context: webpack.LoaderContext<{}>): Options {
+function getOptions(
+    context: webpack.LoaderContext<Record<string, unknown>>
+): Options {
     const options = context.getOptions() as Record<keyof Options, unknown>;
 
     const postValidate = options.postValidate;

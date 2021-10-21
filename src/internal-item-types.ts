@@ -35,7 +35,7 @@ export interface TopLevelDescriptiveMetadataProperties {
 export interface NestedMetadata {
     label?: never;
     value: MetadataContainer[];
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 export interface DisplayableMetadataBase {
@@ -50,7 +50,7 @@ export interface SingleDisplayableMetadata {
     value?: never;
 
     // Additional arbitrary properties allowed
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 export interface MultipleDisplayableMetadata {
@@ -58,7 +58,7 @@ export interface MultipleDisplayableMetadata {
     displayForm?: never;
 
     // Additional arbitrary properties allowed
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 export type DisplayableMetadata = DisplayableMetadataBase &
@@ -76,12 +76,18 @@ const isMetadataKey = enumMemberGuard(MetadataKeys);
 type NotMetadataKeys = { [K in keyof MetadataKeys]?: never };
 
 /** Anything except reserved metadata keys */
-export type NonDisplayableMetadata = { [K in string]: any } & NotMetadataKeys;
+export type NonDisplayableMetadata = {
+    [K in string]: unknown;
+} & NotMetadataKeys;
 
 export function isNonDisplayableMetadata(
-    obj: any
+    obj: unknown
 ): obj is NonDisplayableMetadata {
-    return !Object.keys(obj).some(isMetadataKey);
+    return (
+        typeof obj === "object" &&
+        obj !== null &&
+        !Object.keys(obj).some(isMetadataKey)
+    );
 }
 
 export interface MetadataContainer {
@@ -110,7 +116,7 @@ export type DescriptiveMetadataSection = TopLevelDescriptiveMetadataProperties &
 export function createDescriptiveMetadataSection(
     topLevel: TopLevelDescriptiveMetadataProperties,
     metadata: MetadataContainer,
-    strict: boolean = true
+    strict = true
 ): DescriptiveMetadataSection {
     // Ensure we don't allow non top-level keys from metadata
     const allKeys = Object.keys(metadata);
@@ -132,7 +138,7 @@ metadata contained a displayable object under a key reserved for top-level non-d
         _metadata = metadata;
     }
 
-    const result: any = {
+    const result: unknown = {
         ..._metadata,
         ...topLevel,
     };

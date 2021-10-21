@@ -1,7 +1,7 @@
 import clone from "clone";
 import lodash from "lodash";
 import * as util from "util";
-import { NamespaceBearer, NamespaceMap } from "./item-types";
+import { NamespaceMap } from "./item-types";
 
 interface CurieDefinitionData {
     /** The part of the CURIE before the first colon. */
@@ -104,9 +104,9 @@ export class Namespace {
         const orderedEntries: Array<[string, string]> = lodash.orderBy(
             lodash.toPairs(namespaceMap),
             [
-                ([curiePrefix, uriPrefix]) => uriPrefix.length,
-                ([curiePrefix, uriPrefix]) => uriPrefix,
-                ([curiePrefix, uriPrefix]) => curiePrefix,
+                ([, uriPrefix]) => uriPrefix.length,
+                ([, uriPrefix]) => uriPrefix,
+                ([curiePrefix]) => curiePrefix,
             ],
             ["desc", "asc", "asc"]
         );

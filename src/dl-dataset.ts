@@ -18,7 +18,7 @@ export async function parseDlDatasetXml(
             `Parsed dl-dataset XML is invalid: ${ajv.errorsText()}`
         );
     }
-    return loadDlDatasetXml(dlDatasetXml as any as DlDatasetXml);
+    return loadDlDatasetXml(dlDatasetXml as unknown as DlDatasetXml);
 }
 
 export function parseDlDatasetJson(
@@ -89,7 +89,7 @@ interface CollectionElement {
 function requireAllProperties(objSchema: {
     type: "object";
     properties: object;
-    [propName: string]: any;
+    [propName: string]: unknown;
 }) {
     return {
         ...objSchema,

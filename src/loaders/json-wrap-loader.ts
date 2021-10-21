@@ -30,10 +30,11 @@ const validateOptions = createValidator<Options>({
 /**
  * A loader which nests the loaded value into a JSON structure
  */
-export default function (this: webpack.LoaderContext<{}>, source: string) {
+const load: webpack.LoaderDefinitionFunction = function (this, source): string {
     const options = validateOptions(this.getOptions());
 
     const template = clone(options.template || {}, false);
     jsonpointer.set(template, options.insertionPoint, JSON.parse(source));
     return JSON.stringify(template);
-}
+};
+export default load;

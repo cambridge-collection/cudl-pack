@@ -38,8 +38,8 @@ export class ItemDataLinkDependencyPlugin implements PluginObject {
             options,
             async (
                 references: Reference[],
-                doc: any,
-                context: webpack.LoaderContext<{}>
+                doc: unknown,
+                context: webpack.LoaderContext<Record<string, unknown>>
             ) => {
                 const item = validateItem(doc);
                 const ns = await NamespaceLoader.forWebpackLoader(

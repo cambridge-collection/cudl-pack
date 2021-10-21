@@ -6,7 +6,7 @@ import { join, resolve } from "path";
 import url from "url";
 import util from "util";
 import { promisify } from "util";
-import webpack, { Stats } from "webpack";
+import webpack from "webpack";
 import { isNotUndefined } from "../src/utils";
 
 /**
@@ -56,6 +56,22 @@ function schemaPackagePath(packageName: string, path: string) {
     return join(packageName, path);
 }
 
+interface SchemaPackageManifest {
+    files: string[];
+}
+
+function isSchemaPackageManifest(obj: unknown): obj is SchemaPackageManifest {
+    if (typeof obj !== "object") {
+        return false;
+    }
+    const maybeFiles = (obj as Record<keyof SchemaPackageManifest, unknown>)
+        .files;
+    return (
+        Array.isArray(maybeFiles) &&
+        maybeFiles.every((x) => typeof x === "string")
+    );
+}
+
 /**
  * Load the schemas and test data from one of our schema packages.
  *
@@ -63,9 +79,22 @@ function schemaPackagePath(packageName: string, path: string) {
  */
 export function getSchemaData(packageName: string): Schemas {
     const packagePath = schemaPackagePath.bind(undefined, packageName);
-    const files = require(packageName).files as string[];
 
-    const schemas = files
+    // We could use import() instead of require, but we would need to make this
+    // and async function, and it's used to parametrise jest tests, so doing
+    // that would be painful without top-level await support. An enabling that
+    // does not sound like fun yet, e.g:
+    // https://stackoverflow.com/a/65257652/693728
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const manifest = require(packageName);
+
+    if (!isSchemaPackageManifest(manifest)) {
+        throw new Error(
+            `Failed to load schema data from package '${packageName}': the package does not export a list of files`
+        );
+    }
+
+    const schemas = manifest.files
         .filter((f) => /^schemas\//.test(f))
         .map((f) => {
             const match = /^schemas\/([^/]+)\.json5?$/.exec(f);
@@ -80,10 +109,10 @@ export function getSchemaData(packageName: string): Schemas {
         const name = schema.name;
         data[name] = {
             schema: packagePath(schema.schemaPath),
-            validTestCases: files
+            validTestCases: manifest.files
                 .filter((f) => f.startsWith(`tests/${name}/valid/`))
                 .map(packagePath),
-            invalidTestCases: files
+            invalidTestCases: manifest.files
                 .filter((f) => f.startsWith(`tests/${name}/invalid/`))
                 .map(packagePath),
         };
@@ -258,19 +287,18 @@ function wrapEnsureDefined<A>(
     if (value === undefined)
         throw new Error(`value${renderPath(_path)} is undefined`);
 
-    if (
-        value === null ||
-        typeof value === "string" ||
-        typeof value === "boolean" ||
-        typeof value === "number" ||
-        typeof value === "bigint" ||
-        typeof value === "symbol"
-    ) {
-        return value as any;
+    if (value === null || typeof value !== "object") {
+        return value as unknown as A extends object
+            ? EnsureDefinedWrapper<A>
+            : NotUndefined<A>;
     }
 
-    return new Proxy(value as any, {
-        get(target: object, p: string | number | symbol, receiver: any): any {
+    return new Proxy(value as unknown as object, {
+        get(
+            target: object,
+            p: string | number | symbol,
+            receiver: unknown
+        ): unknown {
             if (p === "unwrap") {
                 return () => value;
             }
@@ -280,7 +308,9 @@ function wrapEnsureDefined<A>(
             }
             return wrapEnsureDefined(next, _path.concat(p));
         },
-    }) as any;
+    }) as unknown as A extends object
+        ? EnsureDefinedWrapper<A>
+        : NotUndefined<A>;
 }
 
 ensureDefined.wrap = wrapEnsureDefined;

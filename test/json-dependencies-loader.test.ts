@@ -329,13 +329,16 @@ test("plugins can be functions", async () => {
     expect.assertions(1);
 });
 
-type LoaderContext = webpack.LoaderContext<{}>;
+type LoaderContext = webpack.LoaderContext<Record<string, unknown>>;
 
-function isWebpackContext(obj: any): obj is LoaderContext {
+function isWebpackContext(obj: unknown): obj is LoaderContext {
+    if (typeof obj !== "object") {
+        return false;
+    }
+    const maybeContext = obj as Record<keyof LoaderContext, unknown>;
     return (
-        typeof obj === "object" &&
-        obj.version === 2 &&
-        typeof obj.loadModule === "function"
+        maybeContext.version === 2 &&
+        typeof maybeContext.loadModule === "function"
     );
 }
 
@@ -371,7 +374,7 @@ test("plugins can control loader behaviour", async () => {
             "test",
             async (
                 references: Reference[],
-                doc: any,
+                doc: unknown,
                 context: LoaderContext
             ) => {
                 expect(doc).toEqual(bDoc());
@@ -386,7 +389,7 @@ test("plugins can control loader behaviour", async () => {
             "test",
             async (
                 reference: Reference,
-                doc: any,
+                doc: unknown,
                 context: LoaderContext
             ): Promise<ResolvedReference | IgnoredReference> => {
                 expect(doc).toEqual(bDoc());
@@ -410,7 +413,7 @@ test("plugins can control loader behaviour", async () => {
             "test",
             async (
                 ignored: IgnoredReference,
-                doc: any,
+                doc: unknown,
                 context: LoaderContext
             ) => {
                 expect(ignored).toEqual({

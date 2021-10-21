@@ -3,7 +3,7 @@ import { NamespaceLoader } from "../src/item";
 import { createAsyncLoader } from "../src/utils";
 
 const load: webpack.LoaderDefinitionFunction = createAsyncLoader(
-    async function (this: webpack.LoaderContext<{}>): Promise<string> {
+    async function (): Promise<string> {
         const ns = await NamespaceLoader.forWebpackLoader(this).loadNamespace(
             "./namespace.json"
         );

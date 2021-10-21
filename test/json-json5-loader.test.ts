@@ -5,7 +5,7 @@ import webpack from "webpack";
 
 import { default as loader } from "../src/loaders/json-json5-loader";
 import compiler from "./compiler";
-import { ensureDefined, getModule, getModuleSource } from "./util";
+import { getModule, getModuleSource } from "./util";
 
 const decodedExampleJson5 = {
     unquoted: "and you can quote me on that",

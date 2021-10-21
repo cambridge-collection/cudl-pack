@@ -4,6 +4,7 @@ import compiler from "./compiler";
 
 import loader, { Options } from "../src/loaders/json-wrap-loader";
 import { getModule, getModuleSource } from "./util";
+import assert from "assert";
 
 test.each([
     [{ insertionPoint: "/foo" }, 123, { foo: 123 }],
@@ -17,15 +18,16 @@ test.each([
     [{ insertionPoint: "/" }, 123, { "": 123 }],
 ])(
     "loader with options query %s wraps %j as %j",
-    (options: Options, source: any, expected: any) => {
+    (options: Options, source: unknown, expected: unknown) => {
         const jsonResult = loader.call(
             {
                 getOptions() {
                     return options;
                 },
-            } as unknown as webpack.LoaderContext<{}>,
+            } as unknown as webpack.LoaderContext<Record<string, unknown>>,
             JSON.stringify(source)
         );
+        assert(typeof jsonResult === "string");
         expect(JSON.parse(jsonResult)).toEqual(expected);
     }
 );

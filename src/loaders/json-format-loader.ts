@@ -21,10 +21,7 @@ const validateOptions = createValidator<Options>({
 /**
  * A loader which re-indents JSON.
  */
-export default function (
-    this: webpack.LoaderContext<{}>,
-    source: string
-): string {
+const load: webpack.LoaderDefinitionFunction = function (this, source): string {
     const options: Options = normaliseOptions(
         validateOptions(this.getOptions())
     );
@@ -32,7 +29,8 @@ export default function (
         JSON.stringify(parseJson(source), undefined, options.indent) +
         (options.finalNewline ? "\n" : "")
     );
-}
+};
+export default load;
 
 function normaliseOptions(options: Options): Options {
     let indent = options.indent;

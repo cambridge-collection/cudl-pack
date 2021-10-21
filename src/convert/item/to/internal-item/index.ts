@@ -394,8 +394,14 @@ interface AbsPageRange {
     length: number;
 }
 
-function isAbsPageRange(obj: any): obj is AbsPageRange {
-    return typeof obj.length === "number" && typeof obj.firstPage === "number";
+function isAbsPageRange(obj: unknown): obj is AbsPageRange {
+    return (
+        typeof obj === "object" &&
+        typeof (obj as Record<keyof AbsPageRange, unknown>).length ===
+            "number" &&
+        typeof (obj as Record<keyof AbsPageRange, unknown>).firstPage ===
+            "number"
+    );
 }
 
 interface PageReferenceError {
@@ -484,7 +490,7 @@ function _createDescriptiveMetadataSection(
         let unreservedKey: string = reservedKey;
         do {
             unreservedKey = `_${unreservedKey}`;
-        } while (metadataProps.hasOwnProperty(unreservedKey));
+        } while ({}.hasOwnProperty.call(metadataProps, unreservedKey));
         metadataProps[unreservedKey] = metadataProps[reservedKey];
         delete metadataProps[reservedKey];
     }

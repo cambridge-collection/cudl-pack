@@ -3,7 +3,7 @@ import webpack from "webpack";
 
 export function bindPromiseToCallback<T>(
     promise: Promise<T>,
-    callback: (err: any, value?: T) => void
+    callback: (err: unknown, value?: T) => void
 ): void {
     promise.then((value) => {
         callback(null, value);
@@ -19,11 +19,18 @@ type LoaderDefinitionFunctionArgs =
     Parameters<webpack.LoaderDefinitionFunction>;
 
 type Source = string | Buffer;
-export type AsyncLoadFunction<OptionsType = {}, ContextAdditions = {}> = (
+export type AsyncLoadFunction<
+    OptionsType = Record<string, unknown>,
+    ContextAdditions = Record<string, unknown>
+> = (
     this: LoaderDefinitionFunctionThis<OptionsType, ContextAdditions>,
     ...args: LoaderDefinitionFunctionArgs
 ) => Promise<Source>;
-export type AsyncLoadMethod<T, OptionsType = {}, ContextAdditions = {}> = (
+export type AsyncLoadMethod<
+    T,
+    OptionsType = Record<string, unknown>,
+    ContextAdditions = Record<string, unknown>
+> = (
     this: T,
     context: LoaderDefinitionFunctionThis<OptionsType, ContextAdditions>,
     ...args: LoaderDefinitionFunctionArgs
@@ -38,8 +45,8 @@ export type AsyncLoadMethod<T, OptionsType = {}, ContextAdditions = {}> = (
  */
 export function createAsyncLoaderFromMethod<
     T,
-    OptionsType = {},
-    ContextAdditions = {}
+    OptionsType = Record<string, unknown>,
+    ContextAdditions = Record<string, unknown>
 >(
     load: AsyncLoadMethod<T, OptionsType, ContextAdditions>,
     thisArg: T
@@ -57,7 +64,11 @@ export function createAsyncLoaderFromMethod<
 
         bindPromiseToCallback(
             load.call(thisArg, this, source, sourceMap, additionalData),
-            callback
+            (err, value) => {
+                err
+                    ? callback(err instanceof Error ? err : new Error(`${err}`))
+                    : callback(null, value);
+            }
         );
     };
 }
@@ -66,7 +77,10 @@ export function createAsyncLoaderFromMethod<
  * Create a normal webpack loader function from a promise-returning async
  * loader function.
  */
-export function createAsyncLoader<OptionsType = {}, ContextAdditions = {}>(
+export function createAsyncLoader<
+    OptionsType = Record<string, unknown>,
+    ContextAdditions = Record<string, unknown>
+>(
     load: AsyncLoadFunction<OptionsType, ContextAdditions>
 ): webpack.LoaderDefinition<OptionsType, ContextAdditions> {
     return createAsyncLoaderFromMethod(
@@ -98,7 +112,7 @@ export function isNotUndefined<T>(x: T | undefined): x is T {
 }
 
 export function enumMembers<T>(_enum: T): Set<keyof T> {
-    const props = _enum as { [key: string]: any };
+    const props = _enum as Record<string, unknown>;
     return new Set(
         Object.keys(props).filter((k) => typeof props[k] === "number") as Array<
             keyof T
@@ -106,9 +120,11 @@ export function enumMembers<T>(_enum: T): Set<keyof T> {
     );
 }
 
-export function enumMemberGuard<T>(_enum: T): (value: any) => value is keyof T {
-    const members = enumMembers(_enum) as ReadonlySet<any>;
-    function guard(value: any): value is keyof T {
+export function enumMemberGuard<T>(
+    _enum: T
+): (value: unknown) => value is keyof T {
+    const members = enumMembers(_enum) as ReadonlySet<unknown>;
+    function guard(value: unknown): value is keyof T {
         return members.has(value);
     }
     return guard;

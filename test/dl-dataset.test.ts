@@ -1,6 +1,3 @@
-import * as fs from "fs";
-import * as path from "path";
-import { promisify } from "util";
 import { parseDlDatasetJson, parseDlDatasetXml } from "../src/dl-dataset";
 import { validateDlDataset } from "../src/schemas";
 import {

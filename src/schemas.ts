@@ -53,7 +53,8 @@ function defaultValidationOptions(
     return {
         inputDescription: opts.inputDescription || "input",
         verbose:
-            opts.hasOwnProperty("verbose") && opts.verbose !== undefined
+            {}.hasOwnProperty.call(opts, "verbose") &&
+            opts.verbose !== undefined
                 ? opts.verbose
                 : true,
     };
@@ -102,7 +103,7 @@ function errorMessage(
     return msg;
 }
 
-export type Validator<T> = (obj: any, options?: ValidationOptions) => T;
+export type Validator<T> = (obj: unknown, options?: ValidationOptions) => T;
 
 export function createValidator<T>(spec: SchemaSpec): Validator<T> {
     return expectValid.bind(spec) as Validator<T>;

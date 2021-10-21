@@ -2,7 +2,6 @@ import fs from "fs";
 import csv from "neat-csv";
 import path from "path";
 import util from "util";
-import webpack from "webpack";
 import { getData, NamespaceLoader, parseItemJson } from "../item";
 import {
     ImageItemResource,
@@ -30,13 +29,6 @@ import { AsyncLoadFunction, createAsyncLoader } from "../utils";
 interface PageMapping {
     url: string;
     label: string;
-}
-
-interface JSONPage {
-    label: string;
-    resources: object[];
-    order: string;
-    [key: string]: any;
 }
 
 interface Options {
@@ -72,9 +64,9 @@ function isOptions(value: object): value is Options {
 }
 
 const loader: AsyncLoadFunction = async function (
-    this: webpack.LoaderContext<{}>,
-    source: string | Buffer
-): Promise<string | Buffer> {
+    this,
+    source
+): Promise<string> {
     // Get the image server path and image type parameters
     const options = this.getOptions();
     if (!isOptions(options)) {
@@ -106,7 +98,7 @@ const loader: AsyncLoadFunction = async function (
     const pageMappings: PageMapping[] = await parseCSV(csvPath);
 
     // Generate the item JSON pages section from the pagination information.
-    let order: number = 1;
+    let order = 1;
     const pages: ItemPages = {};
     for (const pageMapping of pageMappings) {
         const image: UriReference = {

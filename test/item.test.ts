@@ -169,5 +169,5 @@ test("getData() returns untyped data items with type URI", async () => {
     const data: ItemData[] = getData(item, ns, { type: "baz", roles: "a" });
     expect(data.length).toBe(1);
     const [a] = data;
-    expect((a as any).data).toBe(83);
+    expect((a as unknown as Record<string, unknown>).data).toBe(83);
 });

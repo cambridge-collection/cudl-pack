@@ -4,7 +4,7 @@ import webpack from "webpack";
 import { ItemToInternalItemConverter } from "../src/convert/item/to/internal-item";
 import { InternalItemfromPackageItemLoaderOptions } from "../src/loaders/internal-item-from-package-item-loader";
 import compiler from "./compiler";
-import { ensureDefined, getModuleSource, readPathAsString } from "./util";
+import { getModuleSource, readPathAsString } from "./util";
 
 test("loader transforms package items to internal items", async () => {
     const rules: webpack.RuleSetRule[] = [

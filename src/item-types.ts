@@ -22,9 +22,10 @@ export interface NamespaceMap {
     [key: string]: string;
 }
 
-export function isNamespaceMap(obj: any): obj is NamespaceMap {
+export function isNamespaceMap(obj: unknown): obj is NamespaceMap {
     return (
         typeof obj === "object" &&
+        obj !== null &&
         Object.values(obj).every((v) => typeof v === "string")
     );
 }
@@ -33,14 +34,19 @@ export interface NamespaceBearer {
     "@namespace"?: string | NamespaceMap;
 }
 
-export function isNamespaceBearer(obj: any): obj is NamespaceBearer {
-    return (
-        typeof obj === "object" &&
-        obj.hasOwnProperty("@namespace") &&
-        (obj["@namespace"] === undefined ||
-            typeof obj["@namespace"] === "string" ||
-            isNamespaceMap(obj["@namespace"]))
-    );
+export function isNamespaceBearer(obj: unknown): obj is NamespaceBearer {
+    if (typeof obj !== "object" || obj === null) {
+        return false;
+    }
+    if ({}.hasOwnProperty.call(obj, "@namespace")) {
+        const nsb = obj as Record<keyof NamespaceBearer, unknown>;
+        return (
+            nsb["@namespace"] === undefined ||
+            typeof nsb["@namespace"] === "string" ||
+            isNamespaceMap(nsb["@namespace"])
+        );
+    }
+    return false;
 }
 
 export interface ItemData extends TypeBearer, RoleBearer {}
@@ -58,9 +64,9 @@ export function isLinkItemData(
 
 export type PropertiesItemData = ItemData | ItemProperties;
 
-export interface ItemResource extends TypeBearer {
-    [key: string]: any;
-}
+export type UnknownItemResource = TypeBearer &
+    Readonly<Record<string, unknown>>;
+export type ItemResource = TypeBearer | UnknownItemResource;
 
 export interface ImageItemResource extends TypeBearer {
     /** The type of image resource identified by the [[image]] URL. */
@@ -70,7 +76,7 @@ export interface ImageItemResource extends TypeBearer {
 }
 
 export function isImageItemResource(
-    resource: ItemResource,
+    resource: TypeBearer,
     ns: Namespace
 ): resource is ImageItemResource {
     return ns.getExpandedUri(resource["@type"]) === PackageItemPage.image;
