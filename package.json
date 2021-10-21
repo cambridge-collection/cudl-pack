@@ -12,7 +12,8 @@
     "non-ci-test": "jest",
     "ci-test": "jest --ci --reporters=default --reporters=jest-junit",
     "lint": "eslint . --ext .ts",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "check-format": "prettier --check ."
   },
   "author": "Hal Blackburn <hwtb2@cam.ac.uk>",
   "license": "MIT",
