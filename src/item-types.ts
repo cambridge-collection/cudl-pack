@@ -1,53 +1,72 @@
-import {Namespace, PackageItemData, PackageItemPage, TypeUri} from './uris';
+import { Namespace, PackageItemData, PackageItemPage, TypeUri } from "./uris";
 
 export type ItemPropertyScalar = string | boolean | number;
 export type ItemProperty = ItemPropertyScalar | ItemPropertyScalar[];
-export interface ItemProperties { [key: string]: ItemProperty; }
+export interface ItemProperties {
+    [key: string]: ItemProperty;
+}
 
 export interface UriReference {
-    '@id': string;
+    "@id": string;
 }
 
 export interface TypeBearer {
-    '@type': string;
+    "@type": string;
 }
 
 export interface RoleBearer {
-    '@role'?: string[];
+    "@role"?: string[];
 }
 
 export interface NamespaceMap {
     [key: string]: string;
 }
 
-export function isNamespaceMap(obj: any): obj is NamespaceMap {
-    return typeof obj === 'object' && Object.values(obj).every(v => typeof v === 'string');
+export function isNamespaceMap(obj: unknown): obj is NamespaceMap {
+    return (
+        typeof obj === "object" &&
+        obj !== null &&
+        Object.values(obj).every((v) => typeof v === "string")
+    );
 }
 
 export interface NamespaceBearer {
-    '@namespace'?: string | NamespaceMap;
+    "@namespace"?: string | NamespaceMap;
 }
 
-export function isNamespaceBearer(obj: any): obj is NamespaceBearer {
-    return typeof obj === 'object' && obj.hasOwnProperty('@namespace') && (
-        obj['@namespace'] === undefined || typeof obj['@namespace'] === 'string' || isNamespaceMap(obj['@namespace']));
+export function isNamespaceBearer(obj: unknown): obj is NamespaceBearer {
+    if (typeof obj !== "object" || obj === null) {
+        return false;
+    }
+    if ({}.hasOwnProperty.call(obj, "@namespace")) {
+        const nsb = obj as Record<keyof NamespaceBearer, unknown>;
+        return (
+            nsb["@namespace"] === undefined ||
+            typeof nsb["@namespace"] === "string" ||
+            isNamespaceMap(nsb["@namespace"])
+        );
+    }
+    return false;
 }
 
-export interface ItemData extends TypeBearer, RoleBearer { }
+export interface ItemData extends TypeBearer, RoleBearer {}
 
 export interface LinkItemData extends ItemData {
     href: UriReference;
 }
 
-export function isLinkItemData(data: ItemData, ns: Namespace): data is LinkItemData {
-    return ns.getExpandedUri(data['@type']) === PackageItemData.link;
+export function isLinkItemData(
+    data: ItemData,
+    ns: Namespace
+): data is LinkItemData {
+    return ns.getExpandedUri(data["@type"]) === PackageItemData.link;
 }
 
 export type PropertiesItemData = ItemData | ItemProperties;
 
-export interface ItemResource extends TypeBearer {
-    [key: string]: any;
-}
+export type UnknownItemResource = TypeBearer &
+    Readonly<Record<string, unknown>>;
+export type ItemResource = TypeBearer | UnknownItemResource;
 
 export interface ImageItemResource extends TypeBearer {
     /** The type of image resource identified by the [[image]] URL. */
@@ -56,8 +75,11 @@ export interface ImageItemResource extends TypeBearer {
     image: UriReference;
 }
 
-export function isImageItemResource(resource: ItemResource, ns: Namespace): resource is ImageItemResource {
-    return ns.getExpandedUri(resource['@type']) === PackageItemPage.image;
+export function isImageItemResource(
+    resource: TypeBearer,
+    ns: Namespace
+): resource is ImageItemResource {
+    return ns.getExpandedUri(resource["@type"]) === PackageItemPage.image;
 }
 
 export interface TranscriptionItemResource extends TypeBearer {
@@ -111,7 +133,7 @@ export interface ItemDescriptions {
  * A CDL Package JSON Item.
  */
 export interface Item extends NamespaceBearer {
-    '@type': TypeUri.PackageItem;
+    "@type": TypeUri.PackageItem;
     data?: ItemData[];
     descriptions: ItemDescriptions;
     pages: ItemPages;

@@ -1,4 +1,4 @@
-import JSON5 from 'json5';
+import JSON5 from "json5";
 
 /**
  * A loader which transforms JSON5 input into a JSON string.

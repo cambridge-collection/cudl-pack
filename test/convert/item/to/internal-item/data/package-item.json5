@@ -1,90 +1,99 @@
 {
-  "@type": "https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json",
-  "data": [
-    {
-      "@type": "cdl-data:properties",
-      "@role": ["cdl-role:item-properties", "cudl-role:item-properties"],
-      "embeddable": true,
-      "useTranscriptions": true,
-      "displayImageRights": "All rights reserved",
-      "linkToImageReproductionRequestPage": "https://example.com/"
-    },
-    {
-      "@type": "cdl-data:link",
-      "@role": ["cdl-role:descriptive-metadata", "cdl-role:item-source"],
-      "href": {"@id": "tei/foo.xml"}
-    }
-  ],
-  "descriptions": {
-    "main": {
-      "coverage": { "firstPage": true, "lastPage": true },
-
-      "attributes": {
-        "title": {
-          "label": "Title",
-          "value": "Book of Foo",
-          "order": "1"
+    "@type": "https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json",
+    data: [
+        {
+            "@type": "cdl-data:properties",
+            "@role": ["cdl-role:item-properties", "cudl-role:item-properties"],
+            embeddable: true,
+            useTranscriptions: true,
+            displayImageRights: "All rights reserved",
+            linkToImageReproductionRequestPage: "https://example.com/",
         },
-        "formerOwners": {
-          "label": "Former Owners",
-          "value": [
-            "<a href='cudl:///search?keyword=Joe%20Bloggs'>Bloggs, Joe, ca. 1082-1153</a>"
-          ],
-          "order": "2.{label}"
-        }
-      }
-    },
-    "1-4": {
-      "coverage": { "firstPage": "1", "lastPage": "4" },
+        {
+            "@type": "cdl-data:link",
+            "@role": ["cdl-role:descriptive-metadata", "cdl-role:item-source"],
+            href: { "@id": "tei/foo.xml" },
+        },
+    ],
+    descriptions: {
+        main: {
+            coverage: { firstPage: true, lastPage: true },
 
-      "attributes": {
-        "title": {
-          "label": "Title",
-          "value": "Excerpts from the Gospel of FooBar",
-          "order": "1"
-        }
-      }
-    },
+            attributes: {
+                title: {
+                    label: "Title",
+                    value: "Book of Foo",
+                    order: "1",
+                },
+                formerOwners: {
+                    label: "Former Owners",
+                    value: [
+                        "<a href='cudl:///search?keyword=Joe%20Bloggs'>Bloggs, Joe, ca. 1082-1153</a>",
+                    ],
+                    order: "2.{label}",
+                },
+            },
+        },
+        "1-4": {
+            coverage: { firstPage: "1", lastPage: "4" },
 
+            attributes: {
+                title: {
+                    label: "Title",
+                    value: "Excerpts from the Gospel of FooBar",
+                    order: "1",
+                },
+            },
+        },
 
-    "chapter1": {
-      "coverage": { "firstPage": "10", "lastPage": "35" }
-    }
-  },
-  "pages": {
-    "1": {
-      "label": "cover",
-      "resources": [
-        { "@type": "cdl-page:image",
-          "imageType": "file",
-          "image": {"@id": "images/cover.jp2"} }
-      ],
-      "order": "a.cover"
+        chapter1: {
+            coverage: { firstPage: "10", lastPage: "35" },
+        },
     },
-    "4": {
-      "label": "2r",
-      "resources": [
-        { "@type": "cdl-page:image",
-          "imageType": "iiif",
-          "image": {"@id": "https://iiif.example.com/2r"} },
-        { "@type": "cdl-page:transcription",
-          "transcriptionType": "diplomatic",
-          "html": {"@id": "transcriptions/diplomatic/4.xml"} },
-        { "@type": "cdl-page:transcription",
-          "transcriptionType": "normalised",
-          "html": {"@id": "transcriptions/normalised.xml#4"} },
-        { "@type": "cudl-page:essay-content",
-          "html": {"@id": "essay.html"} }
-      ],
-      "order": "b.main.4",
+    pages: {
+        "1": {
+            label: "cover",
+            resources: [
+                {
+                    "@type": "cdl-page:image",
+                    imageType: "file",
+                    image: { "@id": "images/cover.jp2" },
+                },
+            ],
+            order: "a.cover",
+        },
+        "4": {
+            label: "2r",
+            resources: [
+                {
+                    "@type": "cdl-page:image",
+                    imageType: "iiif",
+                    image: { "@id": "https://iiif.example.com/2r" },
+                },
+                {
+                    "@type": "cdl-page:transcription",
+                    transcriptionType: "diplomatic",
+                    html: { "@id": "transcriptions/diplomatic/4.xml" },
+                },
+                {
+                    "@type": "cdl-page:transcription",
+                    transcriptionType: "normalised",
+                    html: { "@id": "transcriptions/normalised.xml#4" },
+                },
+                {
+                    "@type": "cudl-page:essay-content",
+                    html: { "@id": "essay.html" },
+                },
+            ],
+            order: "b.main.4",
+        },
+        "10": {
+            label: "p10",
+            order: "c",
+        },
+        "35": {
+            label: "p35",
+            order: "d",
+        },
     },
-    "10": {
-      "label": "p10",
-      "order": "c"
-    },
-    "35": {
-      "label": "p35",
-      "order": "d"
-    }
-  }
 }

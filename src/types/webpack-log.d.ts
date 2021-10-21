@@ -1,12 +1,12 @@
-import {LogLevel} from 'loglevelnext';
+import { LogLevel } from "loglevelnext";
 
 declare enum Levels {
-    'trace',
-    'debug',
-    'info',
-    'warn',
-    'error',
-    'silent',
+    "trace",
+    "debug",
+    "info",
+    "warn",
+    "error",
+    "silent",
 }
 
 declare interface Options {

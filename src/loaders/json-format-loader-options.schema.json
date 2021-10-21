@@ -4,12 +4,9 @@
   "type": "object",
   "properties": {
     "indent": {
-      "oneOf": [
-        {"type": ["string"]},
-        {"type": ["number"]}
-      ]
+      "oneOf": [{ "type": ["string"] }, { "type": ["number"] }]
     },
-    "finalNewline": {"type": "boolean"}
+    "finalNewline": { "type": "boolean" }
   },
   "required": [],
   "additionalProperties": false

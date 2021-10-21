@@ -1,20 +1,20 @@
-import {applyPatch, Operation} from 'fast-json-patch';
-import _fileUrl from 'file-url';
-import fs from 'fs';
-import json5 from 'json5';
-import {join, resolve} from 'path';
-import url from 'url';
-import util from 'util';
-import {promisify} from 'util';
-import webpack, { Stats } from 'webpack';
-import {isNotUndefined} from '../src/utils';
+import { applyPatch, Operation } from "fast-json-patch";
+import _fileUrl from "file-url";
+import fs from "fs";
+import json5 from "json5";
+import { join, resolve } from "path";
+import url from "url";
+import util from "util";
+import { promisify } from "util";
+import webpack from "webpack";
+import { isNotUndefined } from "../src/utils";
 
 /**
  * Return the contents of a file as bytes.
  * @param pathSegments relative or absolute paths to resolve against the test dir
  */
 export async function readPath(...pathSegments: string[]): Promise<Buffer> {
-    return (await promisify(fs.readFile)(resolve(__dirname, ...pathSegments)));
+    return await promisify(fs.readFile)(resolve(__dirname, ...pathSegments));
 }
 
 /**
@@ -24,15 +24,17 @@ export async function readPath(...pathSegments: string[]): Promise<Buffer> {
  *
  * @param pathSegments relative or absolute paths to resolve against the test dir
  */
-export async function readPathAsString(...pathSegments: string[]): Promise<string> {
+export async function readPathAsString(
+    ...pathSegments: string[]
+): Promise<string> {
     return (await readPath(...pathSegments)).toString();
 }
 
 export function fileUrl(path: string) {
-    const u = new url.URL(_fileUrl(path, {resolve: false}));
+    const u = new url.URL(_fileUrl(path, { resolve: false }));
     // Preserve trailing slashes as they're significant for URL resolution
-    if(path.endsWith('/')) {
-        u.pathname = u.pathname + '/';
+    if (path.endsWith("/")) {
+        u.pathname = u.pathname + "/";
     }
     return u.toString();
 }
@@ -54,6 +56,22 @@ function schemaPackagePath(packageName: string, path: string) {
     return join(packageName, path);
 }
 
+interface SchemaPackageManifest {
+    files: string[];
+}
+
+function isSchemaPackageManifest(obj: unknown): obj is SchemaPackageManifest {
+    if (typeof obj !== "object") {
+        return false;
+    }
+    const maybeFiles = (obj as Record<keyof SchemaPackageManifest, unknown>)
+        .files;
+    return (
+        Array.isArray(maybeFiles) &&
+        maybeFiles.every((x) => typeof x === "string")
+    );
+}
+
 /**
  * Load the schemas and test data from one of our schema packages.
  *
@@ -61,22 +79,42 @@ function schemaPackagePath(packageName: string, path: string) {
  */
 export function getSchemaData(packageName: string): Schemas {
     const packagePath = schemaPackagePath.bind(undefined, packageName);
-    const files = require(packageName).files as string[];
 
-    const schemas = files.filter((f) => /^schemas\//.test(f))
+    // We could use import() instead of require, but we would need to make this
+    // and async function, and it's used to parametrise jest tests, so doing
+    // that would be painful without top-level await support. An enabling that
+    // does not sound like fun yet, e.g:
+    // https://stackoverflow.com/a/65257652/693728
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const manifest = require(packageName);
+
+    if (!isSchemaPackageManifest(manifest)) {
+        throw new Error(
+            `Failed to load schema data from package '${packageName}': the package does not export a list of files`
+        );
+    }
+
+    const schemas = manifest.files
+        .filter((f) => /^schemas\//.test(f))
         .map((f) => {
             const match = /^schemas\/([^/]+)\.json5?$/.exec(f);
-            return match ? {name: match[1], schemaPath: match[0]} : undefined;
+            return match ? { name: match[1], schemaPath: match[0] } : undefined;
         });
 
     const data: Schemas = {};
-    for(const schema of schemas) {
-        if(schema === undefined) { continue; }
+    for (const schema of schemas) {
+        if (schema === undefined) {
+            continue;
+        }
         const name = schema.name;
         data[name] = {
             schema: packagePath(schema.schemaPath),
-            validTestCases: files.filter((f) => f.startsWith(`tests/${name}/valid/`)).map(packagePath),
-            invalidTestCases: files.filter((f) => f.startsWith(`tests/${name}/invalid/`)).map(packagePath),
+            validTestCases: manifest.files
+                .filter((f) => f.startsWith(`tests/${name}/valid/`))
+                .map(packagePath),
+            invalidTestCases: manifest.files
+                .filter((f) => f.startsWith(`tests/${name}/invalid/`))
+                .map(packagePath),
         };
     }
     return data;
@@ -84,31 +122,42 @@ export function getSchemaData(packageName: string): Schemas {
 
 export class NegativeSchemaTestCase {
     public static fromPath(path: string): Promise<NegativeSchemaTestCase> {
-        return promisify(fs.readFile)(path, 'utf-8')
+        return promisify(fs.readFile)(path, "utf-8")
             .then(json5.parse)
             .then((testcase: NegativeSchemaTestcaseJSON) => {
-                return new NegativeSchemaTestCase(path, testcase.base, testcase.patch,
-                    NegativeSchemaTestCase.normaliseErrorMatchers(testcase.expectedErrors));
+                return new NegativeSchemaTestCase(
+                    path,
+                    testcase.base,
+                    testcase.patch,
+                    NegativeSchemaTestCase.normaliseErrorMatchers(
+                        testcase.expectedErrors
+                    )
+                );
             });
     }
 
     private static normaliseErrorMatchers(
-        errorMatchers?: string | string[] | ErrorMessageMatcher | ErrorMessageMatcher[]) {
-
+        errorMatchers?:
+            | string
+            | string[]
+            | ErrorMessageMatcher
+            | ErrorMessageMatcher[]
+    ) {
         let matchers: Array<string | ErrorMessageMatcher>;
-        if(typeof errorMatchers === 'string' || typeof errorMatchers === 'object') {
-            matchers = [errorMatchers as (string | ErrorMessageMatcher)];
-        }
-        else if(errorMatchers === undefined) {
+        if (
+            typeof errorMatchers === "string" ||
+            typeof errorMatchers === "object"
+        ) {
+            matchers = [errorMatchers as string | ErrorMessageMatcher];
+        } else if (errorMatchers === undefined) {
             matchers = [];
-        }
-        else {
+        } else {
             matchers = errorMatchers;
         }
 
         return matchers.map((em) => {
-            if(typeof em === 'string') {
-                return {contains: em};
+            if (typeof em === "string") {
+                return { contains: em };
             }
             return em;
         });
@@ -119,8 +168,12 @@ export class NegativeSchemaTestCase {
     public readonly patch: Operation[];
     public readonly errorMatchers: ErrorMessageMatcher[];
 
-    constructor(testcasePath: string, baseJSONPath: string, patch: Operation[],
-                errorMatchers: ErrorMessageMatcher[]) {
+    constructor(
+        testcasePath: string,
+        baseJSONPath: string,
+        patch: Operation[],
+        errorMatchers: ErrorMessageMatcher[]
+    ) {
         this.testcasePath = testcasePath;
         this.baseJSONPath = baseJSONPath;
         this.patch = patch;
@@ -128,34 +181,58 @@ export class NegativeSchemaTestCase {
     }
 
     public async readBaseJSON(): Promise<object> {
-        const baseLoc = resolveUrls(fileUrl(this.testcasePath), this.baseJSONPath);
-        const json = json5.parse(await readPathAsString(url.fileURLToPath(baseLoc)));
+        const baseLoc = resolveUrls(
+            fileUrl(this.testcasePath),
+            this.baseJSONPath
+        );
+        const json = json5.parse(
+            await readPathAsString(url.fileURLToPath(baseLoc))
+        );
 
-        if(typeof json !== 'object') {
-            throw new Error(`Expected an object after parsing ${baseLoc} but got ${typeof json}`);
+        if (typeof json !== "object") {
+            throw new Error(
+                `Expected an object after parsing ${baseLoc} but got ${typeof json}`
+            );
         }
         return json;
     }
 
     public getPatchedJSON(): Promise<object> {
-        return this.readBaseJSON()
-            .then((baseJSON) => applyPatch(baseJSON, this.patch).newDocument);
+        return this.readBaseJSON().then(
+            (baseJSON) => applyPatch(baseJSON, this.patch).newDocument
+        );
     }
 }
 
 interface NegativeSchemaTestcaseJSON {
     base: string;
     patch: Operation[];
-    expectedErrors?: string | string[] | ErrorMessageMatcher | ErrorMessageMatcher[];
+    expectedErrors?:
+        | string
+        | string[]
+        | ErrorMessageMatcher
+        | ErrorMessageMatcher[];
 }
 
-type ErrorMessageMatcher = SubstringErrorMessageMatcher | ExactErrorMessageMatcher | RegexErrorMessageMatcher;
-interface RegexErrorMessageMatcher { regex: string; }
-interface ExactErrorMessageMatcher { exact: string; }
-interface SubstringErrorMessageMatcher { contains: string; }
+type ErrorMessageMatcher =
+    | SubstringErrorMessageMatcher
+    | ExactErrorMessageMatcher
+    | RegexErrorMessageMatcher;
+interface RegexErrorMessageMatcher {
+    regex: string;
+}
+interface ExactErrorMessageMatcher {
+    exact: string;
+}
+interface SubstringErrorMessageMatcher {
+    contains: string;
+}
 
-export function ensure<A, B extends A>(value: A, predicate: (value: A) => value is B): B {
-    if(predicate(value)) {
+export function ensure<A, B extends A>(
+    value: A,
+    predicate: (value: A) => value is B
+): B {
+    if (predicate(value)) {
         return value;
     }
     throw new Error(`predicate not satisfied; value: ${util.inspect(value)}`);
@@ -171,19 +248,24 @@ export function ensureDefined<A>(value?: A): A {
 type NotUndefined<A> = A extends undefined ? never : A;
 
 type EnsureDefinedWrapper<T> = {
-    [P in keyof T]-?:
-        NotUndefined<T[P]> extends object ? EnsureDefinedWrapper<T[P]> :
-        NotUndefined<T[P]>;
-} & {unwrap: () => NotUndefined<T>};
+    [P in keyof T]-?: NotUndefined<T[P]> extends object
+        ? EnsureDefinedWrapper<T[P]>
+        : NotUndefined<T[P]>;
+} & { unwrap: () => NotUndefined<T> };
 
 type Property = string | number | symbol;
 
 function renderPath(path: Property[]): string {
-    return path.reduce<string>((rendered, p) => rendered + renderPathProperty(p), '');
+    return path.reduce<string>(
+        (rendered, p) => rendered + renderPathProperty(p),
+        ""
+    );
 }
 
 function renderPathProperty(property: Property): string {
-    return typeof property === 'string' && /^\w+$/.test(property) ? `.${property}` : `[${String(property)}]`;
+    return typeof property === "string" && /^\w+$/.test(property)
+        ? `.${property}`
+        : `[${String(property)}]`;
 }
 
 /**
@@ -196,54 +278,66 @@ function renderPathProperty(property: Property): string {
  * unwrap() method to obtain the unwrapped object. Properties which resolve to
  * non-object values return values directly.
  */
-function wrapEnsureDefined<A>(value?: A, path?: Property | Property[]):
-    A extends object ? EnsureDefinedWrapper<A> : NotUndefined<A> {
-
+function wrapEnsureDefined<A>(
+    value?: A,
+    path?: Property | Property[]
+): A extends object ? EnsureDefinedWrapper<A> : NotUndefined<A> {
     const _path = Array.isArray(path) ? path : path === undefined ? [] : [path];
 
-    if(value === undefined)
+    if (value === undefined)
         throw new Error(`value${renderPath(_path)} is undefined`);
 
-    if(value === null ||
-        typeof value === 'string' ||
-        typeof value === 'boolean' ||
-        typeof value === 'number' ||
-        typeof value === 'bigint' ||
-        typeof value === 'symbol') {
-        return value as any;
+    if (value === null || typeof value !== "object") {
+        return value as unknown as A extends object
+            ? EnsureDefinedWrapper<A>
+            : NotUndefined<A>;
     }
 
-    return new Proxy(value as any, {
-        get(target: object, p: string | number | symbol, receiver: any): any {
-            if(p === 'unwrap') {
+    return new Proxy(value as unknown as object, {
+        get(
+            target: object,
+            p: string | number | symbol,
+            receiver: unknown
+        ): unknown {
+            if (p === "unwrap") {
                 return () => value;
             }
             const next = Reflect.get(target, p, receiver);
-            if(typeof next === 'function') {
+            if (typeof next === "function") {
                 return next.bind(target);
             }
             return wrapEnsureDefined(next, _path.concat(p));
         },
-    }) as any;
+    }) as unknown as A extends object
+        ? EnsureDefinedWrapper<A>
+        : NotUndefined<A>;
 }
 
 ensureDefined.wrap = wrapEnsureDefined;
 
 export function getModule(
-    modName: string, stats: webpack.Stats, statsOptions?: Parameters<webpack.Stats['toJson']>[0],
+    modName: string,
+    stats: webpack.Stats,
+    statsOptions?: Parameters<webpack.Stats["toJson"]>[0]
 ): webpack.StatsModule {
     const modules = stats.toJson(statsOptions).modules;
-    const mod = stats.toJson(statsOptions).modules?.find(m => m.name === modName);
-    if(mod === undefined) {
-        const modNames = modules?.map(m => m.name || '** unnamed module **').join(', ');
-        throw new Error(`stats contains no module named '${modName}' (Module names: ${modNames})`);
+    const mod = stats
+        .toJson(statsOptions)
+        .modules?.find((m) => m.name === modName);
+    if (mod === undefined) {
+        const modNames = modules
+            ?.map((m) => m.name || "** unnamed module **")
+            .join(", ");
+        throw new Error(
+            `stats contains no module named '${modName}' (Module names: ${modNames})`
+        );
     }
     return mod;
 }
 
 export function getModuleSource(modName: string, stats: webpack.Stats): string {
-    const src = getModule(modName, stats, {source: true}).source;
-    if(src === undefined) {
+    const src = getModule(modName, stats, { source: true }).source;
+    if (src === undefined) {
         throw new Error(`module '${modName}' has no source`);
     }
     return src.toString();

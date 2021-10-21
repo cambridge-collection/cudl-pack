@@ -1,7 +1,7 @@
-import clone from 'clone';
-import lodash from 'lodash';
-import * as util from 'util';
-import {NamespaceBearer, NamespaceMap} from './item-types';
+import clone from "clone";
+import lodash from "lodash";
+import * as util from "util";
+import { NamespaceMap } from "./item-types";
 
 interface CurieDefinitionData {
     /** The part of the CURIE before the first colon. */
@@ -25,47 +25,56 @@ class CurieDefinition implements CurieDefinitionData {
     }
 
     public curie(suffix: string): string {
-        return this.curiePrefix + ':' + suffix;
+        return this.curiePrefix + ":" + suffix;
     }
 
     public compact(uri: string): string {
-        if(!uri.startsWith(this.uriPrefix))
+        if (!uri.startsWith(this.uriPrefix))
             throw new Error(`\
-uri is not prefixed by this curie's prefix: ${util.inspect(this.uriPrefix)}, uri: ${util.inspect(uri)}`);
+uri is not prefixed by this curie's prefix: ${util.inspect(
+                this.uriPrefix
+            )}, uri: ${util.inspect(uri)}`);
         return this.curie(uri.substring(this.uriPrefix.length));
     }
 }
 
 export const enum TypeUri {
-    PackageItem = 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json',
-    InternalItem = 'https://schemas.cudl.lib.cam.ac.uk/__internal__/v1/item.json',
+    PackageItem = "https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json",
+    InternalItem = "https://schemas.cudl.lib.cam.ac.uk/__internal__/v1/item.json",
 }
 
 export class PackageItemPage {
     public static readonly curie = new CurieDefinition(
-        'cdl-page',
-        'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/pageResources/');
+        "cdl-page",
+        "https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/pageResources/"
+    );
 
-    public static readonly image = PackageItemPage.curie.uri('image');
-    public static readonly translation = PackageItemPage.curie.uri('translation');
-    public static readonly transcription = PackageItemPage.curie.uri('transcription');
+    public static readonly image = PackageItemPage.curie.uri("image");
+    public static readonly translation =
+        PackageItemPage.curie.uri("translation");
+    public static readonly transcription =
+        PackageItemPage.curie.uri("transcription");
 
     private constructor() {}
 }
 
 export class CDLRole {
     public static readonly curie = new CurieDefinition(
-        'cdl-role', 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#data-role-');
+        "cdl-role",
+        "https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#data-role-"
+    );
 
     private constructor() {}
 }
 
 export class PackageItemData {
     public static readonly curie = new CurieDefinition(
-        'cdl-data', 'https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/data/');
+        "cdl-data",
+        "https://schemas.cudl.lib.cam.ac.uk/package/v1/item.json#/definitions/data/"
+    );
 
-    public static readonly properties = PackageItemData.curie.uri('properties');
-    public static readonly link = PackageItemData.curie.uri('link');
+    public static readonly properties = PackageItemData.curie.uri("properties");
+    public static readonly link = PackageItemData.curie.uri("link");
 
     private constructor() {}
 }
@@ -92,14 +101,24 @@ export class Namespace {
      * specific CURIE will be used when compressing.
      */
     public static fromNamespaceMap(namespaceMap: NamespaceMap): Namespace {
-        const orderedEntries: Array<[string, string]> = lodash.orderBy(lodash.toPairs(namespaceMap), [
-            ([curiePrefix, uriPrefix]) => uriPrefix.length,
-            ([curiePrefix, uriPrefix]) => uriPrefix,
-            ([curiePrefix, uriPrefix]) => curiePrefix,
-        ], ['desc', 'asc', 'asc']);
+        const orderedEntries: Array<[string, string]> = lodash.orderBy(
+            lodash.toPairs(namespaceMap),
+            [
+                ([, uriPrefix]) => uriPrefix.length,
+                ([, uriPrefix]) => uriPrefix,
+                ([curiePrefix]) => curiePrefix,
+            ],
+            ["desc", "asc", "asc"]
+        );
 
-        return new Namespace(defaultCuries().concat(
-            orderedEntries.map(([curiePrefix, uriPrefix]) => ({curiePrefix, uriPrefix}))));
+        return new Namespace(
+            defaultCuries().concat(
+                orderedEntries.map(([curiePrefix, uriPrefix]) => ({
+                    curiePrefix,
+                    uriPrefix,
+                }))
+            )
+        );
     }
 
     private readonly curies: CurieDefinitionData[];
@@ -116,12 +135,12 @@ export class Namespace {
      * in this namespace, otherwise return the value unchanged.
      */
     public getExpandedUri(curieOrUri: string): string {
-        const [prefix, ...suffix] = curieOrUri.split(':');
+        const [prefix, ...suffix] = curieOrUri.split(":");
 
-        if(suffix.length > 0) {
-            for(const curie of this.curies) {
-                if(curie.curiePrefix === prefix) {
-                    return `${curie.uriPrefix}${suffix.join(':')}`;
+        if (suffix.length > 0) {
+            for (const curie of this.curies) {
+                if (curie.curiePrefix === prefix) {
+                    return `${curie.uriPrefix}${suffix.join(":")}`;
                 }
             }
         }
@@ -134,8 +153,8 @@ export class Namespace {
      * namespace.
      */
     public getCompactedUri(uri: string): string {
-        for(const curie of this.curies) {
-            if(uri.startsWith(curie.uriPrefix)) {
+        for (const curie of this.curies) {
+            if (uri.startsWith(curie.uriPrefix)) {
                 const curieSuffix = uri.substr(curie.uriPrefix.length);
                 return `${curie.curiePrefix}:${curieSuffix}`;
             }

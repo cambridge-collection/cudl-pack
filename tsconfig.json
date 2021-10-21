@@ -5,15 +5,10 @@
     "baseUrl": ".",
     "outDir": "build/dist-root",
     "paths": {
-      "*": [
-        "src/types/*"
-      ]
+      "*": ["src/types/*"]
     },
     "resolveJsonModule": true,
     "sourceMap": true
   },
-  "include": [
-    "src/**/*",
-    "test/**/*"
-  ]
+  "include": ["src/**/*", "test/**/*"]
 }
