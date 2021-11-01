@@ -3,7 +3,7 @@
   "version": "0.0.0-alpha.7",
   "description": "Data package compiler for Cambridge Digital Library instances",
   "engines": {
-    "node": ">=8"
+    "node": ">=14"
   },
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
@@ -19,11 +19,9 @@
   "license": "MIT",
   "devDependencies": {
     "@tsconfig/node14": "^1.0.1",
-    "@types/ajv": "^1.0.0",
     "@types/clone": "^2.1.1",
     "@types/jest": "^27.0.2",
     "@types/json-parse-better-errors": "^1.0.0",
-    "@types/json5": "^2.2.0",
     "@types/jsonpath": "^0.2.0",
     "@types/lodash": "^4.14.175",
     "@types/memory-fs": "^0.3.3",
